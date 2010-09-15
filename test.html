@@ -1,0 +1,41 @@
+<html>
+<head>
+<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+<script type="text/javascript">
+	function toggleCaptchaSettings() {
+	    if ( $('#recaptcha').attr('checked') == true ) {
+	        $('#recaptchaSettings :input').removeAttr('disabled');
+	    } else {
+	        $('#recaptchaSettings :input').attr('disabled', true);
+	    }   
+	}
+	jQuery(document).ready(function() {
+		toggleCaptchaSettings();
+	});
+</script>
+</head>
+<body>
+<form method="post" action="">
+
+	<label><input type="radio" name="regplus_captcha" class="captchaMethod" id="none" value="0" onchange="toggleCaptchaSettings()" />None</label>
+	<label><input type="radio" name="regplus_captcha" class="captchaMethod" id="captcha" value="1" onchange="toggleCaptchaSettings()" />Simple</label>
+	<label><input type="radio" name="regplus_captcha" class="captchaMethod" id="recaptcha" value="2" onchange="toggleCaptchaSettings()" checked="checked" />reCAPTCHA</label>
+	<div id="simpleWarning">
+		<p>When using the Simple CAPTCHA you may need to add the following code "<code>&lt;?php session_start(); ?&gt;</code>" toward the top of the wp_login.php file.</p>
+	</div>
+	<div id="recaptchaSettings">
+		<table>
+			<tr>
+				<td><label for="public_key">reCAPTCHA Public Key:</label></td>
+				<td><input type="text" style="width:350px;" name="regplus_reCAP_public_key" id="public_key" value="" disabled /></td>
+			</tr>
+			<tr>
+				<td><label for="private_key">reCAPTCHA Private Key:</label></td>
+				<td><input type="text" style="width:350px;" name="regplus_reCAP_private_key" id="private_key" value="" disabled /></td>
+			</tr>
+		</table>
+	</div>
+</form>
+
+</body>
+</html>
