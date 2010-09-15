@@ -14,17 +14,15 @@ CHANGELOG
 See readme.txt
 */
 
-$rp = get_option('register_plus'); //load options
+$rp = get_option('plugin_register_plus_redux_settings'); //load options
 if ( $rp['dash_widget'] ) //if dashboard widget is enabled
 	include_once('dash_widget.php'); //add the dashboard widget
 
 if ( !class_exists('RegisterPlusReduxPlugin') ) {
 	class RegisterPlusReduxPlugin {
-		//Constructor
 		function RegisterPlusReduxPlugin() {
 			global $wp_version;
 			//ACTIONS
-			#Add Settings Panel
 			add_action('admin_menu', array($this, 'rprAddPages') );
 			#Update Settings on Save
 			if ( $_POST['action'] == 'reg_plus_update' )
@@ -43,8 +41,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				add_action('login_head', array($this, 'LogoHead'));
 				#Hide initial login fields when email verification is enabled
 				add_action('login_head', array($this, 'HideLogin'));
-				#Save Default Settings
-				add_action('init', array($this, 'DefaultSettings'));
+				add_action('init', array($this, 'rprInitializeSettings'));
 				#Profile
 				add_action('show_user_profile', array($this, 'Add2Profile'));
 				add_action('edit_user_profile', array($this, 'Add2Profile'));
@@ -92,8 +89,8 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		function rprAddPages() {
 			add_submenu_page('options-general.php','Register Plus Redux', 'Register Plus Redux Settings', 'manage_options', 'register-plus-redux', array($this, 'rprSettingsPage'));
 			add_filter('plugin_action_links', array($this, 'filter_plugin_actions'), 10, 2);
-			$regplus = get_option('register_plus');
-			if ( $regplus['email_verify'] || $regplus['admin_verify'] )
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
+			if ( $rprSettings['email_verify'] || $rprSettings['admin_verify'] )
 				add_submenu_page('users.php','Unverified Users', 'Unverified Users', 'promote_users', 'unverified-users', array($this, 'rprUnverifiedUsersPage'));
 		}
 
@@ -108,28 +105,34 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			return $links;
 		}
 
-		function DefaultSettings() {
+		function rprInitializeSettings() {
 			$default = array(
-				'password'		=> '0',
-				'password_meter'	=> '0',
-				'short'			=> 'Too Short',
-				'bad'			=> 'Bad Password',
-				'good'			=> 'Good Password',
-				'strong'		=> 'Strong Password',
+				'user_set_password'	=> '0',
+
+				'show_password_meter'	=> '0',
+				'message_short_password'=> 'Too Short',
+				'message_bad_password'	=> 'Bad Password',
+				'message_good_password'	=> 'Good Password',
+				'message_strong_password'=> 'Strong Password',
+
 				'code'			=> '0', 
 				'codepass'		=> array('0'),
-				'disclaimer'		=> '0',
-				'disclaimer_title'	=> 'Disclaimer',
-				'disclaimer_content'	=> '',
-				'disclaimer_agree'	=> 'Accept the Disclaimer',
-				'license'		=> '0',
-				'license_title'		=> 'License Agreement',
-				'license_content'	=> '',
-				'license_agree'		=> 'Accept the License Agreement',
-				'privacy'		=> '0',
-				'privacy_title'		=> 'Privacy Policy',
-				'privacy_content'	=> '',
-				'privacy_agree'		=> 'Accept the Privacy Policy',
+
+				'show_disclaimer'	=> '0',
+				'message_disclaimer_title'	=> 'Disclaimer',
+				'message_disclaimer'	=> '',
+				'message_disclaimer_agree'=> 'Accept the Disclaimer',
+
+				'show_license_agreement'=> '0',
+				'message_license_title'		=> 'License Agreement',
+				'message_license'	=> '',
+				'message_license_agree'	=> 'Accept the License Agreement',
+
+				'show_privacy_policy'	=> '0',
+				'message_privacy_policy_title'		=> 'Privacy Policy',
+				'message_privacy_policy'	=> '',
+				'message_privacy_policy_agree'=> 'Accept the Privacy Policy',
+
 				'email_exists'		=> '0',
 				'firstname'		=> '0',
 				'lastname'		=> '0',
@@ -169,37 +172,25 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				'calyear'		=> '',
 				'calmonth'		=> 'cur'
 			);
-			#Get Previously Saved Items and put into new Settings
-			if ( get_option("regplus_password") )
-				$default['password'] = get_option("regplus_password");
-			if ( get_option("regplus_code") )
-				$default['code'] = get_option("regplus_code");
-			if ( get_option("regplus_codepass") )
-				$default['codepass'] = get_option("regplus_codepass");
-			#Delete Previous Saved Items
-			delete_option('regplus_password');
-			delete_option('regplus_code');
-			delete_option('regplus_codepass');
-			#Set Default Settings
-			if ( !get_option('register_plus') ) {
-				#Set Defaults if no values exist
-				add_option('register_plus', $default);
+			#Check if settings exist, add defaults in necessary
+			if ( !get_option('plugin_register_plus_redux_settings') ) {
+				add_option('plugin_register_plus_redux_settings', $default);
+			#Check settings for new variables, add as necessary
 			} else {
-				#Set Defaults if new value does not exist
-				$regplus = get_option('register_plus');
+				$rprSettings = get_option('plugin_register_plus_redux_settings');
 				foreach ( $default as $key => $val ) {
-					if ( !$regplus[$key] ) {
-						$regplus[$key] = $val;
+					if ( !$rprSettings[$key] ) {
+						$rprSettings[$key] = $val;
 						$new = true;
 					}
 				}
-				if ( $new ) update_option('register_plus', $regplus);
+				if ( $new ) update_option('plugin_register_plus_redux_settings', $rprSettings);
 			}
 		}
 		
 		function SaveSettings() {
 			check_admin_referer('regplus-update-options');
-			$update = get_option('register_plus');
+			$update = get_option('plugin_register_plus_redux_settings');
 			$update["password"] = $_POST['regplus_password'];
 			$update["password_meter"] = $_POST['regplus_password_meter'];
 			$update["short"] = $_POST['regplus_short'];
@@ -276,7 +267,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			}
 
 			update_option('register_plus_custom', $custom);
-			update_option('register_plus', $update);
+			update_option('plugin_register_plus_redux_settings', $update);
 			$_POST['notice'] = __('Settings Saved', 'regplus');
 		}
 
@@ -307,7 +298,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		}
 
 		function SettingsHead() {
-			$regplus = get_option('register_plus');
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
 ?>
 <script type="text/javascript">
 	function set_add_del_code() {
@@ -380,21 +371,21 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 	}
 
 	jQuery(document).ready(function() {
-	<?php if ( !$regplus['code']) { ?>
+	<?php if ( !$rprSettings['code']) { ?>
 		jQuery('#codepass').hide(); <?php } ?>
-	<?php if ( !$regplus['password_meter']) { ?>
+	<?php if ( !$rprSettings['show_password_meter']) { ?>
 		jQuery('#meter').hide(); <?php } ?>
-	<?php if ( !$regplus['disclaimer']) { ?>
+	<?php if ( !$rprSettings['show_disclaimer']) { ?>
 		jQuery('#disclaim_content').hide(); <?php } ?>
-	<?php if ( !$regplus['license']) { ?>
+	<?php if ( !$rprSettings['show_license_agreement']) { ?>
 		jQuery('#lic_content').hide(); <?php } ?>
-	<?php if ( !$regplus['privacy']) { ?>
+	<?php if ( !$rprSettings['show_privacy_policy']) { ?>
 		jQuery('#priv_content').hide(); <?php } ?>
-	<?php if ( !$regplus['email_verify']) { ?>
+	<?php if ( !$rprSettings['email_verify']) { ?>
 		jQuery('#grace').hide(); <?php } ?>
-	<?php if ( !$regplus['custom_msg']) { ?>
+	<?php if ( !$rprSettings['custom_msg']) { ?>
 		jQuery('#enabled_msg').hide(); <?php } ?>
-	<?php if ( !$regplus['custom_adminmsg']) { ?>
+	<?php if ( !$rprSettings['custom_adminmsg']) { ?>
 		jQuery('#enabled_adminmsg').hide(); <?php } ?>
 		jQuery('#email_verify').change(function() {
 			if ( jQuery('#email_verify').attr('checked') )
@@ -466,12 +457,12 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 
 		function AdminValidate() {
 			global $wpdb;
-			$regplus = get_option('register_plus');
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
 			check_admin_referer('regplus-unverified');
 			$valid = $_POST['vusers'];
 			foreach ( $valid as $user_id ) {
 				if ( $user_id ) {
-					if ( $regplus['email_verify'] ) {
+					if ( $rprSettings['email_verify'] ) {
 						$stored_user_login = get_user_meta($user_id, 'email_verify_user', false);
 						//v3.5.1
 						//$wpdb->query("UPDATE $wpdb->users SET user_login='$stored_user_login' WHERE ID='$user_id'");
@@ -480,7 +471,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 						delete_user_meta($user_id, 'email_verify_user');
 						delete_user_meta($user_id, 'email_verify');
 						delete_user_meta($user_id, 'email_verify_date');
-					} elseif ( $regplus['admin_verify'] ) {
+					} elseif ( $rprSettings['admin_verify'] ) {
 						$stored_user_login = get_user_meta($user_id, 'admin_verify_user', false);
 						//v3.5.1
 						//$wpdb->query("UPDATE $wpdb->users SET user_login='$stored_user_login' WHERE ID='$user_id'");
@@ -497,7 +488,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		function AdminDeleteUnvalidated() {
 			//why is this declared?
 			//global $wpdb;
-			$regplus = get_option('register_plus');
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
 			check_admin_referer('regplus-unverified');
 			$delete = $_POST['vusers'];
 			include_once(ABSPATH . 'wp-admin/includes/user.php');
@@ -538,7 +529,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 
 		function VerifyNotification( $user_id ) {
 			global $wpdb;
-			$regplus = get_option('register_plus');
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
 			$user = $wpdb->get_row("SELECT user_login, user_email FROM $wpdb->users WHERE ID='$user_id'");
 			$message = __('Your account has now been activated by an administrator.') . "\r\n";
 			$message .= sprintf(__('Username: %s', 'regplus'), $user->user_login) . "\r\n";
@@ -553,7 +544,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			if ( $_POST['notice'] )
 				echo '<div id="message" class="updated fade"><p><strong>' . $_POST['notice'] . '.</strong></p></div>';
 			$unverified = $wpdb->get_results("SELECT * FROM $wpdb->users WHERE user_login LIKE '%unverified__%'");
-			$regplus = get_option('register_plus');
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
 			?>
 <div class="wrap">
 	<h2><?php _e('Unverified Users', 'regplus') ?></h2>
@@ -562,7 +553,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 	<div class="tablenav">
 		<div class="alignleft">
 			<input value="<?php _e('Verify Checked Users','regplus'); ?>" name="verifyit" class="button-secondary" type="submit">&nbsp;
-			<?php if ( $regplus['email_verify'] ) { ?>
+			<?php if ( $rprSettings['email_verify'] ) { ?>
 			<input value="<?php _e('Resend Verification E-mail','regplus'); ?>" name="emailverifyit" class="button-secondary" type="submit">
 			<?php } ?>
 			&nbsp;<input value="<?php _e('Delete','regplus'); ?>" name="vdeleteit" class="button-secondary delete" type="submit">
@@ -586,8 +577,8 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				$user_object = new WP_User($un->ID);
 				$roles = $user_object->roles;
 				$role = array_shift($roles);
-				if ( $regplus['email_verify'] ) $user_login = get_user_meta($un->ID, 'email_verify_user', false);
-				elseif ( $regplus['admin_verify'] ) $user_login = get_user_meta($un->ID, 'admin_verify_user', false);
+				if ( $rprSettings['email_verify'] ) $user_login = get_user_meta($un->ID, 'email_verify_user', false);
+				elseif ( $rprSettings['admin_verify'] ) $user_login = get_user_meta($un->ID, 'admin_verify_user', false);
 			?>
 			<tr id="user-1" class="<?php echo $alt; ?>">
 				<th scope="row" class="check-column"><input name="vusers[]" id="user_<?php echo $un->ID; ?>" class="administrator" value="<?php echo $un->ID; ?>" type="checkbox"></th>
@@ -605,13 +596,13 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		}
 
 		function rprSettingsPage() {
-			$regplus = get_option('register_plus');
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
 			$regplus_custom = get_option('register_plus_custom');
 			$plugin_url = trailingslashit(get_option('siteurl')) . 'wp-content/plugins/' . basename(dirname(__FILE__)) .'/';
 			if ( $_POST['notice'] ) echo '<div id="message" class="updated fade"><p><strong>' . $_POST['notice'] . '.</strong></p></div>';
-			if ( !is_array($regplus['profile_req']) ) $regplus['profile_req'] = array();
-			if ( is_array($regplus['codepass']) ) {
-				foreach ($regplus['codepass'] as $code ) {
+			if ( !is_array($rprSettings['profile_req']) ) $rprSettings['profile_req'] = array();
+			if ( is_array($rprSettings['codepass']) ) {
+				foreach ($rprSettings['codepass'] as $code ) {
 					$codes .= '<div class="code_block">
 					           	<input type="text" name="regplus_codepass[]" value="' . $code . '" /> &nbsp;
 					           	<a href="#" onClick="return selremcode(this);" class="remove_code"><img src="' . $plugin_url . 'removeBtn.gif" alt="' . __("Remove Code","regplus") . '" title="' . __("Remove Code","regplus") . '" /></a>
@@ -666,21 +657,21 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			<tr valign="top">
 				<th scope="row"><label for="password"><?php _e('Password', 'regplus'); ?></label></th>
 				<td>
-					<label><input type="checkbox" name="regplus_password" id="password" value="1" <?php if ( $regplus['password']) echo 'checked="checked"'; ?> /><?php _e('Allow New Registrations to set their own Password', 'regplus'); ?></label><br />
-					<label><input type="checkbox" name="regplus_password_meter" id="pwm" value="1" <?php if ( $regplus['password_meter']) echo 'checked="checked"'; ?> /><?php _e('Enable Password Strength Meter','regplus'); ?></label>
+					<label><input type="checkbox" name="regplus_password" id="password" value="1" <?php if ( $rprSettings['user_set_password']) echo 'checked="checked"'; ?> /><?php _e('Allow New Registrations to set their own Password', 'regplus'); ?></label><br />
+					<label><input type="checkbox" name="regplus_password_meter" id="pwm" value="1" <?php if ( $rprSettings['show_password_meter']) echo 'checked="checked"'; ?> /><?php _e('Enable Password Strength Meter','regplus'); ?></label>
 					<div id="meter" style="margin-left:20px;">
-						<label><?php _e('Short', 'regplus'); ?><input type="text" name="regplus_short" value="<?php echo $regplus['short']; ?>" /></label><br />
-						<label><?php _e('Bad', 'regplus'); ?><input type="text" name="regplus_bad" value="<?php echo $regplus['bad']; ?>" /></label><br />
-						<label><?php _e('Good', 'regplus'); ?><input type="text" name="regplus_good" value="<?php echo $regplus['good']; ?>" /></label><br />
-						<label><?php _e('Strong', 'regplus'); ?><input type="text" name="regplus_strong" value="<?php echo $regplus['strong']; ?>" /></label><br />
+						<label><?php _e('Short', 'regplus'); ?><input type="text" name="regplus_short" value="<?php echo $rprSettings['message_short_password']; ?>" /></label><br />
+						<label><?php _e('Bad', 'regplus'); ?><input type="text" name="regplus_bad" value="<?php echo $rprSettings['message_bad_password']; ?>" /></label><br />
+						<label><?php _e('Good', 'regplus'); ?><input type="text" name="regplus_good" value="<?php echo $rprSettings['message_good_password']; ?>" /></label><br />
+						<label><?php _e('Strong', 'regplus'); ?><input type="text" name="regplus_strong" value="<?php echo $rprSettings['message_strong_password']; ?>" /></label><br />
 					</div>
 				</td>
 			</tr>
 			<tr valign="top">
 				<th scope="row"><label for="logo"><?php _e('Custom Logo', 'regplus'); ?></label></th>
 				<td>
-					<input type="file" name="regplus_logo" id="logo" value="1" />&nbsp;<small><?php _e("Recommended Logo width is 292px, but any height should work.", "regplus"); ?></small><br /><img src="<?php echo $regplus['logo']; ?>" alt="" />
-				<?php if ($regplus['logo']) { ?>
+					<input type="file" name="regplus_logo" id="logo" value="1" />&nbsp;<small><?php _e("Recommended Logo width is 292px, but any height should work.", "regplus"); ?></small><br /><img src="<?php echo $rprSettings['logo']; ?>" alt="" />
+				<?php if ($rprSettings['logo']) { ?>
 					<br /><label><input type="checkbox" name="remove_logo" value="1" /><?php _e('Delete Logo', 'regplus'); ?></label>
 				<?php } else { ?>
 					<p><small><strong><?php _e('Having troubles uploading?','regplus'); ?></strong><?php _e('Uncheck "Organize my uploads into month- and year-based folders" in','regplus'); ?><a href="<?php echo get_option('siteurl'); ?>/wp-admin/options-misc.php"><?php _e('Miscellaneous Settings', 'regplus'); ?></a>. <?php _e('(You can recheck this option after your logo has uploaded.)','regplus'); ?></small></p>
@@ -690,26 +681,26 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			<tr valign="top">
 				<th scope="row"><label for="email_verify"><?php _e('Email Verification', 'regplus'); ?></label></th>
 				<td>
-					<label><input type="checkbox" name="regplus_email_verify" id="email_verify" value="1" <?php if ( $regplus['email_verify']) echo 'checked="checked"'; ?> /><?php _e('Prevent fake email address registrations.', 'regplus'); ?></label><br />
+					<label><input type="checkbox" name="regplus_email_verify" id="email_verify" value="1" <?php if ( $rprSettings['email_verify']) echo 'checked="checked"'; ?> /><?php _e('Prevent fake email address registrations.', 'regplus'); ?></label><br />
 					<?php _e('Requires new registrations to click a link in the notification email to enable their account.', 'regplus'); ?>
-					<div id="grace"><label for="email_delete_grace"><strong><?php _e('Grace Period (days)', 'regplus'); ?></strong>: </label><input type="text" name="regplus_email_delete_grace" id="email_delete_grace" style="width:50px;" value="<?php echo $regplus['email_delete_grace']; ?>" /><br />
+					<div id="grace"><label for="email_delete_grace"><strong><?php _e('Grace Period (days)', 'regplus'); ?></strong>: </label><input type="text" name="regplus_email_delete_grace" id="email_delete_grace" style="width:50px;" value="<?php echo $rprSettings['email_delete_grace']; ?>" /><br />
 					<?php _e('Unverified Users will be automatically deleted after grace period expires', 'regplus'); ?></div>
 				</td>
 			</tr>
 			<tr valign="top">
 				<th scope="row"><label for="admin_verify"><?php _e('Admin Verification', 'regplus'); ?></label></th>
-				<td><label><input type="checkbox" name="regplus_admin_verify" id="admin_verify" value="1" <?php if ( $regplus['admin_verify']) echo 'checked="checked"'; ?> /><?php _e('Moderate all user registrations to require admin approval. NOTE: Email Verification must be DISABLED to use this feature.', 'regplus'); ?></label></td>
+				<td><label><input type="checkbox" name="regplus_admin_verify" id="admin_verify" value="1" <?php if ( $rprSettings['admin_verify']) echo 'checked="checked"'; ?> /><?php _e('Moderate all user registrations to require admin approval. NOTE: Email Verification must be DISABLED to use this feature.', 'regplus'); ?></label></td>
 			</tr>
 			<tr valign="top">
 				<th scope="row"><label for="code"><?php _e('Invitation Code', 'regplus'); ?></label></th>
 				<td>
-					<label><input type="checkbox" name="regplus_code" id="code" value="1" <?php if ( $regplus['code']) echo 'checked="checked"'; ?> /><?php _e('Enable Invitation Code(s)', 'regplus'); ?></label>
+					<label><input type="checkbox" name="regplus_code" id="code" value="1" <?php if ( $rprSettings['code']) echo 'checked="checked"'; ?> /><?php _e('Enable Invitation Code(s)', 'regplus'); ?></label>
 					<div id="codepass">
-						<label><input type="checkbox" name="regplus_dash_widget" value="1" <?php if ( $regplus['dash_widget']) echo 'checked="checked"';  ?>  /><?php _e('Enable Invitation Tracking Dashboard Widget', 'regplus'); ?></label><br />
-						<label><input type="checkbox" name="regplus_code_req" id="code_req" value="1" <?php if ( $regplus['code_req']) echo 'checked="checked"'; ?> /><?php _e('Require Invitation Code to Register', 'regplus'); ?></label>
+						<label><input type="checkbox" name="regplus_dash_widget" value="1" <?php if ( $rprSettings['dash_widget']) echo 'checked="checked"';  ?>  /><?php _e('Enable Invitation Tracking Dashboard Widget', 'regplus'); ?></label><br />
+						<label><input type="checkbox" name="regplus_code_req" id="code_req" value="1" <?php if ( $rprSettings['code_req']) echo 'checked="checked"'; ?> /><?php _e('Require Invitation Code to Register', 'regplus'); ?></label>
 						<?php if ( $codes) { echo $codes; } else { ?>
 						<div class="code_block">
-							<input type="text" name="regplus_codepass[]"  value="<?php echo $regplus['codepass']; ?>" /> &nbsp;
+							<input type="text" name="regplus_codepass[]"  value="<?php echo $rprSettings['codepass']; ?>" /> &nbsp;
 							<a href="#" onClick="return selremcode(this);" class="remove_code"><img src="<?php echo $plugin_url; ?>removeBtn.gif" alt="<?php _e("Remove Code","regplus") ?>" title="<?php _e("Remove Code","regplus") ?>" /></a>
 							<a href="#" onClick="return seladdcode(this);" class="add_code"><img src="<?php echo $plugin_url; ?>addBtn.gif" alt="<?php _e("Add Code","regplus") ?>" title="<?php _e("Add Code","regplus") ?>" /></a>
 						</div>
@@ -721,43 +712,43 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			<tr valign="top">
 				<th scope="row"><label for="disclaimer"><?php _e('Disclaimer', 'regplus'); ?></label></th>
 				<td>
-					<label><input type="checkbox" name="regplus_disclaimer" id="disclaimer" value="1" <?php if ( $regplus['disclaimer']) echo 'checked="checked"'; ?> /><?php _e('Enable Disclaimer','regplus'); ?></label>
+					<label><input type="checkbox" name="regplus_disclaimer" id="disclaimer" value="1" <?php if ( $rprSettings['show_disclaimer']) echo 'checked="checked"'; ?> /><?php _e('Enable Disclaimer','regplus'); ?></label>
 					<div id="disclaim_content">
-						<label for="disclaimer_title"><?php _e('Disclaimer Title','regplus'); ?></label><input type="text" name="regplus_disclaimer_title" id="disclaimer_title" value="<?php echo $regplus['disclaimer_title']; ?>" /><br />
+						<label for="disclaimer_title"><?php _e('Disclaimer Title','regplus'); ?></label><input type="text" name="regplus_disclaimer_title" id="disclaimer_title" value="<?php echo $rprSettings['message_disclaimer_title']; ?>" /><br />
 						<label for="disclaimer_content"><?php _e('Disclaimer Content','regplus'); ?></label><br />
-						<textarea name="regplus_disclaimer_content" id="disclaimer_content" cols="25" rows="10" style="width:80%;height:300px;display:block;"><?php echo stripslashes($regplus['disclaimer_content']); ?></textarea><br />
-						<label for="disclaimer_agree"><?php _e('Agreement Text','regplus'); ?></label><input type="text" name="regplus_disclaimer_agree" id="disclaimer_agree" value="<?php echo $regplus['disclaimer_agree']; ?>" />
+						<textarea name="regplus_disclaimer_content" id="disclaimer_content" cols="25" rows="10" style="width:80%;height:300px;display:block;"><?php echo stripslashes($rprSettings['message_disclaimer']); ?></textarea><br />
+						<label for="disclaimer_agree"><?php _e('Agreement Text','regplus'); ?></label><input type="text" name="regplus_disclaimer_agree" id="disclaimer_agree" value="<?php echo $rprSettings['message_disclaimer_agree']; ?>" />
 					</div>
 				</td>
 			</tr>
 			<tr valign="top">
 				<th scope="row"><label for="license"><?php _e('License Agreement', 'regplus'); ?></label></th>
 				<td>
-					<label><input type="checkbox" name="regplus_license" id="license" value="1" <?php if ( $regplus['license']) echo 'checked="checked"'; ?> /><?php _e('Enable License Agreement','regplus'); ?></label>
+					<label><input type="checkbox" name="regplus_license" id="license" value="1" <?php if ( $rprSettings['show_license_agreement']) echo 'checked="checked"'; ?> /><?php _e('Enable License Agreement','regplus'); ?></label>
 					<div id="lic_content">
-						<label for="license_title"><?php _e('License Title','regplus'); ?></label><input type="text" name="regplus_license_title" id="license_title" value="<?php echo $regplus['license_title']; ?>" /><br />
+						<label for="license_title"><?php _e('License Title','regplus'); ?></label><input type="text" name="regplus_license_title" id="license_title" value="<?php echo $rprSettings['message_license_title']; ?>" /><br />
 						<label for="license_content"><?php _e('License Content','regplus'); ?></label><br />
-						<textarea name="regplus_license_content" id="license_content" cols="25" rows="10" style="width:80%;height:300px;display:block;"><?php echo stripslashes($regplus['license_content']); ?></textarea><br />
-						<label for="license_agree"><?php _e('Agreement Text','regplus'); ?></label><input type="text" name="regplus_license_agree" id="license_agree" value="<?php echo $regplus['license_agree']; ?>" />
+						<textarea name="regplus_license_content" id="license_content" cols="25" rows="10" style="width:80%;height:300px;display:block;"><?php echo stripslashes($rprSettings['message_license']); ?></textarea><br />
+						<label for="license_agree"><?php _e('Agreement Text','regplus'); ?></label><input type="text" name="regplus_license_agree" id="license_agree" value="<?php echo $rprSettings['message_license_agree']; ?>" />
 					</div>
 				</td>
 			</tr>
 			<tr valign="top">
 				<th scope="row"><label for="privacy"><?php _e('Privacy Policy', 'regplus'); ?></label></th>
 				<td>
-					<label><input type="checkbox" name="regplus_privacy" id="privacy" value="1" <?php if ( $regplus['privacy']) echo 'checked="checked"'; ?> /><?php _e('Enable Privacy Policy','regplus'); ?></label>
+					<label><input type="checkbox" name="regplus_privacy" id="privacy" value="1" <?php if ( $rprSettings['show_privacy_policy']) echo 'checked="checked"'; ?> /><?php _e('Enable Privacy Policy','regplus'); ?></label>
 					<div id="priv_content">
-						<label for="privacy_title"><?php _e('Privacy Policy Title','regplus'); ?></label><input type="text" name="regplus_privacy_title" id="privacy_title" value="<?php echo $regplus['privacy_title']; ?>" /><br />
+						<label for="privacy_title"><?php _e('Privacy Policy Title','regplus'); ?></label><input type="text" name="regplus_privacy_title" id="privacy_title" value="<?php echo $rprSettings['message_privacy_policy_title']; ?>" /><br />
 						<label for="privacy_content"><?php _e('Privacy Policy Content','regplus'); ?></label><br />
-						<textarea name="regplus_privacy_content" id="privacy_content" cols="25" rows="10" style="width:80%;height:300px;display:block;"><?php echo stripslashes($regplus['privacy_content']); ?></textarea><br />
-						<label for="privacy_agree"><?php _e('Agreement Text','regplus'); ?></label><input type="text" name="regplus_privacy_agree" id="privacy_agree" value="<?php echo $regplus['privacy_agree']; ?>" />
+						<textarea name="regplus_privacy_content" id="privacy_content" cols="25" rows="10" style="width:80%;height:300px;display:block;"><?php echo stripslashes($rprSettings['message_privacy_policy']); ?></textarea><br />
+						<label for="privacy_agree"><?php _e('Agreement Text','regplus'); ?></label><input type="text" name="regplus_privacy_agree" id="privacy_agree" value="<?php echo $rprSettings['message_privacy_policy_agree']; ?>" />
 					</div>
 				</td>
 			</tr>
 			<tr valign="top">
 				<th scope="row"><label for="email_exists"><?php _e('Allow Existing Email', 'regplus'); ?></label></th>
 				<td>
-					<label><input type="checkbox" name="regplus_email_exists" id="email_exists" value="1" <?php if ( $regplus['email_exists']) echo 'checked="checked""'; ?> /><?php _e('Allow new registrations to use an email address that has been previously registered', 'regplus'); ?></label>
+					<label><input type="checkbox" name="regplus_email_exists" id="email_exists" value="1" <?php if ( $rprSettings['email_exists']) echo 'checked="checked""'; ?> /><?php _e('Allow new registrations to use an email address that has been previously registered', 'regplus'); ?></label>
 				</td>
 			</tr>
 		</tbody>
@@ -768,23 +759,23 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		<tbody>
 			<tr valign="top">
 				<th scope="row"><label for="name"><?php _e('Name', 'regplus'); ?></label></th>
-				<td><label><input type="checkbox" name="regplus_firstname" id="name" value="1" <?php if ( $regplus['firstname']) echo 'checked="checked"'; ?> /><?php _e('First Name', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_lastname" value="1" <?php if ( $regplus['lastname']) echo 'checked="checked"'; ?> /><?php _e('Last Name', 'regplus'); ?></label></td>
+				<td><label><input type="checkbox" name="regplus_firstname" id="name" value="1" <?php if ( $rprSettings['firstname']) echo 'checked="checked"'; ?> /><?php _e('First Name', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_lastname" value="1" <?php if ( $rprSettings['lastname']) echo 'checked="checked"'; ?> /><?php _e('Last Name', 'regplus'); ?></label></td>
 			</tr>
 			<tr valign="top">
 				<th scope="row"><label for="contact"><?php _e('Contact Info', 'regplus'); ?></label></th>
-				<td><label><input type="checkbox" name="regplus_website" id="contact" value="1" <?php if ( $regplus['website']) echo 'checked="checked"'; ?> /><?php _e('Website', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_aim" value="1" <?php if ( $regplus['aim']) echo 'checked="checked"'; ?> /><?php _e('AIM', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_yahoo" value="1" <?php if ( $regplus['yahoo']) echo 'checked="checked"'; ?> /><?php _e('Yahoo IM', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_jabber" value="1" <?php if ( $regplus['jabber']) echo 'checked="checked"'; ?> /><?php _e('Jabber / Google Talk', 'regplus'); ?></label></td>
+				<td><label><input type="checkbox" name="regplus_website" id="contact" value="1" <?php if ( $rprSettings['website']) echo 'checked="checked"'; ?> /><?php _e('Website', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_aim" value="1" <?php if ( $rprSettings['aim']) echo 'checked="checked"'; ?> /><?php _e('AIM', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_yahoo" value="1" <?php if ( $rprSettings['yahoo']) echo 'checked="checked"'; ?> /><?php _e('Yahoo IM', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_jabber" value="1" <?php if ( $rprSettings['jabber']) echo 'checked="checked"'; ?> /><?php _e('Jabber / Google Talk', 'regplus'); ?></label></td>
 			</tr>
 			<tr valign="top">
 				<th scope="row"><label for="about"><?php _e('About Yourself', 'regplus'); ?></label></th>
-				<td><label><input type="checkbox" name="regplus_about" id="name" value="1" <?php if ( $regplus['about']) echo 'checked="checked"'; ?> /><?php _e('About Yourself', 'regplus'); ?></label></td>
+				<td><label><input type="checkbox" name="regplus_about" id="name" value="1" <?php if ( $rprSettings['about']) echo 'checked="checked"'; ?> /><?php _e('About Yourself', 'regplus'); ?></label></td>
 			</tr>
 			<tr valign="top">
 				<th scope="row"><label for="req"><?php _e('Required Profile Fields', 'regplus'); ?></label></th>
-				<td><label><input type="checkbox" name="regplus_profile_req[]" value="firstname" <?php if ( in_array('firstname', $regplus['profile_req'])) echo 'checked="checked"'; ?> /><?php _e('First Name', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="lastname" <?php if ( in_array('lastname', $regplus['profile_req'])) echo 'checked="checked"'; ?> /><?php _e('Last Name', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="website" <?php if ( in_array('website', $regplus['profile_req'])) echo 'checked="checked"'; ?> /><?php _e('Website', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="aim" <?php if ( in_array('aim', $regplus['profile_req'])) echo 'checked="checked"'; ?> /><?php _e('AIM', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="yahoo" <?php if ( in_array('yahoo', $regplus['profile_req'])) echo 'checked="checked"'; ?> /><?php _e('Yahoo IM', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="jabber" <?php if ( in_array('jabber', $regplus['profile_req'])) echo 'checked="checked"'; ?> /><?php _e('Jabber / Google Talk', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="about" <?php if ( in_array('about', $regplus['profile_req'])) echo 'checked="checked"'; ?> /><?php _e('About Yourself', 'regplus'); ?></label></td>
+				<td><label><input type="checkbox" name="regplus_profile_req[]" value="firstname" <?php if ( in_array('firstname', $rprSettings['profile_req'])) echo 'checked="checked"'; ?> /><?php _e('First Name', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="lastname" <?php if ( in_array('lastname', $rprSettings['profile_req'])) echo 'checked="checked"'; ?> /><?php _e('Last Name', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="website" <?php if ( in_array('website', $rprSettings['profile_req'])) echo 'checked="checked"'; ?> /><?php _e('Website', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="aim" <?php if ( in_array('aim', $rprSettings['profile_req'])) echo 'checked="checked"'; ?> /><?php _e('AIM', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="yahoo" <?php if ( in_array('yahoo', $rprSettings['profile_req'])) echo 'checked="checked"'; ?> /><?php _e('Yahoo IM', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="jabber" <?php if ( in_array('jabber', $rprSettings['profile_req'])) echo 'checked="checked"'; ?> /><?php _e('Jabber / Google Talk', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="about" <?php if ( in_array('about', $rprSettings['profile_req'])) echo 'checked="checked"'; ?> /><?php _e('About Yourself', 'regplus'); ?></label></td>
 			</tr>
 			<tr valign="top">
 				<th scope="row"><label for="require_style"><?php _e('Required Field Style Rules', 'regplus'); ?></label></th>
-				<td><input type="text" name="regplus_require_style" id="require_style" value="<?php echo $regplus['require_style']; ?>" style="width: 350px;" /></td>
+				<td><input type="text" name="regplus_require_style" id="require_style" value="<?php echo $rprSettings['require_style']; ?>" style="width: 350px;" /></td>
 			</tr>
 		</tbody>
 	</table>
@@ -812,33 +803,33 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				<td>
 					<label><?php _e('First Day of the Week','regplus'); ?>:
 						<select type="select" name="regplus_firstday">
-							<option value="7" <?php if ( $regplus['firstday'] == '7' ) echo 'selected="selected"'; ?>><?php _e('Monday','regplus'); ?></option>
-							<option value="1" <?php if ( $regplus['firstday'] == '1' ) echo 'selected="selected"'; ?>><?php _e('Tuesday','regplus'); ?></option>
-							<option value="2" <?php if ( $regplus['firstday'] == '2' ) echo 'selected="selected"'; ?>><?php _e('Wednesday','regplus'); ?></option>
-							<option value="3" <?php if ( $regplus['firstday'] == '3' ) echo 'selected="selected"'; ?>><?php _e('Thursday','regplus'); ?></option>
-							<option value="4" <?php if ( $regplus['firstday'] == '4' ) echo 'selected="selected"'; ?>><?php _e('Friday','regplus'); ?></option>
-							<option value="5" <?php if ( $regplus['firstday'] == '5' ) echo 'selected="selected"'; ?>><?php _e('Saturday','regplus'); ?></option>
-							<option value="6" <?php if ( $regplus['firstday'] == '6' ) echo 'selected="selected"'; ?>><?php _e('Sunday','regplus'); ?></option>
+							<option value="7" <?php if ( $rprSettings['firstday'] == '7' ) echo 'selected="selected"'; ?>><?php _e('Monday','regplus'); ?></option>
+							<option value="1" <?php if ( $rprSettings['firstday'] == '1' ) echo 'selected="selected"'; ?>><?php _e('Tuesday','regplus'); ?></option>
+							<option value="2" <?php if ( $rprSettings['firstday'] == '2' ) echo 'selected="selected"'; ?>><?php _e('Wednesday','regplus'); ?></option>
+							<option value="3" <?php if ( $rprSettings['firstday'] == '3' ) echo 'selected="selected"'; ?>><?php _e('Thursday','regplus'); ?></option>
+							<option value="4" <?php if ( $rprSettings['firstday'] == '4' ) echo 'selected="selected"'; ?>><?php _e('Friday','regplus'); ?></option>
+							<option value="5" <?php if ( $rprSettings['firstday'] == '5' ) echo 'selected="selected"'; ?>><?php _e('Saturday','regplus'); ?></option>
+							<option value="6" <?php if ( $rprSettings['firstday'] == '6' ) echo 'selected="selected"'; ?>><?php _e('Sunday','regplus'); ?></option>
 						</select>
 					</label>&nbsp;
-					<label for="dateformat"><?php _e('Date Format','regplus'); ?>:</label><input type="text" name="regplus_dateformat" id="dateformat" value="<?php echo $regplus['dateformat']; ?>" style="width:100px;" />&nbsp;
-					<label for="startdate"><?php _e('First Selectable Date','regplus'); ?>:</label><input type="text" name="regplus_startdate" id="startdate" value="<?php echo $regplus['startdate']; ?>"  style="width:100px;" /><br />
-					<label for="calyear"><?php _e('Default Year','regplus'); ?>:</label><input type="text" name="regplus_calyear" id="calyear" value="<?php echo $regplus['calyear']; ?>" style="width:40px;" />&nbsp;
+					<label for="dateformat"><?php _e('Date Format','regplus'); ?>:</label><input type="text" name="regplus_dateformat" id="dateformat" value="<?php echo $rprSettings['dateformat']; ?>" style="width:100px;" />&nbsp;
+					<label for="startdate"><?php _e('First Selectable Date','regplus'); ?>:</label><input type="text" name="regplus_startdate" id="startdate" value="<?php echo $rprSettings['startdate']; ?>"  style="width:100px;" /><br />
+					<label for="calyear"><?php _e('Default Year','regplus'); ?>:</label><input type="text" name="regplus_calyear" id="calyear" value="<?php echo $rprSettings['calyear']; ?>" style="width:40px;" />&nbsp;
 					<label for="calmonth"><?php _e('Default Month','regplus'); ?>:</label>
 					<select name="regplus_calmonth" id="calmonth">
-						<option value="cur" <?php if ( $regplus['calmonth'] == 'cur' ) echo 'selected="selected"'; ?>><?php _e('Current Month','regplus'); ?></option>
-						<option value="0" <?php if ( $regplus['calmonth'] == '0' ) echo 'selected="selected"'; ?>><?php _e('Jan','regplus'); ?></option>
-						<option value="1" <?php if ( $regplus['calmonth'] == '1' ) echo 'selected="selected"'; ?>><?php _e('Feb','regplus'); ?></option>
-						<option value="2" <?php if ( $regplus['calmonth'] == '2' ) echo 'selected="selected"'; ?>><?php _e('Mar','regplus'); ?></option>
-						<option value="3" <?php if ( $regplus['calmonth'] == '3' ) echo 'selected="selected"'; ?>><?php _e('Apr','regplus'); ?></option>
-						<option value="4" <?php if ( $regplus['calmonth'] == '4' ) echo 'selected="selected"'; ?>><?php _e('May','regplus'); ?></option>
-						<option value="5" <?php if ( $regplus['calmonth'] == '5' ) echo 'selected="selected"'; ?>><?php _e('Jun','regplus'); ?></option>
-						<option value="6" <?php if ( $regplus['calmonth'] == '6' ) echo 'selected="selected"'; ?>><?php _e('Jul','regplus'); ?></option>
-						<option value="7" <?php if ( $regplus['calmonth'] == '7' ) echo 'selected="selected"'; ?>><?php _e('Aug','regplus'); ?></option>
-						<option value="8" <?php if ( $regplus['calmonth'] == '8' ) echo 'selected="selected"'; ?>><?php _e('Sep','regplus'); ?></option>
-						<option value="9" <?php if ( $regplus['calmonth'] == '9' ) echo 'selected="selected"'; ?>><?php _e('Oct','regplus'); ?></option>
-						<option value="10" <?php if ( $regplus['calmonth'] == '10' ) echo 'selected="selected"'; ?>><?php _e('Nov','regplus'); ?></option>
-						<option value="11" <?php if ( $regplus['calmonth'] == '11' ) echo 'selected="selected"'; ?>><?php _e('Dec','regplus'); ?></option>
+						<option value="cur" <?php if ( $rprSettings['calmonth'] == 'cur' ) echo 'selected="selected"'; ?>><?php _e('Current Month','regplus'); ?></option>
+						<option value="0" <?php if ( $rprSettings['calmonth'] == '0' ) echo 'selected="selected"'; ?>><?php _e('Jan','regplus'); ?></option>
+						<option value="1" <?php if ( $rprSettings['calmonth'] == '1' ) echo 'selected="selected"'; ?>><?php _e('Feb','regplus'); ?></option>
+						<option value="2" <?php if ( $rprSettings['calmonth'] == '2' ) echo 'selected="selected"'; ?>><?php _e('Mar','regplus'); ?></option>
+						<option value="3" <?php if ( $rprSettings['calmonth'] == '3' ) echo 'selected="selected"'; ?>><?php _e('Apr','regplus'); ?></option>
+						<option value="4" <?php if ( $rprSettings['calmonth'] == '4' ) echo 'selected="selected"'; ?>><?php _e('May','regplus'); ?></option>
+						<option value="5" <?php if ( $rprSettings['calmonth'] == '5' ) echo 'selected="selected"'; ?>><?php _e('Jun','regplus'); ?></option>
+						<option value="6" <?php if ( $rprSettings['calmonth'] == '6' ) echo 'selected="selected"'; ?>><?php _e('Jul','regplus'); ?></option>
+						<option value="7" <?php if ( $rprSettings['calmonth'] == '7' ) echo 'selected="selected"'; ?>><?php _e('Aug','regplus'); ?></option>
+						<option value="8" <?php if ( $rprSettings['calmonth'] == '8' ) echo 'selected="selected"'; ?>><?php _e('Sep','regplus'); ?></option>
+						<option value="9" <?php if ( $rprSettings['calmonth'] == '9' ) echo 'selected="selected"'; ?>><?php _e('Oct','regplus'); ?></option>
+						<option value="10" <?php if ( $rprSettings['calmonth'] == '10' ) echo 'selected="selected"'; ?>><?php _e('Nov','regplus'); ?></option>
+						<option value="11" <?php if ( $rprSettings['calmonth'] == '11' ) echo 'selected="selected"'; ?>><?php _e('Dec','regplus'); ?></option>
 					</select>
 				</td>
 			</tr>
@@ -855,7 +846,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		<tbody>
 			<tr valign="top">
 				<th scope="row"><label><?php _e('Custom User Email Notification', 'regplus'); ?></label></th>
-				<td><label><input type="checkbox" name="regplus_custom_msg" id="custom_msg" value="1" <?php if ( $regplus['custom_msg']) echo 'checked="checked"'; ?> /><?php _e('Enable', 'regplus'); ?></label></td>
+				<td><label><input type="checkbox" name="regplus_custom_msg" id="custom_msg" value="1" <?php if ( $rprSettings['custom_msg']) echo 'checked="checked"'; ?> /><?php _e('Enable', 'regplus'); ?></label></td>
 			</tr>
 		</tbody>
 	</table>
@@ -864,28 +855,28 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			<tbody>
 				<tr valign="top">
 					<th scope="row"><label for="from"><?php _e('From Email', 'regplus'); ?></label></th>
-					<td><input type="text" name="regplus_from" id="from" style="width:250px;" value="<?php echo $regplus['from']; ?>" /></td>
+					<td><input type="text" name="regplus_from" id="from" style="width:250px;" value="<?php echo $rprSettings['from']; ?>" /></td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"><label for="fromname"><?php _e('From Name', 'regplus'); ?></label></th>
-					<td><input type="text" name="regplus_fromname" id="fromname" style="width:250px;" value="<?php echo $regplus['fromname']; ?>" /></td>
+					<td><input type="text" name="regplus_fromname" id="fromname" style="width:250px;" value="<?php echo $rprSettings['fromname']; ?>" /></td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"><label for="subject"><?php _e('Subject', 'regplus'); ?></label></th>
-					<td><input type="text" name="regplus_subject" id="subject" style="width:350px;" value="<?php echo $regplus['subject']; ?>" /></td>
+					<td><input type="text" name="regplus_subject" id="subject" style="width:350px;" value="<?php echo $rprSettings['subject']; ?>" /></td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"><label for="msg"><?php _e('User Message', 'regplus'); ?></label></th>
 					<td>
 					<?php
-					if ( $regplus['firstname'] ) $custom_keys .= '&nbsp;%firstname%';
-					if ( $regplus['lastname'] ) $custom_keys .= '&nbsp;%lastname%';
-					if ( $regplus['website'] ) $custom_keys .= '&nbsp;%user_url%';
-					if ( $regplus['aim'] ) $custom_keys .= '&nbsp;%aim%';
-					if ( $regplus['yahoo'] ) $custom_keys .= '&nbsp;%yahoo%';
-					if ( $regplus['jabber'] ) $custom_keys .= '&nbsp;%jabber%';
-					if ( $regplus['about'] ) $custom_keys .= '&nbsp;%about%';
-					if ( $regplus['code'] ) $custom_keys .= '&nbsp;%invitecode%';
+					if ( $rprSettings['firstname'] ) $custom_keys .= '&nbsp;%firstname%';
+					if ( $rprSettings['lastname'] ) $custom_keys .= '&nbsp;%lastname%';
+					if ( $rprSettings['website'] ) $custom_keys .= '&nbsp;%user_url%';
+					if ( $rprSettings['aim'] ) $custom_keys .= '&nbsp;%aim%';
+					if ( $rprSettings['yahoo'] ) $custom_keys .= '&nbsp;%yahoo%';
+					if ( $rprSettings['jabber'] ) $custom_keys .= '&nbsp;%jabber%';
+					if ( $rprSettings['about'] ) $custom_keys .= '&nbsp;%about%';
+					if ( $rprSettings['code'] ) $custom_keys .= '&nbsp;%invitecode%';
 					if ( is_array($regplus_custom) ) {
 						foreach ( $regplus_custom as $k => $v ) {
 							$meta = $this->LabelId($v['label']);
@@ -895,12 +886,12 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					}
 					?>
 						<p><strong><?php _e('Replacement Keys', 'regplus'); ?>:</strong>&nbsp;%user_login% &nbsp;%user_pass%&nbsp;%user_email%&nbsp;%blogname%&nbsp;%siteurl% <?php echo $custom_keys; ?>&nbsp; %user_ip%&nbsp;%user_ref%&nbsp;%user_host%&nbsp;%user_agent% </p>
-						<textarea name="regplus_msg" id="msg" rows="10" cols="25" style="width:80%;height:300px;"><?php echo $regplus['msg']; ?></textarea><br /><label><input type="checkbox" name="regplus_html" id="html" value="1" <?php if ( $regplus['html']) echo 'checked="checked"'; ?> /><?php _e('Send as HTML', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_user_nl2br" id="html" value="1" <?php if ( $regplus['user_nl2br']) echo 'checked="checked"'; ?> /><?php _e('Convert new lines to &lt;br/> tags (HTML only)' , 'regplus'); ?></label>
+						<textarea name="regplus_msg" id="msg" rows="10" cols="25" style="width:80%;height:300px;"><?php echo $rprSettings['msg']; ?></textarea><br /><label><input type="checkbox" name="regplus_html" id="html" value="1" <?php if ( $rprSettings['html']) echo 'checked="checked"'; ?> /><?php _e('Send as HTML', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_user_nl2br" id="html" value="1" <?php if ( $rprSettings['user_nl2br']) echo 'checked="checked"'; ?> /><?php _e('Convert new lines to &lt;br/> tags (HTML only)' , 'regplus'); ?></label>
 					</td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"><label for="login_redirect"><?php _e('Login Redirect URL', 'regplus'); ?></label></th>
-					<td><input type="text" name="regplus_login_redirect" id="login_redirect" style="width:250px;" value="<?php echo $regplus['login_redirect']; ?>" /><small><?php _e('This will redirect the users login after registration.', 'regplus'); ?></small></td>
+					<td><input type="text" name="regplus_login_redirect" id="login_redirect" style="width:250px;" value="<?php echo $rprSettings['login_redirect']; ?>" /><small><?php _e('This will redirect the users login after registration.', 'regplus'); ?></small></td>
 				</tr>
 			</tbody>
 		</table>
@@ -910,11 +901,11 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		<tbody>
 			<tr valign="top">
 				<th scope="row"><label for="disable_admin"><?php _e('Admin Email Notification', 'regplus'); ?></label></th>
-				<td><label><input type="checkbox" name="regplus_disable_admin" id="disable_admin" value="1" <?php if ( $regplus['disable_admin']) echo 'checked="checked"'; ?> /><?php _e('Disable', 'regplus'); ?></label></td>
+				<td><label><input type="checkbox" name="regplus_disable_admin" id="disable_admin" value="1" <?php if ( $rprSettings['disable_admin']) echo 'checked="checked"'; ?> /><?php _e('Disable', 'regplus'); ?></label></td>
 			</tr>
 			<tr valign="top">
 				<th scope="row"><label><?php _e('Custom Admin Email Notification', 'regplus'); ?></label></th>
-				<td><label><input type="checkbox" name="regplus_custom_adminmsg" id="custom_adminmsg" value="1" <?php if ( $regplus['custom_adminmsg']) echo 'checked="checked"'; ?> /><?php _e('Enable', 'regplus'); ?></label></td>
+				<td><label><input type="checkbox" name="regplus_custom_adminmsg" id="custom_adminmsg" value="1" <?php if ( $rprSettings['custom_adminmsg']) echo 'checked="checked"'; ?> /><?php _e('Enable', 'regplus'); ?></label></td>
 			</tr>
 		</tbody>
 	</table>
@@ -923,19 +914,19 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			<tbody>
 				<tr valign="top">
 					<th scope="row"><label for="adminfrom"><?php _e('From Email', 'regplus'); ?></label></th>
-					<td><input type="text" name="regplus_adminfrom" id="adminfrom" style="width:250px;" value="<?php echo $regplus['adminfrom']; ?>" /></td>
+					<td><input type="text" name="regplus_adminfrom" id="adminfrom" style="width:250px;" value="<?php echo $rprSettings['adminfrom']; ?>" /></td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"><label for="adminfromname"><?php _e('From Name', 'regplus'); ?></label></th>
-					<td><input type="text" name="regplus_adminfromname" id="adminfromname" style="width:250px;" value="<?php echo $regplus['adminfromname']; ?>" /></td>
+					<td><input type="text" name="regplus_adminfromname" id="adminfromname" style="width:250px;" value="<?php echo $rprSettings['adminfromname']; ?>" /></td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"><label for="adminsubject"><?php _e('Subject', 'regplus'); ?></label></th>
-					<td><input type="text" name="regplus_adminsubject" id="adminsubject" style="width:350px;" value="<?php echo $regplus['adminsubject']; ?>" /></td>
+					<td><input type="text" name="regplus_adminsubject" id="adminsubject" style="width:350px;" value="<?php echo $rprSettings['adminsubject']; ?>" /></td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"><label for="adminmsg"><?php _e('Admin Message', 'regplus'); ?></label></th>
-					<td><p><strong><?php _e('Replacement Keys', 'regplus'); ?>:</strong>&nbsp;%user_login% &nbsp;%user_email%&nbsp;%blogname%&nbsp;%siteurl%  <?php echo $custom_keys; ?>&nbsp; %user_ip%&nbsp;%user_ref%&nbsp;%user_host%&nbsp;%user_agent%</p><textarea name="regplus_adminmsg" id="adminmsg" rows="10" cols="25" style="width:80%;height:300px;"><?php echo $regplus['adminmsg']; ?></textarea><br /><label><input type="checkbox" name="regplus_adminhtml" id="adminhtml" value="1" <?php if ( $regplus['adminhtml']) echo 'checked="checked"'; ?> /><?php _e('Send as HTML' , 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_admin_nl2br" id="html" value="1" <?php if ( $regplus['admin_nl2br']) echo 'checked="checked"'; ?> /><?php _e('Convert new lines to &lt;br/> tags (HTML only)' , 'regplus'); ?></label></td>
+					<td><p><strong><?php _e('Replacement Keys', 'regplus'); ?>:</strong>&nbsp;%user_login% &nbsp;%user_email%&nbsp;%blogname%&nbsp;%siteurl%  <?php echo $custom_keys; ?>&nbsp; %user_ip%&nbsp;%user_ref%&nbsp;%user_host%&nbsp;%user_agent%</p><textarea name="regplus_adminmsg" id="adminmsg" rows="10" cols="25" style="width:80%;height:300px;"><?php echo $rprSettings['adminmsg']; ?></textarea><br /><label><input type="checkbox" name="regplus_adminhtml" id="adminhtml" value="1" <?php if ( $rprSettings['adminhtml']) echo 'checked="checked"'; ?> /><?php _e('Send as HTML' , 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_admin_nl2br" id="html" value="1" <?php if ( $rprSettings['admin_nl2br']) echo 'checked="checked"'; ?> /><?php _e('Convert new lines to &lt;br/> tags (HTML only)' , 'regplus'); ?></label></td>
 				</tr>
 			</tbody>
 		</table>
@@ -947,11 +938,11 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		<tbody>
 			<tr valign="top">
 				<th scope="row"><label for="register_css"><?php _e('Custom Register CSS', 'regplus'); ?></label></th>
-				<td><textarea name="regplus_register_css" id="register_css" rows="20" cols="40" style="width:80%; height:200px;"><?php echo $regplus['register_css']; ?></textarea></td>
+				<td><textarea name="regplus_register_css" id="register_css" rows="20" cols="40" style="width:80%; height:200px;"><?php echo $rprSettings['register_css']; ?></textarea></td>
 			</tr>
 			<tr valign="top">
 				<th scope="row"><label for="login_css"><?php _e('Custom Login CSS', 'regplus'); ?></label></th>
-				<td><textarea name="regplus_login_css" id="login_css" rows="20" cols="40" style="width:80%; height:200px;"><?php echo $regplus['login_css']; ?></textarea></td>
+				<td><textarea name="regplus_login_css" id="login_css" rows="20" cols="40" style="width:80%; height:200px;"><?php echo $rprSettings['login_css']; ?></textarea></td>
 			</tr>
 		</tbody>
 	</table>
@@ -964,43 +955,43 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 
 		#Check Required Fields
 		function RegErrors( $errors ) {
-			$regplus = get_option('register_plus');
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
 			$regplus_custom = get_option('register_plus_custom');
 			if ( !is_array($regplus_custom) ) $regplus_custom = array();
-			if ( $regplus['email_exists'] ) {
+			if ( $rprSettings['email_exists'] ) {
 				if ($errors->errors['email_exists'] ) unset($errors->errors['email_exists']);
 			}
-			if ( $regplus['firstname'] && in_array('firstname', $regplus['profile_req']) ) {
+			if ( $rprSettings['firstname'] && in_array('firstname', $rprSettings['profile_req']) ) {
 				if ( empty($_POST['firstname']) || $_POST['firstname'] == '' ) {
 					$errors->add('empty_firstname', __('<strong>ERROR</strong>: Please enter your First Name.', 'regplus'));
 				}
 			}
-			if ( $regplus['lastname'] && in_array('lastname', $regplus['profile_req']) ) {
+			if ( $rprSettings['lastname'] && in_array('lastname', $rprSettings['profile_req']) ) {
 				if ( empty($_POST['lastname']) || $_POST['lastname'] == '' ) {
 					$errors->add('empty_lastname', __('<strong>ERROR</strong>: Please enter your Last Name.', 'regplus'));
 				}
 			}
-			if ( $regplus['website'] && in_array('website', $regplus['profile_req']) ) {
+			if ( $rprSettings['website'] && in_array('website', $rprSettings['profile_req']) ) {
 				if ( empty($_POST['user_url']) || $_POST['user_url'] == '' ) {
 					$errors->add('empty_user_url', __('<strong>ERROR</strong>: Please enter your Website URL.', 'regplus'));
 				}
 			}
-			if ( $regplus['aim'] && in_array('aim', $regplus['profile_req']) ) {
+			if ( $rprSettings['aim'] && in_array('aim', $rprSettings['profile_req']) ) {
 				if ( empty($_POST['aim']) || $_POST['aim'] == '' ) {
 					$errors->add('empty_aim', __('<strong>ERROR</strong>: Please enter your AIM username.', 'regplus'));
 				}
 			}
-			if ( $regplus['yahoo'] && in_array('yahoo', $regplus['profile_req']) ) {
+			if ( $rprSettings['yahoo'] && in_array('yahoo', $rprSettings['profile_req']) ) {
 				if ( empty($_POST['yahoo']) || $_POST['yahoo'] == '' ) {
 					$errors->add('empty_yahoo', __('<strong>ERROR</strong>: Please enter your Yahoo IM username.', 'regplus'));
 				}
 			}
-			if ( $regplus['jabber'] && in_array('jabber', $regplus['profile_req']) ) {
+			if ( $rprSettings['jabber'] && in_array('jabber', $rprSettings['profile_req']) ) {
 				if ( empty($_POST['jabber']) || $_POST['jabber'] == '' ) {
 					$errors->add('empty_jabber', __('<strong>ERROR</strong>: Please enter your Jabber / Google Talk username.', 'regplus'));
 				}
 			}
-			if ( $regplus['about'] && in_array('about', $regplus['profile_req']) ) {
+			if ( $rprSettings['about'] && in_array('about', $rprSettings['profile_req']) ) {
 				if ( empty($_POST['about']) || $_POST['about'] == '' ) {
 					$errors->add('empty_about', __('<strong>ERROR</strong>: Please enter some information About Yourself.', 'regplus'));
 				}
@@ -1015,7 +1006,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					}
 				}
 			}
-			if ( $regplus['password'] ) {
+			if ( $rprSettings['user_set_password'] ) {
 				if ( empty($_POST['pass1']) || $_POST['pass1'] == '' || empty($_POST['pass2']) || $_POST['pass2'] == '' ) {
 					$errors->add('empty_password', __('<strong>ERROR</strong>: Please enter a Password.', 'regplus'));
 				} elseif ( $_POST['pass1'] ! ==  $_POST['pass2'] ) {
@@ -1026,33 +1017,33 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					$_POST['user_pw'] = $_POST['pass1'];
 				}
 			}
-			if ( $regplus['code'] && $regplus['code_req'] ) {
+			if ( $rprSettings['code'] && $rprSettings['code_req'] ) {
 				if ( empty($_POST['regcode']) || $_POST['regcode'] == '' ) {
 					$errors->add('empty_regcode', __('<strong>ERROR</strong>: Please enter the Invitation Code.', 'regplus'));
-				} elseif ( !in_array(strtolower($_POST['regcode']), $regplus['codepass']) ) {
+				} elseif ( !in_array(strtolower($_POST['regcode']), $rprSettings['codepass']) ) {
 					$errors->add('regcode_mismatch', __('<strong>ERROR</strong>: Your Invitation Code is incorrect.', 'regplus'));
 				}
 			}
-			if ( $regplus['disclaimer'] ) {
-				if ( !$_POST['disclaimer'] ) {
-					$errors->add('disclaimer', __('<strong>ERROR</strong>: Please accept the ', 'regplus') . stripslashes($regplus['disclaimer_title']) . '.');
+			if ( $rprSettings['show_disclaimer'] ) {
+				if ( !$_POST['show_disclaimer'] ) {
+					$errors->add('show_disclaimer', __('<strong>ERROR</strong>: Please accept the ', 'regplus') . stripslashes($rprSettings['message_disclaimer_title']) . '.');
 				}
 			}
-			if ( $regplus['license'] ) {
-				if ( !$_POST['license'] ) {
-					$errors->add('license', __('<strong>ERROR</strong>: Please accept the ', 'regplus') . stripslashes($regplus['license_title']) . '.');
+			if ( $rprSettings['show_license_agreement'] ) {
+				if ( !$_POST['show_license_agreement'] ) {
+					$errors->add('show_license_agreement', __('<strong>ERROR</strong>: Please accept the ', 'regplus') . stripslashes($rprSettings['message_license_title']) . '.');
 				}
 			}
-			if ( $regplus['privacy'] ) {
-				if ( !$_POST['privacy'] ) {
-					$errors->add('privacy', __('<strong>ERROR</strong>: Please accept the ', 'regplus') . stripslashes($regplus['privacy_title']) . '.');
+			if ( $rprSettings['show_privacy_policy'] ) {
+				if ( !$_POST['show_privacy_policy'] ) {
+					$errors->add('show_privacy_policy', __('<strong>ERROR</strong>: Please accept the ', 'regplus') . stripslashes($rprSettings['message_privacy_policy_title']) . '.');
 				}
 			}
 			return $errors;
 		}
 
 		function RegMsg( $errors ) {
-			$regplus = get_option('register_plus');
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
 			session_start();
 			if ( $errors->errors['registered'] ) {
 				//unset($errors->errors['registered']);
@@ -1063,34 +1054,34 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 
 		#Add Fields to Register Form
 		function RegForm() {
-			$regplus = get_option('register_plus');
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
 			$regplus_custom = get_option('register_plus_custom');
 			if ( !is_array($regplus_custom) ) $regplus_custom = array();
-			if ( $regplus['firstname'] ) {
+			if ( $rprSettings['firstname'] ) {
 				if ( isset($_GET['firstname']) ) $_POST['firstname'] = $_GET['firstname']; ?>
 <p><label><?php _e('First Name:', 'regplus'); ?><br /><input autocomplete="off" name="firstname" id="firstname" size="25" value="<?php echo $_POST['firstname']; ?>" type="text" tabindex="30" /></label></p>
 			<?php }
-			if ( $regplus['lastname'] ) {
+			if ( $rprSettings['lastname'] ) {
 				if ( isset($_GET['lastname']) ) $_POST['lastname'] = $_GET['lastname']; ?>
 <p><label><?php _e('Last Name:', 'regplus'); ?><br /><input autocomplete="off" name="lastname" id="lastname" size="25" value="<?php echo $_POST['lastname']; ?>" type="text" tabindex="31" /></label></p>
 			<?php }
-			if ( $regplus['website'] ) {
+			if ( $rprSettings['website'] ) {
 				if ( isset($_GET['user_url']) ) $_POST['user_url'] = $_GET['user_url']; ?>
 <p><label><?php _e('Website:', 'regplus'); ?><br /><input autocomplete="off" name="user_url" id="user_url" size="25" value="<?php echo $_POST['user_url']; ?>" type="text" tabindex="32" /></label></p>
 			<?php }
-			if ( $regplus['aim'] ) {
+			if ( $rprSettings['aim'] ) {
 				if ( isset($_GET['aim']) ) $_POST['aim'] = $_GET['aim']; ?>
 <p><label><?php _e('AIM:', 'regplus'); ?><br /><input autocomplete="off" name="aim" id="aim" size="25" value="<?php echo $_POST['aim']; ?>" type="text" tabindex="32" /></label></p>
 			<?php }
-			if ( $regplus['yahoo'] ) {
+			if ( $rprSettings['yahoo'] ) {
 				if ( isset($_GET['yahoo']) ) $_POST['yahoo'] = $_GET['yahoo']; ?>
 <p><label><?php _e('Yahoo IM:', 'regplus'); ?><br /><input autocomplete="off" name="yahoo" id="yahoo" size="25" value="<?php echo $_POST['yahoo']; ?>" type="text" tabindex="33" /></label></p>
 			<?php }
-			if ( $regplus['jabber'] ) {
+			if ( $rprSettings['jabber'] ) {
 				if ( isset($_GET['jabber']) ) $_POST['jabber'] = $_GET['jabber']; ?>
 <p><label><?php _e('Jabber / Google Talk:', 'regplus'); ?><br /><input autocomplete="off" name="jabber" id="jabber" size="25" value="<?php echo $_POST['jabber']; ?>" type="text" tabindex="34" /></label></p>
 			<?php }
-			if ( $regplus['about'] ) {
+			if ( $rprSettings['about'] ) {
 				if ( isset($_GET['about']) ) $_POST['about'] = $_GET['about']; ?>
 <p><label><?php _e('About Yourself:', 'regplus'); ?><br /><textarea autocomplete="off" name="about" id="about" cols="25" rows="5" tabindex="35"><?php echo stripslashes($_POST['about']); ?></textarea></label><small><?php _e('Share a little biographical information to fill out your profile. This may be shown publicly.', 'regplus'); ?></small></p>
 			<?php }
@@ -1143,27 +1134,27 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					<?php }
 				}
 			}
-			if ( $regplus['password'] ) {
+			if ( $rprSettings['user_set_password'] ) {
 				?>
 <p>
 	<label><?php _e('Password:', 'regplus'); ?><br />
 	<input autocomplete="off" name="pass1" id="pass1" size="25" value="<?php echo $_POST['pass1']; ?>" type="password" tabindex="40" /></label><br />
 	<label><?php _e('Confirm Password:', 'regplus'); ?><br />
 	<input autocomplete="off" name="pass2" id="pass2" size="25" value="<?php echo $_POST['pass2']; ?>" type="password" tabindex="41" /></label>
-	<?php if ( $regplus['password_meter']) { ?><br />
-		<span id="pass-strength-result"><?php echo $regplus['short']; ?></span>
+	<?php if ( $rprSettings['show_password_meter']) { ?><br />
+		<span id="pass-strength-result"><?php echo $rprSettings['message_short_password']; ?></span>
 		<small><?php _e('Hint: Use upper and lower case characters, numbers and symbols like !"?$%^&amp;(in your password.', 'regplus'); ?></small>
 	<?php } ?>
 </p>
 <?php
 			}
-			if ( $regplus['code'] ) {
+			if ( $rprSettings['code'] ) {
 				if ( isset($_GET['regcode']) ) $_POST['regcode'] = $_GET['regcode'];
 					?>
 <p>
 	<label><?php _e('Invitation Code:', 'regplus'); ?><br />
 	<input name="regcode" id="regcode" size="25" value="<?php echo $_POST['regcode']; ?>" type="text" tabindex="45" /></label><br />
-	<?php if ($regplus['code_req']) { ?>
+	<?php if ($rprSettings['code_req']) { ?>
 		<small><?php _e('This website is currently closed to public registrations.  You will need an invitation code to register.', 'regplus'); ?></small>
 	<?php } else { ?>
 		<small><?php _e('Have an invitation code? Enter it here. (This is not required)', 'regplus'); ?></small>
@@ -1171,30 +1162,30 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 </p>
 <?php
 			}
-			if ($regplus['disclaimer'] ) {
+			if ($rprSettings['show_disclaimer'] ) {
 				?>
 <p>
-	<label><?php echo stripslashes($regplus['disclaimer_title']); ?><br />
-	<span id="disclaimer"><?php echo stripslashes($regplus['disclaimer_content']); ?></span>
-	<input name="disclaimer" value="1" type="checkbox" tabindex="50"<?php if ( $_POST['disclaimer']) echo ' checked="checked"'; ?> /><?php echo $regplus['disclaimer_agree']; ?></label>
+	<label><?php echo stripslashes($rprSettings['message_disclaimer_title']); ?><br />
+	<span id="disclaimer"><?php echo stripslashes($rprSettings['message_disclaimer']); ?></span>
+	<input name="disclaimer" value="1" type="checkbox" tabindex="50"<?php if ( $_POST['show_disclaimer']) echo ' checked="checked"'; ?> /><?php echo $rprSettings['message_disclaimer_agree']; ?></label>
 </p>
 <?php
 			}
-			if ( $regplus['license'] ) {
+			if ( $rprSettings['show_license_agreement'] ) {
 				?>
 <p>
-	<label><?php echo stripslashes($regplus['license_title']); ?><br />
-	<span id="license"><?php echo stripslashes($regplus['license_content']); ?></span>
-	<input name="license" value="1" type="checkbox" tabindex="50"<?php if ( $_POST['license']) echo ' checked="checked"'; ?> /><?php echo $regplus['license_agree']; ?></label>
+	<label><?php echo stripslashes($rprSettings['message_license_title']); ?><br />
+	<span id="license"><?php echo stripslashes($rprSettings['message_license']); ?></span>
+	<input name="license" value="1" type="checkbox" tabindex="50"<?php if ( $_POST['show_license_agreement']) echo ' checked="checked"'; ?> /><?php echo $rprSettings['message_license_agree']; ?></label>
 </p>
 <?php
 			}
-			if ( $regplus['privacy'] ) {
+			if ( $rprSettings['show_privacy_policy'] ) {
 				?>
 <p>
-	<label><?php echo stripslashes($regplus['privacy_title']); ?><br />
-	<span id="privacy"><?php echo stripslashes($regplus['privacy_content']); ?></span>
-	<input name="privacy" value="1" type="checkbox" tabindex="50"<?php if ( $_POST['privacy']) echo ' checked="checked"'; ?> /><?php echo $regplus['privacy_agree']; ?></label>
+	<label><?php echo stripslashes($rprSettings['message_privacy_policy_title']); ?><br />
+	<span id="privacy"><?php echo stripslashes($rprSettings['message_privacy_policy']); ?></span>
+	<input name="privacy" value="1" type="checkbox" tabindex="50"<?php if ( $_POST['show_privacy_policy']) echo ' checked="checked"'; ?> /><?php echo $rprSettings['message_privacy_policy_agree']; ?></label>
 </p>
 <?php
 			}
@@ -1209,11 +1200,11 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 
 		#Add Javascript & CSS needed
 		function PassHead() {
-			$regplus = get_option('register_plus');
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
 			if ( isset($_GET['user_login']) ) $user_login = $_GET['user_login'];
 			if ( isset($_GET['user_email']) ) $user_email = $_GET['user_email'];
 			if ( isset($_GET['user_url']) ) $user_url = $_GET['user_url'];
-			if ( $regplus['password'] ) {
+			if ( $rprSettings['user_set_password'] ) {
 				?>
 <script type='text/javascript' src='<?php trailingslashit(get_option('siteurl')); ?>wp-includes/js/jquery/jquery.js?ver=1.2.3'></script>
 <script type='text/javascript' src='<?php trailingslashit(get_option('siteurl')); ?>wp-admin/js/common.js?ver=20080318'></script>
@@ -1221,10 +1212,10 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 <script type='text/javascript'>
 /* <![CDATA[ */
 	pwsL10n={
-		short: "<?php echo $regplus['short']; ?>",
-		bad: "<?php echo $regplus['bad']; ?>",
-		good: "<?php echo $regplus['good']; ?>",
-		strong: "<?php echo $regplus['strong']; ?>"
+		short: "<?php echo $rprSettings['message_short_password']; ?>",
+		bad: "<?php echo $rprSettings['message_bad_password']; ?>",
+		good: "<?php echo $rprSettings['message_good_password']; ?>",
+		strong: "<?php echo $rprSettings['message_strong_password']; ?>"
 	}
 /* ]]> */
 </script>
@@ -1242,20 +1233,20 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		jQuery(res).removeClass('short bad good strong');
 
 		if ( strength == pwsL10n.bad ) {
-			jQuery(res).addClass('bad');
+			jQuery(res).addClass('message_bad_password');
 			jQuery(res).html(pwsL10n.bad);
 		}
 		else if ( strength == pwsL10n.good ) {
-			jQuery(res).addClass('good');
+			jQuery(res).addClass('message_good_password');
 			jQuery(res).html(pwsL10n.good);
 		}
 		else if ( strength == pwsL10n.strong ) {
-			jQuery(res).addClass('strong');
+			jQuery(res).addClass('message_strong_password');
 			jQuery(res).html(pwsL10n.strong);
 		}
 		else {
 			//this catches 'Too short' and the off chance anything else comes along
-			jQuery(res).addClass('short');
+			jQuery(res).addClass('message_short_password');
 			jQuery(res).html(pwsL10n.short);
 		}
 	}
@@ -1297,14 +1288,14 @@ Date.dayNames = ['<?php _e('Monday','regplus'); ?>', '<?php _e('Tuesday','regplu
 Date.abbrDayNames = ['<?php _e('Mon','regplus'); ?>', '<?php _e('Tue','regplus'); ?>', '<?php _e('Wed','regplus'); ?>', '<?php _e('Thu','regplus'); ?>', '<?php _e('Fri','regplus'); ?>', '<?php _e('Sat','regplus'); ?>', '<?php _e('Sun','regplus'); ?>'];
 Date.monthNames = ['<?php _e('January','regplus'); ?>', '<?php _e('February','regplus'); ?>', '<?php _e('March','regplus'); ?>', '<?php _e('April','regplus'); ?>', '<?php _e('May','regplus'); ?>', '<?php _e('June','regplus'); ?>', '<?php _e('July','regplus'); ?>', '<?php _e('August','regplus'); ?>', '<?php _e('September','regplus'); ?>', '<?php _e('October','regplus'); ?>', '<?php _e('November','regplus'); ?>', '<?php _e('December','regplus'); ?>'];
 Date.abbrMonthNames = ['<?php _e('Jan','regplus'); ?>', '<?php _e('Feb','regplus'); ?>', '<?php _e('Mar','regplus'); ?>', '<?php _e('Apr','regplus'); ?>', '<?php _e('May','regplus'); ?>', '<?php _e('Jun','regplus'); ?>', '<?php _e('Jul','regplus'); ?>', '<?php _e('Aug','regplus'); ?>', '<?php _e('Sep','regplus'); ?>', '<?php _e('Oct','regplus'); ?>', '<?php _e('Nov','regplus'); ?>', '<?php _e('Dec','regplus'); ?>'];
-Date.firstDayOfWeek = <?php echo $regplus['firstday']; ?>;
-Date.format = '<?php echo $regplus['dateformat']; ?>';
+Date.firstDayOfWeek = <?php echo $rprSettings['firstday']; ?>;
+Date.format = '<?php echo $rprSettings['dateformat']; ?>';
 jQuery(function() {
 	jQuery('.date-pick').datePicker({
 		clickInput:true,
-		startDate:'<?php echo $regplus['startdate']; ?>',
-		year:<?php echo $regplus['calyear']; ?>,
-		month:<?php if ( $regplus['calmonth'] != 'cur') echo $regplus['calmonth']; else echo date('n')-1; ?>
+		startDate:'<?php echo $rprSettings['startdate']; ?>',
+		year:<?php echo $rprSettings['calyear']; ?>,
+		month:<?php if ( $rprSettings['calmonth'] != 'cur') echo $rprSettings['calmonth']; else echo date('n')-1; ?>
 	})
 });
 </script>
@@ -1348,25 +1339,25 @@ input.dp-applied { width: 140px; float: left; }
 					}
 				}
 			}
-			if ( $regplus['profile_req'][0] ) $profile_req = ', #' . implode(', #', $regplus['profile_req']);
+			if ( $rprSettings['profile_req'][0] ) $profile_req = ', #' . implode(', #', $rprSettings['profile_req']);
 			if ( $custom[0] ) $profile_req .= implode('', $custom);
 ?>
 #user_login, #user_email, #pass1, #pass2 <?php echo $profile_req; ?> {
-	<?php echo $regplus['require_style']; ?>
+	<?php echo $rprSettings['require_style']; ?>
 }
-<?php if ( strlen($regplus['disclaimer_content'] ) > 525) { ?>
+<?php if ( strlen($rprSettings['message_disclaimer'] ) > 525) { ?>
 #disclaimer {
 	height: 200px;
 	overflow:scroll;
 }
 <?php } ?>
-<?php if ( strlen($regplus['license_content'] ) > 525) { ?>
+<?php if ( strlen($rprSettings['message_license'] ) > 525) { ?>
 #license {
 	height: 200px;
 	overflow:scroll;
 }
 <?php } ?>
-<?php if ( strlen($regplus['privacy_content']) > 525 ) { ?>
+<?php if ( strlen($rprSettings['message_privacy_policy']) > 525 ) { ?>
 #privacy {
 	height: 200px;
 	overflow:scroll;
@@ -1400,8 +1391,8 @@ small {
 		}
 
 		function HideLogin() {
-			$regplus = get_option('register_plus');
-			if ( ($regplus['admin_verify'] || $regplus['email_verify']) && $_GET['checkemail'] == 'registered' ) {
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
+			if ( ($rprSettings['admin_verify'] || $rprSettings['email_verify']) && $_GET['checkemail'] == 'registered' ) {
 				?>
 <style type="text/css">
 label, #user_login, #user_pass, .forgetmenot, #wp-submit, .message {
@@ -1413,9 +1404,9 @@ label, #user_login, #user_pass, .forgetmenot, #wp-submit, .message {
 		}
 
 		function LogoHead() {
-			$regplus = get_option('register_plus');
-			if ( $regplus['logo'] ) { 
-				$logo = str_replace(trailingslashit(get_option('siteurl')), ABSPATH, $regplus['logo']);
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
+			if ( $rprSettings['logo'] ) { 
+				$logo = str_replace(trailingslashit(get_option('siteurl')), ABSPATH, $rprSettings['logo']);
 				list($width, $height, $type, $attr) = getimagesize($logo);
 				if ( $_GET['action'] != 'register' ) :
 				?>
@@ -1430,15 +1421,15 @@ label, #user_login, #user_pass, .forgetmenot, #wp-submit, .message {
 </script>
 <style type="text/css">
 #login h1 a {
-	background-image: url(<?php echo $regplus['logo']; ?>);
+	background-image: url(<?php echo $rprSettings['logo']; ?>);
 	background-position:center top;
 	width: <?php echo $width; ?>px;
 	min-width:292px;
 	height: <?php echo $height; ?>px;
 }
 <?php 
-			if ( $regplus['register_css'] &&  $_GET['action'] == 'register' ) echo $regplus['register_css'];
-			elseif ( $regplus['login_css'] ) echo $regplus['login_css'];
+			if ( $rprSettings['register_css'] &&  $_GET['action'] == 'register' ) echo $rprSettings['register_css'];
+			elseif ( $rprSettings['login_css'] ) echo $rprSettings['login_css'];
 			?>
 </style>
 <?php
@@ -1548,15 +1539,14 @@ label, #user_login, #user_pass, .forgetmenot, #wp-submit, .message {
 
 		function ValidateUser() {
 			global $wpdb;
-			$regplus = get_option('register_plus');
-			if ( $regplus['admin_verify'] && isset($_GET['checkemail']) ) {
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
+			if ( $rprSettings['admin_verify'] && isset($_GET['checkemail']) ) {
 				echo '<p style="text-align:center;">' . __('Your account will be reviewed by an administrator and you will be notified when it is activated.', 'regplus') . '</p>';
-			} elseif ( $regplus['email_verify'] && isset($_GET['checkemail']) ) {
+			} elseif ( $rprSettings['email_verify'] && isset($_GET['checkemail']) ) {
 				echo '<p style="text-align:center;">' . __('Please activate your account using the verification link sent to your email address.', 'regplus') . '</p>';
 			}
-			if ( $regplus['email_verify'] && isset($_GET['regplus_verification']) ) {
-				$regplus = get_option('register_plus');
-				$verify_key = $_GET['regplus_verification'];
+			if ( $rprSettings['email_verify'] && isset($_GET['regplus_verification']) ) {
+$rprSettings				$verify_key = $_GET['regplus_verification'];
 				$user_id = $wpdb->get_var("SELECT user_id FROM $wpdb->usermeta WHERE meta_key='email_verify' AND meta_value='$verify_key'");
 				if ( $user_id ) {
 					$stored_user_login = get_user_meta($user_id, 'email_verify_user', false);
@@ -1574,29 +1564,29 @@ label, #user_login, #user_pass, .forgetmenot, #wp-submit, .message {
 		}
 
 		function adminfrom() {
-			$regplus = get_option('register_plus');
-			return $regplus['adminfrom'];
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
+			return $rprSettings['adminfrom'];
 		}
 
 		function userfrom() {
-			$regplus = get_option('register_plus');
-			return $regplus['from'];
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
+			return $rprSettings['from'];
 		}
 
 		function adminfromname() {
-			$regplus = get_option('register_plus');
-			return $regplus['adminfromname'];
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
+			return $rprSettings['adminfromname'];
 		}
 
 		function userfromname() {
-			$regplus = get_option('register_plus');
-			return $regplus['fromname'];
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
+			return $rprSettings['fromname'];
 		}
 
 		function DeleteInvalidUsers() {
 			global $wpdb;
-			$regplus = get_option('register_plus');
-			$grace = $regplus['email_delete_grace'];
+			$rprSettings = get_option('plugin_register_plus_redux_settings');
+			$grace = $rprSettings['email_delete_grace'];
 			$unverified = $wpdb->get_results("SELECT user_id, meta_value FROM $wpdb->usermeta WHERE meta_key='email_verify_date'");
 			$grace_date = date('Ymd', strtotime("-7 days"));
 			if ( $unverified ) {
@@ -1621,34 +1611,34 @@ if ( !function_exists('wp_new_user_notification') ) :
 	function wp_new_user_notification($user_id, $plaintext_pass = '') {
 		$user = new WP_User($user_id);
 		global $wpdb, $registerPlusRedux;
-		$regplus = get_option('register_plus');
+		$rprSettings = get_option('plugin_register_plus_redux_settings');
 		$regplus_custom = get_option('register_plus_custom');
 		$ref = explode('?', $_SERVER['HTTP_REFERER']);
 		$ref = $ref[0];
 		$admin = trailingslashit(get_option('siteurl')) . 'wp-admin/users.php';
 		if ( !is_array($regplus_custom) ) $regplus_custom = array();
-		if ( $regplus['password'] && $_POST['user_pw'] ) $plaintext_pass = $wpdb->prepare($_POST['user_pw']);
+		if ( $rprSettings['user_set_password'] && $_POST['user_pw'] ) $plaintext_pass = $wpdb->prepare($_POST['user_pw']);
 		elseif ( $ref == $admin && $_POST['pass1'] == $_POST['pass2'] ) $plaintext_pass = $wpdb->prepare($_POST['pass1']);
 		else $plaintext_pass = $registerPlusRedux->RanPass(6);
-		if ( $regplus['firstname'] && $_POST['firstname'] ) update_user_meta($user_id, 'first_name', $wpdb->prepare($_POST['firstname']));
-		if ( $regplus['lastname'] && $_POST['lastname'] ) update_user_meta($user_id, 'last_name', $wpdb->prepare($_POST['lastname']));
+		if ( $rprSettings['firstname'] && $_POST['firstname'] ) update_user_meta($user_id, 'first_name', $wpdb->prepare($_POST['firstname']));
+		if ( $rprSettings['lastname'] && $_POST['lastname'] ) update_user_meta($user_id, 'last_name', $wpdb->prepare($_POST['lastname']));
 		//v.3.5.1 code
-		//if ( $regplus['website'] && $_POST['user_url'] ) update_user_meta($user_id, 'user_url', $wpdb->prepare($_POST['user_url']));
-		if ( $regplus['website'] && $_POST['user_url'] ) {
+		//if ( $rprSettings['website'] && $_POST['user_url'] ) update_user_meta($user_id, 'user_url', $wpdb->prepare($_POST['user_url']));
+		if ( $rprSettings['website'] && $_POST['user_url'] ) {
 			$url = esc_url_raw( $_POST['user_url'] );
 			$user->user_url = preg_match('/^(https?|ftps?|mailto|news|irc|gopher|nntp|feed|telnet):/is', $url) ? $url : 'http://'.$url;
 			wp_update_user(array('ID' => $user_id, 'user_url' => $wpdb->prepare($url)));
 		}
-		if ( $regplus['aim'] && $_POST['aim'] ) update_user_meta($user_id, 'aim', $wpdb->prepare($_POST['aim']));
-		if ( $regplus['yahoo'] && $_POST['yahoo'] ) update_user_meta($user_id, 'yim', $wpdb->prepare($_POST['yahoo']));
-		if ( $regplus['jabber'] && $_POST['jabber'] ) update_user_meta($user_id, 'jabber', $wpdb->prepare($_POST['jabber']));
-		if ( $regplus['about'] && $_POST['about'] ) update_user_meta($user_id, 'description', $wpdb->prepare($_POST['about']));
-		if ( $regplus['code'] && $_POST['regcode'] ) update_user_meta($user_id, 'invite_code', $wpdb->prepare($_POST['regcode']));
-		if ( $ref != $admin && $regplus['admin_verify'] ) {
+		if ( $rprSettings['aim'] && $_POST['aim'] ) update_user_meta($user_id, 'aim', $wpdb->prepare($_POST['aim']));
+		if ( $rprSettings['yahoo'] && $_POST['yahoo'] ) update_user_meta($user_id, 'yim', $wpdb->prepare($_POST['yahoo']));
+		if ( $rprSettings['jabber'] && $_POST['jabber'] ) update_user_meta($user_id, 'jabber', $wpdb->prepare($_POST['jabber']));
+		if ( $rprSettings['about'] && $_POST['about'] ) update_user_meta($user_id, 'description', $wpdb->prepare($_POST['about']));
+		if ( $rprSettings['code'] && $_POST['regcode'] ) update_user_meta($user_id, 'invite_code', $wpdb->prepare($_POST['regcode']));
+		if ( $ref != $admin && $rprSettings['admin_verify'] ) {
 			update_user_meta($user_id, 'admin_verify_user', $user->user_login);
 			$temp_login = 'unverified__' . $registerPlusRedux->RanPass(7);
 			$notice = __('Your account requires activation by an administrator before you will be able to login.', 'regplus') . "\r\n";
-		} elseif ( $ref != $admin && $regplus['email_verify'] ) {
+		} elseif ( $ref != $admin && $rprSettings['email_verify'] ) {
 			$code = $registerPlusRedux->RanPass(25);
 			update_user_meta($user_id, 'email_verify', $code);
 			update_user_meta($user_id, 'email_verify_date', date('Ymd'));
@@ -1671,35 +1661,35 @@ if ( !function_exists('wp_new_user_notification') ) :
 		$user_login = stripslashes($user->user_login);
 		$user_email = stripslashes($user->user_email);
 		$user_url = stripslashes($user->user_url);
-		if ( !$regplus['custom_adminmsg'] && !$regplus['disable_admin']) {
+		if ( !$rprSettings['custom_adminmsg'] && !$rprSettings['disable_admin']) {
 			$message = sprintf(__('New user Register on your blog %s:', 'regplus'), get_option('blogname')) . "\r\n\r\n";
 			$message .= sprintf(__('Username: %s', 'regplus'), $user_login) . "\r\n\r\n";
 			$message .= sprintf(__('E-mail: %s', 'regplus'), $user_email) . "\r\n";
 			@wp_mail(get_option('admin_email'), sprintf(__('[%s] New User Register', 'regplus'), get_option('blogname')), $message);
-		} elseif ( !$regplus['disable_admin'] ) {
-			if ( $regplus['adminhtml'] ) {
+		} elseif ( !$rprSettings['disable_admin'] ) {
+			if ( $rprSettings['adminhtml'] ) {
 				$headers = 'MIME-Version: 1.0' . "\r\n";
 				$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 			}
-			//$headers .= 'From: ' . $regplus['adminfrom'] . "\r\n" . 'Reply-To: ' . $regplus['adminfrom'] . "\r\n";
+			//$headers .= 'From: ' . $rprSettings['adminfrom'] . "\r\n" . 'Reply-To: ' . $rprSettings['adminfrom'] . "\r\n";
 			add_filter('wp_mail_from', array($registerPlusRedux, 'adminfrom'));
 			add_filter('wp_mail_from_name', array($registerPlusRedux, 'adminfromname'));
-			$subject = $regplus['adminsubject'];
-			$message = str_replace('%user_login%', $user_login, $regplus['adminmsg']);
+			$subject = $rprSettings['adminsubject'];
+			$message = str_replace('%user_login%', $user_login, $rprSettings['adminmsg']);
 			$message = str_replace('%user_email%', $user_email, $message);
 			$message = str_replace('%blogname%', get_option('blogname'), $message);
 			$message = str_replace('%user_ip%', $_SERVER['REMOTE_ADDR'], $message);
 			$message = str_replace('%user_host%', gethostbyaddr($_SERVER['REMOTE_ADDR']), $message);
 			$message = str_replace('%user_ref%', $_SERVER['HTTP_REFERER'], $message);
 			$message = str_replace('%user_agent%', $_SERVER['HTTP_USER_AGENT'], $message);
-			if ( $regplus['firstname'] ) $message = str_replace('%firstname%', $_POST['firstname'], $message);
-			if ( $regplus['lastname'] ) $message = str_replace('%lastname%', $_POST['lastname'], $message);
-			if ( $regplus['website'] ) $message = str_replace('%user_url%', $_POST['user_url'], $message);
-			if ( $regplus['aim'] ) $message = str_replace('%aim%', $_POST['aim'], $message);
-			if ( $regplus['yahoo'] ) $message = str_replace('%yahoo%', $_POST['yahoo'], $message);
-			if ( $regplus['jabber'] ) $message = str_replace('%jabber%', $_POST['jabber'], $message);
-			if ( $regplus['about'] ) $message = str_replace('%about%', $_POST['about'], $message);
-			if ( $regplus['code'] ) $message = str_replace('%invitecode%', $_POST['code'], $message);
+			if ( $rprSettings['firstname'] ) $message = str_replace('%firstname%', $_POST['firstname'], $message);
+			if ( $rprSettings['lastname'] ) $message = str_replace('%lastname%', $_POST['lastname'], $message);
+			if ( $rprSettings['website'] ) $message = str_replace('%user_url%', $_POST['user_url'], $message);
+			if ( $rprSettings['aim'] ) $message = str_replace('%aim%', $_POST['aim'], $message);
+			if ( $rprSettings['yahoo'] ) $message = str_replace('%yahoo%', $_POST['yahoo'], $message);
+			if ( $rprSettings['jabber'] ) $message = str_replace('%jabber%', $_POST['jabber'], $message);
+			if ( $rprSettings['about'] ) $message = str_replace('%about%', $_POST['about'], $message);
+			if ( $rprSettings['code'] ) $message = str_replace('%invitecode%', $_POST['code'], $message);
 			if ( !is_array($regplus_custom) ) $regplus_custom = array();
 			if ( !empty($regplus_custom) ) {
 				foreach ( $regplus_custom as $k => $v ) {
@@ -1710,13 +1700,13 @@ if ( !function_exists('wp_new_user_notification') ) :
 			}
 			$siteurl = get_option('siteurl');
 			$message = str_replace('%siteurl%', $siteurl, $message);
-			if ( $regplus['adminhtml'] && $regplus['admin_nl2br'] )
+			if ( $rprSettings['adminhtml'] && $rprSettings['admin_nl2br'] )
 				$message = nl2br($message);
 			wp_mail(get_option('admin_email'), $subject, $message, $headers); 
 		}
 		if ( empty($plaintext_pass) )
 			return;
-		if ( !$regplus['custom_msg'] ) {
+		if ( !$rprSettings['custom_msg'] ) {
 			$message = sprintf(__('Username: %s', 'regplus'), $user_login) . "\r\n";
 			$message .= sprintf(__('Password: %s', 'regplus'), $plaintext_pass) . "\r\n";
 			//$message .= get_option('siteurl') . "/wp-login.php";
@@ -1724,15 +1714,15 @@ if ( !function_exists('wp_new_user_notification') ) :
 			$message .= $notice; 
 			wp_mail($user_email, sprintf(__('[%s] Your username and password', 'regplus'), get_option('blogname')), $message);
 		} else {
-			if ( $regplus['html'] ) {
+			if ( $rprSettings['html'] ) {
 				$headers = 'MIME-Version: 1.0' . "\r\n";
 				$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 			}
-			//$headers .= 'From: ' . $regplus['from'] . "\r\n" . 'Reply-To: ' . $regplus['from'] . "\r\n";
+			//$headers .= 'From: ' . $rprSettings['from'] . "\r\n" . 'Reply-To: ' . $rprSettings['from'] . "\r\n";
 			add_filter('wp_mail_from', array($registerPlusRedux, 'userfrom'));
 			add_filter('wp_mail_from_name', array($registerPlusRedux, 'userfromname'));
-			$subject = $regplus['subject'];
-			$message = str_replace('%user_pass%', $plaintext_pass, $regplus['msg']);
+			$subject = $rprSettings['subject'];
+			$message = str_replace('%user_pass%', $plaintext_pass, $rprSettings['msg']);
 			$message = str_replace('%user_login%', $user_login, $message);
 			$message = str_replace('%user_email%', $user_email, $message);
 			$message = str_replace('%blogname%', get_option('blogname'), $message);
@@ -1740,14 +1730,14 @@ if ( !function_exists('wp_new_user_notification') ) :
 			$message = str_replace('%user_host%', gethostbyaddr($_SERVER['REMOTE_ADDR']), $message);
 			$message = str_replace('%user_ref%', $_SERVER['HTTP_REFERER'], $message);
 			$message = str_replace('%user_agent%', $_SERVER['HTTP_USER_AGENT'], $message);
-			if ( $regplus['firstname'] ) $message = str_replace('%firstname%', $_POST['firstname'], $message);
-			if ( $regplus['lastname'] ) $message = str_replace('%lastname%', $_POST['lastname'], $message);
-			if ( $regplus['website'] ) $message = str_replace('%user_url%', $_POST['user_url'], $message);
-			if ( $regplus['aim'] ) $message = str_replace('%aim%', $_POST['aim'], $message);
-			if ( $regplus['yahoo'] ) $message = str_replace('%yahoo%', $_POST['yahoo'], $message);
-			if ( $regplus['jabber'] ) $message = str_replace('%jabber%', $_POST['jabber'], $message);
-			if ( $regplus['about'] ) $message = str_replace('%about%', $_POST['about'], $message);
-			if ( $regplus['code'] ) $message = str_replace('%invitecode%', $_POST['code'], $message);
+			if ( $rprSettings['firstname'] ) $message = str_replace('%firstname%', $_POST['firstname'], $message);
+			if ( $rprSettings['lastname'] ) $message = str_replace('%lastname%', $_POST['lastname'], $message);
+			if ( $rprSettings['website'] ) $message = str_replace('%user_url%', $_POST['user_url'], $message);
+			if ( $rprSettings['aim'] ) $message = str_replace('%aim%', $_POST['aim'], $message);
+			if ( $rprSettings['yahoo'] ) $message = str_replace('%yahoo%', $_POST['yahoo'], $message);
+			if ( $rprSettings['jabber'] ) $message = str_replace('%jabber%', $_POST['jabber'], $message);
+			if ( $rprSettings['about'] ) $message = str_replace('%about%', $_POST['about'], $message);
+			if ( $rprSettings['code'] ) $message = str_replace('%invitecode%', $_POST['code'], $message);
 			if ( !is_array($regplus_custom) ) $regplus_custom = array();
 			if ( !empty($regplus_custom) ) {
 				foreach ( $regplus_custom as $k => $v ) {
@@ -1756,17 +1746,17 @@ if ( !function_exists('wp_new_user_notification') ) :
 					$message = str_replace('%'.$meta.'%', $value, $message);
 				}
 			}
-			$redirect = 'redirect_to=' . $regplus['login_redirect'];
-			if ( $regplus['email_verify'] )
+			$redirect = 'redirect_to=' . $rprSettings['login_redirect'];
+			if ( $rprSettings['email_verify'] )
 				$siteurl = get_option('siteurl') . "/wp-login.php" . $email_code . '&' . $redirect;
 			else
 				$siteurl = get_option('siteurl') . "/wp-login.php?" . $redirect;
 			$message = str_replace('%siteurl%', $siteurl, $message);
-			if ( $regplus['html'] && $regplus['user_nl2br'] )
+			if ( $rprSettings['html'] && $rprSettings['user_nl2br'] )
 				$message = nl2br($message);
 			wp_mail($user_email, $subject, $message, $headers); 
 		}
-		if ( $ref != $admin && ($regplus['email_verify'] || $regplus['admin_verify']) ) 
+		if ( $ref != $admin && ($rprSettings['email_verify'] || $rprSettings['admin_verify']) ) 
 			//v3.5.1 code
 			//$temp_user=$wpdb->query("UPDATE $wpdb->users SET user_login='$temp_login' WHERE ID='$user_id'"); 
 			//trying to depreciate use of $wpdb->query

@@ -9,37 +9,19 @@ Fork of Register Plus
 
 == Description ==
 
-Enhance your Registration Page.
+Enhancements to registration include:
+* Customized registration page, including your own logo, disclaimer, license agreement, or privacy policy
+* User-entered password (with password strength meter)
+* Added profile fields
+* Additional required fields
+* Invitation code system (with dashboard widget to track invites)
+* User-defined fields
+* Email verification
+* Administration verification of new users
+* Customized new user email
+* Customized administrator email
 
-**Custom Logo**
-Tired of that WordPress logo getting all the attention?  Upload your own custom logo image and get your brand in the spotlight.
-
-**Password Field**
-Hate those forgettable auto-generated passwords? Allow your users to set their own preferred password during registration. Includes that sweet Password Strength Meter from the Profile page. 
-
-**Invitation Codes**
-Is your blog super exclusive?  If so, you better require an invite to join your high end crew.  Setup multiple codes and track where your new users are coming from with the optional Invitation Tracking Dashboard Widget.
-
-**Disclaimers**
-Worried about legal liabilities?  Setup a general disclaimer, license agreement, and/or privacy policy for new users to agree to during registration.
-
-**Email Validation**
-Hate fake emails?  Make sure your users are not registering with invalid email accounts by forcing them to click a validation link that's sent out with their registration email.  This sets there username to a random generated string (something like: 'unverified__h439herld3') so they can't login until they hit that validation link which will put their real username back in place allowing them to login as per usual.  Unverified registrations have a defined grace period that will automatically delete an unverified account after a specified period of time, so you don't get clogged up with those fakies. (Manage under Users > Unverified Users)
-
-**User Moderation**
-Need absolute control?  Check out every new user yourself and hand pick who can stay and who gets the boot before they are able to login to your site. (Manage under Users > Unverified Users)
-
-**Profile Fields**
-Want more done sooner?  Have new users fill out there entire profile or just bits you need all during registration, you can even make them required.  
-
-**User Defined Fields** 
-Not enough info yet?  Add your own defined fields to the registration page for users to fill out.  It also adds the new fields to the profile page as well so current users can add their own info and update as needed. Now includes the ability to add date, select, checkbox, radio and textarea fields!
-
-**Duplicate Email Registration**
-Got multiple users using the same email address?  Easily solve this predicament without forcing them to sign up with unneeded email accounts. Also useful for administrators to create another account with one email address.
-
-**Customized Admin & User Registration Email**
-Tired of the same old emails when someone new registers?  Spice it up with your own From/Reply-To address, customized subject and customize the entire message! You can even disable those tiresome Admin notifications for new registrations. 
+Also includes fixes for known Register Plus bugs which has been abandoned. 
 
 == Installation ==
 
