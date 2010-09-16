@@ -3,22 +3,32 @@ Contributors: skullbit, radiok
 Tags: registration, register, password, invitation, code, invite, disclaimer, email, validation, privacy, policy, license, agreement, logo, moderation, user
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable tag: 3.6
+Stable tag: 3.6.1
 
 Fork of Register Plus
 
 == Description ==
 
 Enhancements to registration include:
+
 * Customized registration page, including your own logo, disclaimer, license agreement, or privacy policy
+
 * User-entered password (with password strength meter)
+
 * Added profile fields
+
 * Additional required fields
+
 * Invitation code system (with dashboard widget to track invites)
+
 * User-defined fields
+
 * Email verification
+
 * Administration verification of new users
+
 * Customized new user email
+
 * Customized administrator email
 
 Also includes fixes for known Register Plus bugs which has been abandoned. 
@@ -47,11 +57,7 @@ Place your language file in the plugin folder directory and name it "regplus-{la
 3. Invitation Tracking Dashboard Widget
 4. Unverified User Management
 
-== Changelog ==
-
-= 3.6 =
-September 13, 2010 by radiok
-
+== Worklog ==
 TODO: Privacy Issue - When "Choose Password upon Registration" is active, the email that is sent to the user contains their password. It should be blocked out, omitted, or say "Password: [chosen upon registration]". as reported by iq9
 
 TODO: PW-Strength Meter not Working - Chrome 5.0.375.126 on Mac. But, works in that browser elsewhere on site. Haven't tested other browsers. as reported by iq9
@@ -68,20 +74,49 @@ http://wordpress.org/support/topic/plugin-register-plus-custom-logo-help
 
 CONSIDERATION: There could exist multiple unverified users with the same username, when a new user signs up, need to check that username isn't in que already
 
+TODO: After renaming all settings, need to delete unused settings
+
+TODO: Migrate settings from Register Plus
+
+== Changelog ==
+
+= 3.6.1 =
+September 13, 2010 by radiok
+
+* Fixed two bugs found by Gene53 and markwadds
+
+  http://wordpress.org/support/topic/plugin-register-plus-redux-fatal-error?replies=3
+
+* More renaming of settings
+
+= 3.6 =
+September 13, 2010 by radiok
+
 * Cleaned up all code, spacing, tabs, formatting, etc.
 * Updated stylesheet to match WordPress 3.0.1
 * Removed Simple CAPTCHA and reCAPTCHA, the Simple CAPTCHA was easy to break two years ago, now it's a joke, BlaenkDenum has a very active reCAPTCHA plugin that can be used for registration, among other things.
+
   http://wordpress.org/extend/plugins/wp-recaptcha/
+
 * Rewrote UploadLogo as specified by nschmede
+
   http://wordpress.org/support/topic/plugin-register-plus-register-plus-custom-logo-problems
+
 * Fixed SaveProfile as specified by bitkahuna
+
   http://wordpress.org/support/topic/plugin-register-plus-does-registration-plus-work
+
 * Fixed Invitation Code Tracking dashboard widget as specified by robert.lang
+
   http://wordpress.org/support/topic/plugin-register-plus-error-message-on-dashboard-panel-display
+
 * Fixed bug in Profile regarding website, user_url was being stored in wp_usermeta, when it should have been in wp_users, StrangeAttractor's code was most beneficial, but I made several other improvements along the way
+
   http://wordpress.org/support/topic/plugin-register-plus-cant-update-website-in-user-profile
+
 * Added Settings action link to Plugins page
 * Reduced use of $wpdb variable in favor of WordPress' helper functions
+* Started renaming settings
 
 = 3.5.1 =
 July 29, 2008 by Skullbit
