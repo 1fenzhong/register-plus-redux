@@ -1292,8 +1292,8 @@ jQuery(function() {
 	jQuery('.date-pick').datePicker({
 		clickInput:true,
 		startDate:'<?php echo $rprSettings['startdate']; ?>',
-		year:<?php echo $rprSettings['calyear']; ?>,
-		month:<?php if ( $rprSettings['calmonth'] != 'cur') echo $rprSettings['calmonth']; else echo date('n')-1; ?>
+		year:'<?php echo $rprSettings['calyear']; ?>',
+		month:'<?php if ( $rprSettings['calmonth'] != 'cur') echo $rprSettings['calmonth']; else echo date('n')-1; ?>'
 	})
 });
 </script>
