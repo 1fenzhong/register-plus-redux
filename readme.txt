@@ -87,6 +87,10 @@ September 13, 2010 by radiok
 
   http://wordpress.org/support/topic/plugin-register-plus-redux-fatal-error?replies=3
 
+* Fixed jQuery datePicker as specified by DanoNH
+
+  http://wordpress.org/support/topic/register-plus-is-adding-s-to-all-quote-marks-in-registration-email
+
 * More renaming of settings
 
 = 3.6 =
