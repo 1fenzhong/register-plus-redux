@@ -1009,7 +1009,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			if ( $rprSettings['user_set_password'] ) {
 				if ( empty($_POST['pass1']) || $_POST['pass1'] == '' || empty($_POST['pass2']) || $_POST['pass2'] == '' ) {
 					$errors->add('empty_password', __('<strong>ERROR</strong>: Please enter a Password.', 'regplus'));
-				} elseif ( $_POST['pass1'] ! ==  $_POST['pass2'] ) {
+				} elseif ( $_POST['pass1'] !=  $_POST['pass2'] ) {
 					$errors->add('password_mismatch', __('<strong>ERROR</strong>: Your Password does not match.', 'regplus'));
 				} elseif ( strlen($_POST['pass1']) < 6 ) {
 					$errors->add('password_length', __('<strong>ERROR</strong>: Your Password must be at least 6 characters in length.', 'regplus'));
@@ -1523,7 +1523,7 @@ label, #user_login, #user_pass, .forgetmenot, #wp-submit, .message {
 			}
 		}
 
-		function RanPass( $len = 7 ) {
+		function RandomString( $len ) {
 			$chars = "0123456789abcdefghijkl0123456789mnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQ0123456789RSTUVWXYZ0123456789";
 			srand((double)microtime()*1000000);
 			$i = 0;
@@ -1546,7 +1546,7 @@ label, #user_login, #user_pass, .forgetmenot, #wp-submit, .message {
 				echo '<p style="text-align:center;">' . __('Please activate your account using the verification link sent to your email address.', 'regplus') . '</p>';
 			}
 			if ( $rprSettings['email_verify'] && isset($_GET['regplus_verification']) ) {
-$rprSettings				$verify_key = $_GET['regplus_verification'];
+				$verify_key = $_GET['regplus_verification'];
 				$user_id = $wpdb->get_var("SELECT user_id FROM $wpdb->usermeta WHERE meta_key='email_verify' AND meta_value='$verify_key'");
 				if ( $user_id ) {
 					$stored_user_login = get_user_meta($user_id, 'email_verify_user', false);
@@ -1619,7 +1619,7 @@ if ( !function_exists('wp_new_user_notification') ) :
 		if ( !is_array($regplus_custom) ) $regplus_custom = array();
 		if ( $rprSettings['user_set_password'] && $_POST['user_pw'] ) $plaintext_pass = $wpdb->prepare($_POST['user_pw']);
 		elseif ( $ref == $admin && $_POST['pass1'] == $_POST['pass2'] ) $plaintext_pass = $wpdb->prepare($_POST['pass1']);
-		else $plaintext_pass = $registerPlusRedux->RanPass(6);
+		else $plaintext_pass = $registerPlusRedux->RandomString(6);
 		if ( $rprSettings['firstname'] && $_POST['firstname'] ) update_user_meta($user_id, 'first_name', $wpdb->prepare($_POST['firstname']));
 		if ( $rprSettings['lastname'] && $_POST['lastname'] ) update_user_meta($user_id, 'last_name', $wpdb->prepare($_POST['lastname']));
 		//v.3.5.1 code
@@ -1636,17 +1636,17 @@ if ( !function_exists('wp_new_user_notification') ) :
 		if ( $rprSettings['code'] && $_POST['regcode'] ) update_user_meta($user_id, 'invite_code', $wpdb->prepare($_POST['regcode']));
 		if ( $ref != $admin && $rprSettings['admin_verify'] ) {
 			update_user_meta($user_id, 'admin_verify_user', $user->user_login);
-			$temp_login = 'unverified__' . $registerPlusRedux->RanPass(7);
+			$temp_login = 'unverified__' . $registerPlusRedux->RandomString(7);
 			$notice = __('Your account requires activation by an administrator before you will be able to login.', 'regplus') . "\r\n";
 		} elseif ( $ref != $admin && $rprSettings['email_verify'] ) {
-			$code = $registerPlusRedux->RanPass(25);
+			$code = $registerPlusRedux->RandomString(25);
 			update_user_meta($user_id, 'email_verify', $code);
 			update_user_meta($user_id, 'email_verify_date', date('Ymd'));
 			update_user_meta($user_id, 'email_verify_user', $user->user_login);
 			$email_code = '?regplus_verification=' . $code;
 			$prelink = __('Verification URL: ', 'regplus');
 			$notice = __('Please use the link above to verify and activate your account', 'regplus') . "\r\n";
-			$temp_login = 'unverified__' . $registerPlusRedux->RanPass(7);
+			$temp_login = 'unverified__' . $registerPlusRedux->RandomString(7);
 		}
 		if ( !empty($regplus_custom) ) {
 			foreach ( $regplus_custom as $k => $v ) {
