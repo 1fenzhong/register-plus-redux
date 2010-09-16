@@ -81,7 +81,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 
 		//Add Settings and User Pages
 		function rprAddPages() {
-			add_submenu_page('options-general.php','Register Plus Redux', 'Register Plus Redux Settings', 'manage_options', 'register-plus-redux', array($this, 'rprSettingsPage'));
+			add_submenu_page('options-general.php','Register Plus Redux Settings', 'Register Plus Redux', 'manage_options', 'register-plus-redux', array($this, 'rprSettingsPage'));
 			add_filter('plugin_action_links', array($this, 'filter_plugin_actions'), 10, 2);
 			$rprSettings = get_option('plugin_register_plus_redux_settings');
 			if ( $rprSettings['email_verify'] || $rprSettings['admin_verify'] )

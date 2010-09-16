@@ -80,12 +80,15 @@ TODO: Migrate settings from Register Plus
 
 == Changelog ==
 
-= 3.6.1 =
+= 3.6.2 =
 September 13, 2010 by radiok
 
 * Fixed two bugs found by Gene53 and markwadds
 
   http://wordpress.org/support/topic/plugin-register-plus-redux-fatal-error?replies=3
+
+= 3.6.1 =
+September 13, 2010 by radiok
 
 * Fixed jQuery datePicker as specified by DanoNH
 
