@@ -5,7 +5,7 @@ Plugin Name: Register Plus Redux
 Author URI: http://radiok.info/
 Plugin URI: http://radiok.info/register-plus-redux/
 Description: Fork of Register Plus
-Version: 3.6.1
+Version: 3.6.2
 */
 
 $rp = get_option('plugin_register_plus_redux_settings'); //load options
@@ -18,13 +18,13 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			global $wp_version;
 			//ACTIONS
 			add_action('admin_menu', array($this, 'rprAddPages') );
-			#Update Settings on Save
-			if ( $_POST['action'] == 'reg_plus_update' )
-				add_action('init', array($this,'SaveSettings') );
 			#Enable jQuery on Settings panel
-			if ( $_GET['page'] == 'register-plus' ) {
+			if ( $_GET['page'] == 'register-plus-redux' ) {
 				wp_enqueue_script('jquery');
 				add_action('admin_head', array($this, 'SettingsHead'));
+			#Update Settings on Save
+			if ( $_POST['action'] == 'reg_plus_update' )
+				add_action('init', array($this, 'SaveSettings') );
 			}
 			#Add Register Form Fields
 			add_action('register_form', array($this, 'RegForm'));
@@ -61,7 +61,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			//LOCALIZATION
 			#Place your language file in the plugin folder and name it "regplus-{language}.mo"
 			#replace {language} with your language value from wp-config.php
-			load_plugin_textdomain('regplus', '/wp-content/plugins/register-plus');
+			load_plugin_textdomain('regplus', '/wp-content/plugins/register-plus-redux');
 			
 			//VERSION CONTROL
 			if ( $wp_version < 3.0 )
@@ -75,7 +75,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		}
 
 		function override_warning() {
-			if ( current_user_can(10) && $_GET['page'] == 'register-plus' )
+			if ( current_user_can(10) && $_GET['page'] == 'register-plus-redux' )
 			echo "<div id='regplus-warning' class='updated fade-ff0000'><p><strong>".__('You have another plugin installed that is conflicting with Register Plus. This other plugin is overriding the user notification emails. Please see <a href="http://skullbit.com/news/register-plus-conflicts/">Register Plus Conflicts</a> for more information.', 'regplus') . "</strong></p></div>";
 		}
 
@@ -101,46 +101,40 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 
 		function rprInitializeSettings() {
 			$default = array(
-				'user_set_password'	=> '0',
-
-				'show_password_meter'	=> '0',
-				'message_short_password'=> 'Too Short',
-				'message_bad_password'	=> 'Bad Password',
-				'message_good_password'	=> 'Good Password',
-				'message_strong_password'=> 'Strong Password',
-
-				'enable_invitation_code'			=> '0',
+				'user_set_password' => '0',
+				'show_password_meter' => '0',
+				'message_short_password' => 'Too Short',
+				'message_bad_password' => 'Bad Password',
+				'message_good_password' => 'Good Password',
+				'message_strong_password' => 'Strong Password',
+				'enable_invitation_code' => '0',
 				'require_invitation_code' => '0',
-				'invitation_code_bank'		=> array('0'),
-				'enable_invitation_tracking_widget'		=> '0',
+				'invitation_code_bank' => array('0'),
+				'enable_invitation_tracking_widget' => '0',
+				'show_disclaimer' => '0',
+				'message_disclaimer_title' => 'Disclaimer',
+				'message_disclaimer' => '',
+				'message_disclaimer_agree' => 'Accept the Disclaimer',
+				'show_license_agreement' => '0',
+				'message_license_title' => 'License Agreement',
+				'message_license' => '',
+				'message_license_agree' => 'Accept the License Agreement',
+				'show_privacy_policy' => '0',
+				'message_privacy_policy_title' => 'Privacy Policy',
+				'message_privacy_policy' => '',
+				'message_privacy_policy_agree' => 'Accept the Privacy Policy',
 
-				'show_disclaimer'	=> '0',
-				'message_disclaimer_title'	=> 'Disclaimer',
-				'message_disclaimer'	=> '',
-				'message_disclaimer_agree'=> 'Accept the Disclaimer',
+				'allow_duplicate_emails'		=> '0',
 
-				'show_license_agreement'=> '0',
-				'message_license_title'		=> 'License Agreement',
-				'message_license'	=> '',
-				'message_license_agree'	=> 'Accept the License Agreement',
-
-				'show_privacy_policy'	=> '0',
-				'message_privacy_policy_title'		=> 'Privacy Policy',
-				'message_privacy_policy'	=> '',
-				'message_privacy_policy_agree'=> 'Accept the Privacy Policy',
-
-				'email_exists'		=> '0',
-
-				'show_firstname_field'		=> '0',
-				'show_lastname_field'		=> '0',
-				'show_website_field'		=> '0',
-				'show_aim_field'			=> '0',
-				'show_yahoo_field'			=> '0',
-				'show_jabber_field'		=> '0',
-				'show_about_field'			=> '0',
-
-				'required_fields'		=> array('0'),
-				'required_fields_style'		=> 'border:solid 1px #E6DB55;background-color:#FFFFE0;',
+				'show_firstname_field' => '0',
+				'show_lastname_field' => '0',
+				'show_website_field' => '0',
+				'show_aim_field' => '0',
+				'show_yahoo_field' => '0',
+				'show_jabber_field' => '0',
+				'show_about_field' => '0',
+				'required_fields' => array('0'),
+				'required_fields_style' => 'border:solid 1px #E6DB55;background-color:#FFFFE0;',
 
 				'email_verify'		=> '0',
 				'admin_verify'		=> '0',
@@ -189,12 +183,12 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		function SaveSettings() {
 			check_admin_referer('regplus-update-options');
 			$update = get_option('plugin_register_plus_redux_settings');
-			$update["password"] = $_POST['regplus_password'];
-			$update["password_meter"] = $_POST['regplus_password_meter'];
-			$update["short"] = $_POST['regplus_short'];
-			$update["bad"] = $_POST['regplus_bad'];
-			$update["good"] = $_POST['regplus_good'];
-			$update["strong"] = $_POST['regplus_strong'];
+			$update["user_set_password"] = $_POST['user_set_password'];
+			$update["show_password_meter"] = $_POST['show_password_meter'];
+			$update["message_short_password"] = $_POST['message_short_password'];
+			$update["message_bad_password"] = $_POST['message_bad_password'];
+			$update["message_good_password"] = $_POST['message_good_password'];
+			$update["message_strong_password"] = $_POST['message_strong_password'];
 			$update["code"] = $_POST['regplus_code'];
 			if ( $_POST['regplus_code'] ) {
 				$update["codepass"] = $_POST['regplus_codepass'];
@@ -203,27 +197,27 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				}
 				$update["code_req"] = $_POST['regplus_code_req'];
 			}
-			$update["disclaimer"] = $_POST['regplus_disclaimer'];
-			$update["disclaimer_title"] = $_POST['regplus_disclaimer_title'];
-			$update["disclaimer_content"] = $_POST['regplus_disclaimer_content'];
-			$update["disclaimer_agree"] = $_POST['regplus_disclaimer_agree'];
-			$update["license"] = $_POST['regplus_license'];
-			$update["license_title"] = $_POST['regplus_license_title'];
-			$update["license_content"] = $_POST['regplus_license_content'];
-			$update["license_agree"] = $_POST['regplus_license_agree'];
-			$update["privacy"] = $_POST['regplus_privacy'];
-			$update["privacy_title"] = $_POST['regplus_privacy_title'];
-			$update["privacy_content"] = $_POST['regplus_privacy_content'];
-			$update["privacy_agree"] = $_POST['regplus_privacy_agree'];
-			$update["email_exists"] = $_POST['regplus_email_exists'];
-			$update["firstname"] = $_POST['regplus_firstname'];
-			$update["lastname"] = $_POST['regplus_lastname'];
-			$update["website"] = $_POST['regplus_website'];
-			$update["aim"] = $_POST['regplus_aim'];
-			$update["yahoo"] = $_POST['regplus_yahoo'];
-			$update["jabber"] = $_POST['regplus_jabber'];
-			$update["about"] = $_POST['regplus_about'];
-			$update["profile_req"] = $_POST['regplus_profile_req'];
+			$update["show_disclaimer"] = $_POST['show_disclaimer'];
+			$update["message_disclaimer_title"] = $_POST['message_disclaimer_title'];
+			$update["message_disclaimer"] = $_POST['message_disclaimer'];
+			$update["message_disclaimer_agree"] = $_POST['message_disclaimer_agree'];
+			$update["show_license_agreement"] = $_POST['show_license_agreement'];
+			$update["message_license_title"] = $_POST['message_license_title'];
+			$update["message_license"] = $_POST['message_license'];
+			$update["message_license_agree"] = $_POST['message_license_agree'];
+			$update["show_privacy_policy"] = $_POST['show_privacy_policy'];
+			$update["message_privacy_policy_title"] = $_POST['message_privacy_policy_title'];
+			$update["message_privacy_policy"] = $_POST['message_privacy_policy'];
+			$update["message_privacy_policy_agree"] = $_POST['message_privacy_policy_agree'];
+			$update["allow_duplicate_emails"] = $_POST['allow_duplicate_emails'];
+			$update["show_firstname_field"] = $_POST['show_firstname_field'];
+			$update["show_lastname_field"] = $_POST['show_lastname_field'];
+			$update["show_website_field"] = $_POST['show_website_field'];
+			$update["show_aim_field"] = $_POST['show_aim_field'];
+			$update["show_yahoo_field"] = $_POST['show_yahoo_field'];
+			$update["show_jabber_field"] = $_POST['show_jabber_field'];
+			$update["show_about_field"] = $_POST['show_about_field'];
+			$update["required_fields"] = $_POST['required_fields'];
 			$update["require_style"] = $_POST['regplus_require_style'];
 			$update["dash_widget"] = $_POST['regplus_dash_widget'];
 			$update["admin_verify"] = $_POST['regplus_admin_verify'];
@@ -372,13 +366,13 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 	<?php if ( !$rprSettings['enable_invitation_code']) { ?>
 		jQuery('#codepass').hide(); <?php } ?>
 	<?php if ( !$rprSettings['show_password_meter']) { ?>
-		jQuery('#meter').hide(); <?php } ?>
+		jQuery('#meter_settings').hide(); <?php } ?>
 	<?php if ( !$rprSettings['show_disclaimer']) { ?>
-		jQuery('#disclaim_content').hide(); <?php } ?>
+		jQuery('#disclaim_settings').hide(); <?php } ?>
 	<?php if ( !$rprSettings['show_license_agreement']) { ?>
-		jQuery('#lic_content').hide(); <?php } ?>
+		jQuery('#license_agreement_settings').hide(); <?php } ?>
 	<?php if ( !$rprSettings['show_privacy_policy']) { ?>
-		jQuery('#priv_content').hide(); <?php } ?>
+		jQuery('#privacy_policy_settings').hide(); <?php } ?>
 	<?php if ( !$rprSettings['email_verify']) { ?>
 		jQuery('#grace').hide(); <?php } ?>
 	<?php if ( !$rprSettings['custom_msg']) { ?>
@@ -399,32 +393,32 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				jQuery('#codepass').hide();
 			return true;
 		});
-		jQuery('#pwm').change(function() {
-			if (jQuery('#pwm').attr('checked') )
-				jQuery('#meter').show();
+		jQuery('#show_password_meter').change(function() {
+			if (jQuery('#show_password_meter').attr('checked') )
+				jQuery('#meter_settings').show();
 			else
-				jQuery('#meter').hide();
+				jQuery('#meter_settings').hide();
 			return true;
 		});
-		jQuery('#disclaimer').change(function() {
-			if (jQuery('#disclaimer').attr('checked') )
-				jQuery('#disclaim_content').show();
+		jQuery('#show_disclaimer').change(function() {
+			if (jQuery('#show_disclaimer').attr('checked') )
+				jQuery('#disclaim_settings').show();
 			else
-				jQuery('#disclaim_content').hide();
+				jQuery('#disclaim_settings').hide();
 			return true;
 		});
-		jQuery('#license').change(function() {
-			if (jQuery('#license').attr('checked') )
-				jQuery('#lic_content').show();
+		jQuery('#show_license_agreement').change(function() {
+			if (jQuery('#show_license_agreement').attr('checked') )
+				jQuery('#license_agreement_settings').show();
 			else
-				jQuery('#lic_content').hide();
+				jQuery('#license_agreement_settings').hide();
 			return true;
 		});
-		jQuery('#privacy').change(function() {
-			if (jQuery('#privacy').attr('checked') )
-				jQuery('#priv_content').show();
+		jQuery('#show_privacy_policy').change(function() {
+			if (jQuery('#show_privacy_policy').attr('checked') )
+				jQuery('#privacy_policy_settings').show();
 			else
-				jQuery('#priv_content').hide();
+				jQuery('#privacy_policy_settings').hide();
 			return true;
 		});
 		jQuery('#custom_msg').change(function() {
@@ -648,143 +642,229 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 <div class="wrap">
 	<h2><?php _e('Register Plus Settings', 'regplus') ?></h2>
 	<form method="post" action="" enctype="multipart/form-data">
-	<?php if ( function_exists('wp_nonce_field')) wp_nonce_field('regplus-update-options'); ?>
-	<p class="submit"><input name="Submit" value="<?php _e('Save Changes','regplus'); ?>" type="submit" />
+	<input type="hidden" name="action" value="reg_plus_update" />
+	<?php wp_nonce_field('regplus-update-options'); ?>
 	<table class="form-table">
-		<tbody>
-			<tr valign="top">
-				<th scope="row"><label for="password"><?php _e('Password', 'regplus'); ?></label></th>
-				<td>
-					<label><input type="checkbox" name="regplus_password" id="password" value="1" <?php if ( $rprSettings['user_set_password']) echo 'checked="checked"'; ?> /><?php _e('Allow New Registrations to set their own Password', 'regplus'); ?></label><br />
-					<label><input type="checkbox" name="regplus_password_meter" id="pwm" value="1" <?php if ( $rprSettings['show_password_meter']) echo 'checked="checked"'; ?> /><?php _e('Enable Password Strength Meter','regplus'); ?></label>
-					<div id="meter" style="margin-left:20px;">
-						<label><?php _e('Short', 'regplus'); ?><input type="text" name="regplus_short" value="<?php echo $rprSettings['message_short_password']; ?>" /></label><br />
-						<label><?php _e('Bad', 'regplus'); ?><input type="text" name="regplus_bad" value="<?php echo $rprSettings['message_bad_password']; ?>" /></label><br />
-						<label><?php _e('Good', 'regplus'); ?><input type="text" name="regplus_good" value="<?php echo $rprSettings['message_good_password']; ?>" /></label><br />
-						<label><?php _e('Strong', 'regplus'); ?><input type="text" name="regplus_strong" value="<?php echo $rprSettings['message_strong_password']; ?>" /></label><br />
+		<tr valign="top">
+			<th scope="row"><?php _e('Password', 'regplus'); ?></th>
+			<td>
+				<label><input type="checkbox" name="user_set_password" id="password" value="1" <?php if ( $rprSettings['user_set_password']) echo 'checked="checked"'; ?> />&nbsp;<?php _e('Allow New Registrations to set their own Password', 'regplus'); ?></label><br />
+				<label><input type="checkbox" name="show_password_meter" id="show_password_meter" value="1" <?php if ( $rprSettings['show_password_meter']) echo 'checked="checked"'; ?> />&nbsp;<?php _e('Enable Password Strength Meter','regplus'); ?></label>
+				<div id="meter_settings" style="margin-left:20px;">
+					<label><?php _e('Short', 'regplus'); ?>&nbsp;<input type="text" name="message_short_password" value="<?php echo $rprSettings['message_short_password']; ?>" /></label><br />
+					<label><?php _e('Bad', 'regplus'); ?>&nbsp;<input type="text" name="message_bad_password" value="<?php echo $rprSettings['message_bad_password']; ?>" /></label><br />
+					<label><?php _e('Good', 'regplus'); ?>&nbsp;<input type="text" name="message_good_password" value="<?php echo $rprSettings['message_good_password']; ?>" /></label><br />
+					<label><?php _e('Strong', 'regplus'); ?>&nbsp;<input type="text" name="message_strong_password" value="<?php echo $rprSettings['message_strong_password']; ?>" /></label><br />
+				</div>
+			</td>
+		</tr>
+		<tr valign="top">
+			<th scope="row"><?php _e('Custom Logo', 'regplus'); ?></th>
+			<td>
+				<input type="file" name="regplus_logo" id="logo" value="1" />&nbsp;<small><?php _e("Recommended Logo width is 292px, but any height should work.", "regplus"); ?></small><br /><img src="<?php echo $rprSettings['logo']; ?>" alt="" />
+			<?php if ($rprSettings['logo']) { ?>
+				<br /><label><input type="checkbox" name="remove_logo" value="1" /><?php _e('Delete Logo', 'regplus'); ?></label>
+			<?php } else { ?>
+				<p><small><strong><?php _e('Having troubles uploading?','regplus'); ?></strong><?php _e('Uncheck "Organize my uploads into month- and year-based folders" in','regplus'); ?><a href="<?php echo get_option('siteurl'); ?>/wp-admin/options-misc.php"><?php _e('Miscellaneous Settings', 'regplus'); ?></a>. <?php _e('(You can recheck this option after your logo has uploaded.)','regplus'); ?></small></p>
+			<?php } ?>
+			</td>
+		</tr>
+		<tr valign="top">
+			<th scope="row"><?php _e('Email Verification', 'regplus'); ?></th>
+			<td>
+				<label><input type="checkbox" name="regplus_email_verify" id="email_verify" value="1" <?php if ( $rprSettings['email_verify']) echo 'checked="checked"'; ?> />&nbsp;<?php _e('Prevent fake email address registrations.', 'regplus'); ?></label><br />
+				<?php _e('Requires new registrations to click a link in the notification email to enable their account.', 'regplus'); ?>
+				<div id="grace">
+					<label><strong><?php _e('Grace Period (days):', 'regplus'); ?></strong>&nbsp;<input type="text" name="regplus_email_delete_grace" id="email_delete_grace" style="width:50px;" value="<?php echo $rprSettings['email_delete_grace']; ?>" /></label><br />
+					<?php _e('Unverified Users will be automatically deleted after grace period expires', 'regplus'); ?>
+				</div>
+			</td>
+		</tr>
+		<tr valign="top">
+			<th scope="row"><?php _e('Admin Verification', 'regplus'); ?></th>
+			<td><label><input type="checkbox" name="regplus_admin_verify" id="admin_verify" value="1" <?php if ( $rprSettings['admin_verify']) echo 'checked="checked"'; ?> />&nbsp;<?php _e('Moderate all user registrations to require admin approval. NOTE: Email Verification must be DISABLED to use this feature.', 'regplus'); ?></label></td>
+		</tr>
+		<tr valign="top">
+			<th scope="row"><?php _e('Invitation Code', 'regplus'); ?></th>
+			<td>
+				<label><input type="checkbox" name="regplus_code" id="code" value="1" <?php if ( $rprSettings['enable_invitation_code']) echo 'checked="checked"'; ?> />&nbsp;<?php _e('Enable Invitation Code(s)', 'regplus'); ?></label>
+				<div id="codepass">
+					<label><input type="checkbox" name="regplus_dash_widget" value="1" <?php if ( $rprSettings['enable_invitation_tracking_widget']) echo 'checked="checked"';  ?>  />&nbsp;<?php _e('Enable Invitation Tracking Dashboard Widget', 'regplus'); ?></label><br />
+					<label><input type="checkbox" name="regplus_code_req" id="code_req" value="1" <?php if ( $rprSettings['require_invitation_code']) echo 'checked="checked"'; ?> />&nbsp;<?php _e('Require Invitation Code to Register', 'regplus'); ?></label>
+					<?php if ( $codes) { echo $codes; } else { ?>
+					<div class="code_block">
+						<input type="text" name="regplus_codepass[]"  value="<?php echo $rprSettings['invitation_code_bank']; ?>" /> &nbsp;
+						<a href="#" onClick="return selremcode(this);" class="remove_code"><img src="<?php echo $plugin_url; ?>removeBtn.gif" alt="<?php _e("Remove Code","regplus") ?>" title="<?php _e("Remove Code","regplus") ?>" /></a>
+						<a href="#" onClick="return seladdcode(this);" class="add_code"><img src="<?php echo $plugin_url; ?>addBtn.gif" alt="<?php _e("Add Code","regplus") ?>" title="<?php _e("Add Code","regplus") ?>" /></a>
 					</div>
-				</td>
-			</tr>
-			<tr valign="top">
-				<th scope="row"><label for="logo"><?php _e('Custom Logo', 'regplus'); ?></label></th>
-				<td>
-					<input type="file" name="regplus_logo" id="logo" value="1" />&nbsp;<small><?php _e("Recommended Logo width is 292px, but any height should work.", "regplus"); ?></small><br /><img src="<?php echo $rprSettings['logo']; ?>" alt="" />
-				<?php if ($rprSettings['logo']) { ?>
-					<br /><label><input type="checkbox" name="remove_logo" value="1" /><?php _e('Delete Logo', 'regplus'); ?></label>
-				<?php } else { ?>
-					<p><small><strong><?php _e('Having troubles uploading?','regplus'); ?></strong><?php _e('Uncheck "Organize my uploads into month- and year-based folders" in','regplus'); ?><a href="<?php echo get_option('siteurl'); ?>/wp-admin/options-misc.php"><?php _e('Miscellaneous Settings', 'regplus'); ?></a>. <?php _e('(You can recheck this option after your logo has uploaded.)','regplus'); ?></small></p>
-				<?php } ?>
-				</td>
-			</tr>
-			<tr valign="top">
-				<th scope="row"><label for="email_verify"><?php _e('Email Verification', 'regplus'); ?></label></th>
-				<td>
-					<label><input type="checkbox" name="regplus_email_verify" id="email_verify" value="1" <?php if ( $rprSettings['email_verify']) echo 'checked="checked"'; ?> /><?php _e('Prevent fake email address registrations.', 'regplus'); ?></label><br />
-					<?php _e('Requires new registrations to click a link in the notification email to enable their account.', 'regplus'); ?>
-					<div id="grace"><label for="email_delete_grace"><strong><?php _e('Grace Period (days)', 'regplus'); ?></strong>: </label><input type="text" name="regplus_email_delete_grace" id="email_delete_grace" style="width:50px;" value="<?php echo $rprSettings['email_delete_grace']; ?>" /><br />
-					<?php _e('Unverified Users will be automatically deleted after grace period expires', 'regplus'); ?></div>
-				</td>
-			</tr>
-			<tr valign="top">
-				<th scope="row"><label for="admin_verify"><?php _e('Admin Verification', 'regplus'); ?></label></th>
-				<td><label><input type="checkbox" name="regplus_admin_verify" id="admin_verify" value="1" <?php if ( $rprSettings['admin_verify']) echo 'checked="checked"'; ?> /><?php _e('Moderate all user registrations to require admin approval. NOTE: Email Verification must be DISABLED to use this feature.', 'regplus'); ?></label></td>
-			</tr>
-			<tr valign="top">
-				<th scope="row"><label for="code"><?php _e('Invitation Code', 'regplus'); ?></label></th>
-				<td>
-					<label><input type="checkbox" name="regplus_code" id="code" value="1" <?php if ( $rprSettings['enable_invitation_code']) echo 'checked="checked"'; ?> /><?php _e('Enable Invitation Code(s)', 'regplus'); ?></label>
-					<div id="codepass">
-						<label><input type="checkbox" name="regplus_dash_widget" value="1" <?php if ( $rprSettings['enable_invitation_tracking_widget']) echo 'checked="checked"';  ?>  /><?php _e('Enable Invitation Tracking Dashboard Widget', 'regplus'); ?></label><br />
-						<label><input type="checkbox" name="regplus_code_req" id="code_req" value="1" <?php if ( $rprSettings['require_invitation_code']) echo 'checked="checked"'; ?> /><?php _e('Require Invitation Code to Register', 'regplus'); ?></label>
-						<?php if ( $codes) { echo $codes; } else { ?>
-						<div class="code_block">
-							<input type="text" name="regplus_codepass[]"  value="<?php echo $rprSettings['invitation_code_bank']; ?>" /> &nbsp;
-							<a href="#" onClick="return selremcode(this);" class="remove_code"><img src="<?php echo $plugin_url; ?>removeBtn.gif" alt="<?php _e("Remove Code","regplus") ?>" title="<?php _e("Remove Code","regplus") ?>" /></a>
-							<a href="#" onClick="return seladdcode(this);" class="add_code"><img src="<?php echo $plugin_url; ?>addBtn.gif" alt="<?php _e("Add Code","regplus") ?>" title="<?php _e("Add Code","regplus") ?>" /></a>
-						</div>
-						<?php } ?>
-						<small><?php _e('One of these codes will be required for users to register.', 'regplus'); ?></small>
-					</div>
-				</td>
-			</tr>
-			<tr valign="top">
-				<th scope="row"><label for="disclaimer"><?php _e('Disclaimer', 'regplus'); ?></label></th>
-				<td>
-					<label><input type="checkbox" name="regplus_disclaimer" id="disclaimer" value="1" <?php if ( $rprSettings['show_disclaimer']) echo 'checked="checked"'; ?> /><?php _e('Enable Disclaimer','regplus'); ?></label>
-					<div id="disclaim_content">
-						<label for="disclaimer_title"><?php _e('Disclaimer Title','regplus'); ?></label><input type="text" name="regplus_disclaimer_title" id="disclaimer_title" value="<?php echo $rprSettings['message_disclaimer_title']; ?>" /><br />
-						<label for="disclaimer_content"><?php _e('Disclaimer Content','regplus'); ?></label><br />
-						<textarea name="regplus_disclaimer_content" id="disclaimer_content" cols="25" rows="10" style="width:80%;height:300px;display:block;"><?php echo stripslashes($rprSettings['message_disclaimer']); ?></textarea><br />
-						<label for="disclaimer_agree"><?php _e('Agreement Text','regplus'); ?></label><input type="text" name="regplus_disclaimer_agree" id="disclaimer_agree" value="<?php echo $rprSettings['message_disclaimer_agree']; ?>" />
-					</div>
-				</td>
-			</tr>
-			<tr valign="top">
-				<th scope="row"><label for="license"><?php _e('License Agreement', 'regplus'); ?></label></th>
-				<td>
-					<label><input type="checkbox" name="regplus_license" id="license" value="1" <?php if ( $rprSettings['show_license_agreement']) echo 'checked="checked"'; ?> /><?php _e('Enable License Agreement','regplus'); ?></label>
-					<div id="lic_content">
-						<label for="license_title"><?php _e('License Title','regplus'); ?></label><input type="text" name="regplus_license_title" id="license_title" value="<?php echo $rprSettings['message_license_title']; ?>" /><br />
-						<label for="license_content"><?php _e('License Content','regplus'); ?></label><br />
-						<textarea name="regplus_license_content" id="license_content" cols="25" rows="10" style="width:80%;height:300px;display:block;"><?php echo stripslashes($rprSettings['message_license']); ?></textarea><br />
-						<label for="license_agree"><?php _e('Agreement Text','regplus'); ?></label><input type="text" name="regplus_license_agree" id="license_agree" value="<?php echo $rprSettings['message_license_agree']; ?>" />
-					</div>
-				</td>
-			</tr>
-			<tr valign="top">
-				<th scope="row"><label for="privacy"><?php _e('Privacy Policy', 'regplus'); ?></label></th>
-				<td>
-					<label><input type="checkbox" name="regplus_privacy" id="privacy" value="1" <?php if ( $rprSettings['show_privacy_policy']) echo 'checked="checked"'; ?> /><?php _e('Enable Privacy Policy','regplus'); ?></label>
-					<div id="priv_content">
-						<label for="privacy_title"><?php _e('Privacy Policy Title','regplus'); ?></label><input type="text" name="regplus_privacy_title" id="privacy_title" value="<?php echo $rprSettings['message_privacy_policy_title']; ?>" /><br />
-						<label for="privacy_content"><?php _e('Privacy Policy Content','regplus'); ?></label><br />
-						<textarea name="regplus_privacy_content" id="privacy_content" cols="25" rows="10" style="width:80%;height:300px;display:block;"><?php echo stripslashes($rprSettings['message_privacy_policy']); ?></textarea><br />
-						<label for="privacy_agree"><?php _e('Agreement Text','regplus'); ?></label><input type="text" name="regplus_privacy_agree" id="privacy_agree" value="<?php echo $rprSettings['message_privacy_policy_agree']; ?>" />
-					</div>
-				</td>
-			</tr>
-			<tr valign="top">
-				<th scope="row"><label for="email_exists"><?php _e('Allow Existing Email', 'regplus'); ?></label></th>
-				<td>
-					<label><input type="checkbox" name="regplus_email_exists" id="email_exists" value="1" <?php if ( $rprSettings['email_exists']) echo 'checked="checked""'; ?> /><?php _e('Allow new registrations to use an email address that has been previously registered', 'regplus'); ?></label>
-				</td>
-			</tr>
-		</tbody>
+					<?php } ?>
+					<small><?php _e('One of these codes will be required for users to register.', 'regplus'); ?></small>
+				</div>
+			</td>
+		</tr>
+		<tr valign="top">
+			<th scope="row"><?php _e('Allow Duplicate Email Addresses', 'regplus'); ?></th>
+			<td>
+				<label><input type="checkbox" name="allow_duplicate_emails" value="1" <?php if ( $rprSettings['allow_duplicate_emails']) echo 'checked="checked""'; ?> />&nbsp;<?php _e('Allow new registrations to use an email address that has been previously registered', 'regplus'); ?></label>
+			</td>
+		</tr>
 	</table>
-	<h3><?php _e('Additional Profile Fields', 'regplus'); ?></h3>
+	<h3><?php _e('Registration Page', 'regplus'); ?></h3>
 	<p><?php _e('Check the fields you would like to appear on the Registration Page.', 'regplus'); ?></p>
 	<table class="form-table">
-		<tbody>
-			<tr valign="top">
-				<th scope="row"><label for="name"><?php _e('Name', 'regplus'); ?></label></th>
-				<td><label><input type="checkbox" name="regplus_firstname" id="name" value="1" <?php if ( $rprSettings['show_firstname_field']) echo 'checked="checked"'; ?> /><?php _e('First Name', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_lastname" value="1" <?php if ( $rprSettings['show_lastname_field']) echo 'checked="checked"'; ?> /><?php _e('Last Name', 'regplus'); ?></label></td>
-			</tr>
-			<tr valign="top">
-				<th scope="row"><label for="contact"><?php _e('Contact Info', 'regplus'); ?></label></th>
-				<td><label><input type="checkbox" name="regplus_website" id="contact" value="1" <?php if ( $rprSettings['show_website_field']) echo 'checked="checked"'; ?> /><?php _e('Website', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_aim" value="1" <?php if ( $rprSettings['show_aim_field']) echo 'checked="checked"'; ?> /><?php _e('AIM', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_yahoo" value="1" <?php if ( $rprSettings['show_yahoo_field']) echo 'checked="checked"'; ?> /><?php _e('Yahoo IM', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_jabber" value="1" <?php if ( $rprSettings['show_jabber_field']) echo 'checked="checked"'; ?> /><?php _e('Jabber / Google Talk', 'regplus'); ?></label></td>
-			</tr>
-			<tr valign="top">
-				<th scope="row"><label for="about"><?php _e('About Yourself', 'regplus'); ?></label></th>
-				<td><label><input type="checkbox" name="regplus_about" id="name" value="1" <?php if ( $rprSettings['show_about_field']) echo 'checked="checked"'; ?> /><?php _e('About Yourself', 'regplus'); ?></label></td>
-			</tr>
-			<tr valign="top">
-				<th scope="row"><label for="req"><?php _e('Required Profile Fields', 'regplus'); ?></label></th>
-				<td><label><input type="checkbox" name="regplus_profile_req[]" value="firstname" <?php if ( in_array('firstname', $rprSettings['required_fields'])) echo 'checked="checked"'; ?> /><?php _e('First Name', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="lastname" <?php if ( in_array('lastname', $rprSettings['required_fields'])) echo 'checked="checked"'; ?> /><?php _e('Last Name', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="website" <?php if ( in_array('website', $rprSettings['required_fields'])) echo 'checked="checked"'; ?> /><?php _e('Website', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="aim" <?php if ( in_array('aim', $rprSettings['required_fields'])) echo 'checked="checked"'; ?> /><?php _e('AIM', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="yahoo" <?php if ( in_array('yahoo', $rprSettings['required_fields'])) echo 'checked="checked"'; ?> /><?php _e('Yahoo IM', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="jabber" <?php if ( in_array('jabber', $rprSettings['required_fields'])) echo 'checked="checked"'; ?> /><?php _e('Jabber / Google Talk', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_profile_req[]" value="about" <?php if ( in_array('about', $rprSettings['required_fields'])) echo 'checked="checked"'; ?> /><?php _e('About Yourself', 'regplus'); ?></label></td>
-			</tr>
-			<tr valign="top">
-				<th scope="row"><label for="require_style"><?php _e('Required Field Style Rules', 'regplus'); ?></label></th>
-				<td><input type="text" name="regplus_require_style" id="require_style" value="<?php echo $rprSettings['required_fields_style']; ?>" style="width: 350px;" /></td>
-			</tr>
-		</tbody>
+		<tr valign="top">
+			<th scope="row"><?php _e('Fields', 'regplus'); ?></th>
+			<td style="padding: 0px;">
+				<table>
+					<thead valign="top">
+						<td style="padding-top: 0px; padding-bottom: 0px;"></td>
+						<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><strong>Show</strong></td>
+						<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><strong>Require</strong></td>
+					</thead>
+					<tbody>
+						<tr valign="center">
+							<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e('First Name', 'regplus'); ?></td>
+							<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_firstname_field" value="1" <?php if ( $rprSettings['show_firstname_field']) echo 'checked="checked"'; ?> /></td>
+							<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="firstname" <?php if ( in_array('firstname', $rprSettings['required_fields'])) echo 'checked="checked"'; ?> /></td>
+						</tr>
+						<tr valign="center">
+							<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e('Last Name', 'regplus'); ?></td>
+							<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_lastname_field" value="1" <?php if ( $rprSettings['show_lastname_field']) echo 'checked="checked"'; ?> /></td>
+							<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="lastname" <?php if ( in_array('lastname', $rprSettings['required_fields'])) echo 'checked="checked"'; ?> /></td>
+						</tr>
+						<tr valign="center">
+							<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e('Website', 'regplus'); ?></td>
+							<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_website_field" value="1" <?php if ( $rprSettings['show_website_field']) echo 'checked="checked"'; ?> /></td>
+							<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="website" <?php if ( in_array('website', $rprSettings['required_fields'])) echo 'checked="checked"'; ?> /></td>
+						</tr>
+						<tr valign="center">
+							<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e('AIM', 'regplus'); ?></td>
+							<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_aim_field" value="1" <?php if ( $rprSettings['show_aim_field']) echo 'checked="checked"'; ?> /></td>
+							<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="aim" <?php if ( in_array('aim', $rprSettings['required_fields'])) echo 'checked="checked"'; ?> /></td>
+						</tr>
+						<tr valign="center">
+							<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e('Yahoo IM', 'regplus'); ?></td>
+							<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_yahoo_field" value="1" <?php if ( $rprSettings['show_yahoo_field']) echo 'checked="checked"'; ?> /></td>
+							<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="yahoo" <?php if ( in_array('yahoo', $rprSettings['required_fields'])) echo 'checked="checked"'; ?> /></td>
+						</tr>
+						<tr valign="center">
+							<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e('Jabber / Google Talk', 'regplus'); ?></td>
+							<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_jabber_field" value="1" <?php if ( $rprSettings['show_jabber_field']) echo 'checked="checked"'; ?> /></td>
+							<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="jabber" <?php if ( in_array('jabber', $rprSettings['required_fields'])) echo 'checked="checked"'; ?> /></td>
+						</tr>
+						<tr valign="center">
+							<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e('About Yourself', 'regplus'); ?></td>
+							<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_about_field" value="1" <?php if ( $rprSettings['show_about_field']) echo 'checked="checked"'; ?> /></td>
+							<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="about" <?php if ( in_array('about', $rprSettings['required_fields'])) echo 'checked="checked"'; ?> /></td>
+						</tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+		<tr valign="top">
+			<th scope="row"><?php _e('Required Field Style Rules', 'regplus'); ?></th>
+			<td><input type="text" name="regplus_require_style" id="require_style" value="<?php echo $rprSettings['required_fields_style']; ?>" style="width: 50%;" /></td>
+		</tr>
+		<tr valign="top">
+			<th scope="row"><?php _e('Disclaimer', 'regplus'); ?></th>
+			<td>
+				<label><input type="checkbox" name="show_disclaimer" id="show_disclaimer" value="1" <?php if ( $rprSettings['show_disclaimer']) echo 'checked="checked"'; ?> />&nbsp;<?php _e('Enable Disclaimer','regplus'); ?></label>
+				<div id="disclaim_settings" style="margin-left:10px;">
+					<table width="80%">
+						<tr>
+							<td style="padding-top: 0px; padding-bottom: 0px; width: 20%;" >
+								<label for"message_disclaimer_title"><?php _e('Disclaimer Title','regplus'); ?></label>
+							</td>
+							<td style="padding-top: 0px; padding-bottom: 0px;">
+								<input type="text" name="message_disclaimer_title" value="<?php echo $rprSettings['message_disclaimer_title']; ?>" style="width: 30%;" />							
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2" style="padding-top: 0px; padding-bottom: 0px;" >
+								<label><?php _e('Disclaimer Content','regplus'); ?><br />
+								<textarea name="message_disclaimer" style="width:100%; height:300px; display:block;"><?php echo stripslashes($rprSettings['message_disclaimer']); ?></textarea></label>
+							</td>
+						</tr>
+						<tr>
+							<td style="padding-top: 0px; padding-bottom: 0px; width: 20%;" >
+								<label for"message_disclaimer_agree><?php _e('Agreement Text','regplus'); ?></label>
+							</td>
+							<td style="padding-top: 0px; padding-bottom: 0px;">
+								<input type="text" name="message_disclaimer_agree" value="<?php echo $rprSettings['message_disclaimer_agree']; ?>" style="width: 30%;" />
+							</td>
+						</tr>
+					</table>
+				</div>
+			</td>
+		</tr>
+		<tr valign="top">
+			<th scope="row"><label for="license"><?php _e('License Agreement', 'regplus'); ?></label></th>
+			<td>
+				<label><input type="checkbox" name="show_license_agreement" id="show_license_agreement" value="1" <?php if ( $rprSettings['show_license_agreement']) echo 'checked="checked"'; ?> />&nbsp;<?php _e('Enable License Agreement','regplus'); ?></label>
+				<div id="license_agreement_settings" style="margin-left:10px;">
+					<table width="80%">
+						<tr>
+							<td style="padding-top: 0px; padding-bottom: 0px; width: 20%;" >
+								<label for"message_license_title"><?php _e('License Agreement Title','regplus'); ?></label>
+							</td>
+							<td style="padding-top: 0px; padding-bottom: 0px;">
+								<input type="text" name="message_license_title" value="<?php echo $rprSettings['message_license_title']; ?>" style="width: 30%;" />
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2" style="padding-top: 0px; padding-bottom: 0px;" >
+								<label><?php _e('License Agreement Content','regplus'); ?><br />
+								<textarea name="message_license" cols="25" rows="10" style="width:80%;height:300px;display:block;"><?php echo stripslashes($rprSettings['message_license']); ?></textarea></label>
+							</td>
+						</tr>
+						<tr>
+							<td style="padding-top: 0px; padding-bottom: 0px; width: 20%;" >
+								<label for"message_license_agree"><?php _e('Agreement Text','regplus'); ?></label>
+								<input type="text" name="message_license_agree" value="<?php echo $rprSettings['message_license_agree']; ?>" style="width: 30%;" />
+							</td>
+						</tr>
+					</table>
+				</div>
+			</td>
+		</tr>
+		<tr valign="top">
+			<th scope="row"><label for="privacy"><?php _e('Privacy Policy', 'regplus'); ?></label></th>
+			<td>
+				<label><input type="checkbox" name="show_privacy_policy" id="show_privacy_policy" value="1" <?php if ( $rprSettings['show_privacy_policy']) echo 'checked="checked"'; ?> />&nbsp;<?php _e('Enable Privacy Policy','regplus'); ?></label>
+				<div id="privacy_policy_settings" style="margin-left:10px;">
+					<table width="80%">
+						<tr>
+							<td style="padding-top: 0px; padding-bottom: 0px; width: 20%;" >
+								<label for"message_privacy_policy_title"><?php _e('Privacy Policy Title','regplus'); ?></label>
+							</td>
+							<td style="padding-top: 0px; padding-bottom: 0px;">
+								<input type="text" name="message_privacy_policy_title" value="<?php echo $rprSettings['message_privacy_policy_title']; ?>" style="width: 30%;" />
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2" style="padding-top: 0px; padding-bottom: 0px;" >
+								<label><?php _e('Privacy Policy Content','regplus'); ?><br />
+								<textarea name="message_privacy_policy" cols="25" rows="10" style="width:80%;height:300px;display:block;"><?php echo stripslashes($rprSettings['message_privacy_policy']); ?></textarea></label>
+							</td>
+						</tr>
+						<tr>
+							<td style="padding-top: 0px; padding-bottom: 0px; width: 20%;" >
+								<label for"message_privacy_policy_agree"><?php _e('Agreement Text','regplus'); ?></label>
+								<input type="text" name="message_privacy_policy_agree" value="<?php echo $rprSettings['message_privacy_policy_agree']; ?>" style="width: 30%;" />
+							</td>
+						</tr>
+					</table>
+				</div>
+			</td>
+		</tr>
 	</table>
 	<h3><?php _e('User Defined Fields', 'regplus'); ?></h3>
 	<p><?php _e('Enter the custom fields you would like to appear on the Registration Page.', 'regplus'); ?></p>
 	<p><small><?php _e('Enter Extra Options for Select, Checkboxes and Radio Fields as comma seperated values. For example, if you chose a select box for a custom field of "Gender", your extra options would be "Male,Female".','regplus'); ?></small></p>
 	<table class="form-table">
-		<tbody>
 		<?php if ( $rows) { echo $rows; } else { ?>
 			<tr valign="top" class="row_block">
-				<th scope="row"><label for="custom"><?php _e('Custom Field', 'regplus'); ?></label></th>
+				<th scope="row"><?php _e('Custom Field', 'regplus'); ?></th>
 				<td>
 					<input type="text" name="label[0]" class="custom" style="font-size:16px;padding:2px; width:150px;" value="" />&nbsp;<select class="fieldtype" name="fieldtype[0]"><?php echo $types; ?></select><?php echo $extras; ?>&nbsp;<label><input type="checkbox" name="reg[0]" class="reg" value="1" />  <?php _e('Add Registration Field', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="profile[0]"  class="profile" value="1" /><?php _e('Add Profile Field', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="required[0]" class="required" value="1" /><?php _e('Required', 'regplus'); ?></label>&nbsp;
 					<a href="#" onClick="return selrem(this);" class="remove_row"><img src="<?php echo $plugin_url; ?>removeBtn.gif" alt="<?php _e("Remove Row","regplus") ?>" title="<?php _e("Remove Row","regplus") ?>" /></a>
@@ -792,12 +872,10 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				</td>
 			</tr>
 		<?php } ?>
-		</tbody>
 	</table>
 	<table class="form-table">
-		<tbody>
 			<tr valign="top">
-				<th scope="row"><label for="date"><?php _e('Date Field Settings', 'regplus'); ?></label></th>
+				<th scope="row"><?php _e('Date Field Settings', 'regplus'); ?></th>
 				<td>
 					<label><?php _e('First Day of the Week','regplus'); ?>:
 						<select type="select" name="regplus_firstday">
@@ -831,7 +909,6 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					</select>
 				</td>
 			</tr>
-		</tbody>
 	</table>
 	<h3><?php _e('Auto-Complete Queries', 'regplus'); ?></h3>
 	<p><?php _e('You can now link to the registration page with queries to autocomplete specific fields for the user.  I have included the query keys below and an example of a query URL.', 'regplus'); ?></p>
@@ -841,111 +918,100 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 	<code>http://www.skullbit.com/wp-login.php?action=register&user_login=skullbit&user_email=info@skullbit.com&firstname=Skull&lastname=Bit&user_url=www.skullbit.com&aim=skullaim&yahoo=skullhoo&jabber=skulltalk&about=I+am+a+WordPress+Plugin+developer.&code=invitation&middle_name=Danger</code>
 	<h3><?php _e('Customize User Notification Email', 'regplus'); ?></h3>
 	<table class="form-table"> 
-		<tbody>
 			<tr valign="top">
 				<th scope="row"><label><?php _e('Custom User Email Notification', 'regplus'); ?></label></th>
 				<td><label><input type="checkbox" name="regplus_custom_msg" id="custom_msg" value="1" <?php if ( $rprSettings['custom_msg']) echo 'checked="checked"'; ?> /><?php _e('Enable', 'regplus'); ?></label></td>
 			</tr>
-		</tbody>
 	</table>
 	<div id="enabled_msg">
 		<table class="form-table">
-			<tbody>
-				<tr valign="top">
-					<th scope="row"><label for="from"><?php _e('From Email', 'regplus'); ?></label></th>
-					<td><input type="text" name="regplus_from" id="from" style="width:250px;" value="<?php echo $rprSettings['from']; ?>" /></td>
-				</tr>
-				<tr valign="top">
-					<th scope="row"><label for="fromname"><?php _e('From Name', 'regplus'); ?></label></th>
-					<td><input type="text" name="regplus_fromname" id="fromname" style="width:250px;" value="<?php echo $rprSettings['fromname']; ?>" /></td>
-				</tr>
-				<tr valign="top">
-					<th scope="row"><label for="subject"><?php _e('Subject', 'regplus'); ?></label></th>
-					<td><input type="text" name="regplus_subject" id="subject" style="width:350px;" value="<?php echo $rprSettings['subject']; ?>" /></td>
-				</tr>
-				<tr valign="top">
-					<th scope="row"><label for="msg"><?php _e('User Message', 'regplus'); ?></label></th>
-					<td>
-					<?php
-					if ( $rprSettings['show_firstname_field'] ) $custom_keys .= '&nbsp;%firstname%';
-					if ( $rprSettings['show_lastname_field'] ) $custom_keys .= '&nbsp;%lastname%';
-					if ( $rprSettings['show_website_field'] ) $custom_keys .= '&nbsp;%user_url%';
-					if ( $rprSettings['show_aim_field'] ) $custom_keys .= '&nbsp;%aim%';
-					if ( $rprSettings['show_yahoo_field'] ) $custom_keys .= '&nbsp;%yahoo%';
-					if ( $rprSettings['show_jabber_field'] ) $custom_keys .= '&nbsp;%jabber%';
-					if ( $rprSettings['show_about_field'] ) $custom_keys .= '&nbsp;%about%';
-					if ( $rprSettings['enable_invitation_code'] ) $custom_keys .= '&nbsp;%invitecode%';
-					if ( is_array($regplus_custom) ) {
-						foreach ( $regplus_custom as $k => $v ) {
-							$meta = $this->LabelId($v['label']);
-							$value = get_user_meta($user_id, $meta, false);
-							$custom_keys .= '&nbsp;%'.$meta.'%';
-						}
+			<tr valign="top">
+				<th scope="row"><label for="from"><?php _e('From Email', 'regplus'); ?></label></th>
+				<td><input type="text" name="regplus_from" id="from" style="width:250px;" value="<?php echo $rprSettings['from']; ?>" /></td>
+			</tr>
+			<tr valign="top">
+				<th scope="row"><label for="fromname"><?php _e('From Name', 'regplus'); ?></label></th>
+				<td><input type="text" name="regplus_fromname" id="fromname" style="width:250px;" value="<?php echo $rprSettings['fromname']; ?>" /></td>
+			</tr>
+			<tr valign="top">
+				<th scope="row"><label for="subject"><?php _e('Subject', 'regplus'); ?></label></th>
+				<td><input type="text" name="regplus_subject" id="subject" style="width:350px;" value="<?php echo $rprSettings['subject']; ?>" /></td>
+			</tr>
+			<tr valign="top">
+				<th scope="row"><label for="msg"><?php _e('User Message', 'regplus'); ?></label></th>
+				<td>
+				<?php
+				if ( $rprSettings['show_firstname_field'] ) $custom_keys .= '&nbsp;%firstname%';
+				if ( $rprSettings['show_lastname_field'] ) $custom_keys .= '&nbsp;%lastname%';
+				if ( $rprSettings['show_website_field'] ) $custom_keys .= '&nbsp;%user_url%';
+				if ( $rprSettings['show_aim_field'] ) $custom_keys .= '&nbsp;%aim%';
+				if ( $rprSettings['show_yahoo_field'] ) $custom_keys .= '&nbsp;%yahoo%';
+				if ( $rprSettings['show_jabber_field'] ) $custom_keys .= '&nbsp;%jabber%';
+				if ( $rprSettings['show_about_field'] ) $custom_keys .= '&nbsp;%about%';
+				if ( $rprSettings['enable_invitation_code'] ) $custom_keys .= '&nbsp;%invitecode%';
+				if ( is_array($regplus_custom) ) {
+					foreach ( $regplus_custom as $k => $v ) {
+						$meta = $this->LabelId($v['label']);
+						$value = get_user_meta($user_id, $meta, false);
+						$custom_keys .= '&nbsp;%'.$meta.'%';
 					}
-					?>
-						<p><strong><?php _e('Replacement Keys', 'regplus'); ?>:</strong>&nbsp;%user_login% &nbsp;%user_pass%&nbsp;%user_email%&nbsp;%blogname%&nbsp;%siteurl% <?php echo $custom_keys; ?>&nbsp; %user_ip%&nbsp;%user_ref%&nbsp;%user_host%&nbsp;%user_agent% </p>
-						<textarea name="regplus_msg" id="msg" rows="10" cols="25" style="width:80%;height:300px;"><?php echo $rprSettings['msg']; ?></textarea><br /><label><input type="checkbox" name="regplus_html" id="html" value="1" <?php if ( $rprSettings['html']) echo 'checked="checked"'; ?> /><?php _e('Send as HTML', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_user_nl2br" id="html" value="1" <?php if ( $rprSettings['user_nl2br']) echo 'checked="checked"'; ?> /><?php _e('Convert new lines to &lt;br/> tags (HTML only)' , 'regplus'); ?></label>
-					</td>
-				</tr>
-				<tr valign="top">
-					<th scope="row"><label for="login_redirect"><?php _e('Login Redirect URL', 'regplus'); ?></label></th>
-					<td><input type="text" name="regplus_login_redirect" id="login_redirect" style="width:250px;" value="<?php echo $rprSettings['login_redirect']; ?>" /><small><?php _e('This will redirect the users login after registration.', 'regplus'); ?></small></td>
-				</tr>
-			</tbody>
+				}
+				?>
+					<p><strong><?php _e('Replacement Keys', 'regplus'); ?>:</strong>&nbsp;%user_login% &nbsp;%user_pass%&nbsp;%user_email%&nbsp;%blogname%&nbsp;%siteurl% <?php echo $custom_keys; ?>&nbsp; %user_ip%&nbsp;%user_ref%&nbsp;%user_host%&nbsp;%user_agent% </p>
+					<textarea name="regplus_msg" id="msg" rows="10" cols="25" style="width:80%;height:300px;"><?php echo $rprSettings['msg']; ?></textarea><br /><label><input type="checkbox" name="regplus_html" id="html" value="1" <?php if ( $rprSettings['html']) echo 'checked="checked"'; ?> /><?php _e('Send as HTML', 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_user_nl2br" id="html" value="1" <?php if ( $rprSettings['user_nl2br']) echo 'checked="checked"'; ?> /><?php _e('Convert new lines to &lt;br/> tags (HTML only)' , 'regplus'); ?></label>
+				</td>
+			</tr>
+			<tr valign="top">
+				<th scope="row"><label for="login_redirect"><?php _e('Login Redirect URL', 'regplus'); ?></label></th>
+				<td><input type="text" name="regplus_login_redirect" id="login_redirect" style="width:250px;" value="<?php echo $rprSettings['login_redirect']; ?>" /><small><?php _e('This will redirect the users login after registration.', 'regplus'); ?></small></td>
+			</tr>
 		</table>
 	</div>
 	<h3><?php _e('Customize Admin Notification Email', 'regplus'); ?></h3>
 	<table class="form-table"> 
-		<tbody>
-			<tr valign="top">
-				<th scope="row"><label for="disable_admin"><?php _e('Admin Email Notification', 'regplus'); ?></label></th>
-				<td><label><input type="checkbox" name="regplus_disable_admin" id="disable_admin" value="1" <?php if ( $rprSettings['disable_admin']) echo 'checked="checked"'; ?> /><?php _e('Disable', 'regplus'); ?></label></td>
-			</tr>
-			<tr valign="top">
-				<th scope="row"><label><?php _e('Custom Admin Email Notification', 'regplus'); ?></label></th>
-				<td><label><input type="checkbox" name="regplus_custom_adminmsg" id="custom_adminmsg" value="1" <?php if ( $rprSettings['custom_adminmsg']) echo 'checked="checked"'; ?> /><?php _e('Enable', 'regplus'); ?></label></td>
-			</tr>
-		</tbody>
+		<tr valign="top">
+			<th scope="row"><label for="disable_admin"><?php _e('Admin Email Notification', 'regplus'); ?></label></th>
+			<td><label><input type="checkbox" name="regplus_disable_admin" id="disable_admin" value="1" <?php if ( $rprSettings['disable_admin']) echo 'checked="checked"'; ?> /><?php _e('Disable', 'regplus'); ?></label></td>
+		</tr>
+		<tr valign="top">
+			<th scope="row"><label><?php _e('Custom Admin Email Notification', 'regplus'); ?></label></th>
+			<td><label><input type="checkbox" name="regplus_custom_adminmsg" id="custom_adminmsg" value="1" <?php if ( $rprSettings['custom_adminmsg']) echo 'checked="checked"'; ?> /><?php _e('Enable', 'regplus'); ?></label></td>
+		</tr>
 	</table>
 	<div id="enabled_adminmsg">
 		<table class="form-table">
-			<tbody>
-				<tr valign="top">
-					<th scope="row"><label for="adminfrom"><?php _e('From Email', 'regplus'); ?></label></th>
-					<td><input type="text" name="regplus_adminfrom" id="adminfrom" style="width:250px;" value="<?php echo $rprSettings['adminfrom']; ?>" /></td>
-				</tr>
-				<tr valign="top">
-					<th scope="row"><label for="adminfromname"><?php _e('From Name', 'regplus'); ?></label></th>
-					<td><input type="text" name="regplus_adminfromname" id="adminfromname" style="width:250px;" value="<?php echo $rprSettings['adminfromname']; ?>" /></td>
-				</tr>
-				<tr valign="top">
-					<th scope="row"><label for="adminsubject"><?php _e('Subject', 'regplus'); ?></label></th>
-					<td><input type="text" name="regplus_adminsubject" id="adminsubject" style="width:350px;" value="<?php echo $rprSettings['adminsubject']; ?>" /></td>
-				</tr>
-				<tr valign="top">
-					<th scope="row"><label for="adminmsg"><?php _e('Admin Message', 'regplus'); ?></label></th>
-					<td><p><strong><?php _e('Replacement Keys', 'regplus'); ?>:</strong>&nbsp;%user_login% &nbsp;%user_email%&nbsp;%blogname%&nbsp;%siteurl%  <?php echo $custom_keys; ?>&nbsp; %user_ip%&nbsp;%user_ref%&nbsp;%user_host%&nbsp;%user_agent%</p><textarea name="regplus_adminmsg" id="adminmsg" rows="10" cols="25" style="width:80%;height:300px;"><?php echo $rprSettings['adminmsg']; ?></textarea><br /><label><input type="checkbox" name="regplus_adminhtml" id="adminhtml" value="1" <?php if ( $rprSettings['adminhtml']) echo 'checked="checked"'; ?> /><?php _e('Send as HTML' , 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_admin_nl2br" id="html" value="1" <?php if ( $rprSettings['admin_nl2br']) echo 'checked="checked"'; ?> /><?php _e('Convert new lines to &lt;br/> tags (HTML only)' , 'regplus'); ?></label></td>
-				</tr>
-			</tbody>
+			<tr valign="top">
+				<th scope="row"><label for="adminfrom"><?php _e('From Email', 'regplus'); ?></label></th>
+				<td><input type="text" name="regplus_adminfrom" id="adminfrom" style="width:250px;" value="<?php echo $rprSettings['adminfrom']; ?>" /></td>
+			</tr>
+			<tr valign="top">
+				<th scope="row"><label for="adminfromname"><?php _e('From Name', 'regplus'); ?></label></th>
+				<td><input type="text" name="regplus_adminfromname" id="adminfromname" style="width:250px;" value="<?php echo $rprSettings['adminfromname']; ?>" /></td>
+			</tr>
+			<tr valign="top">
+				<th scope="row"><label for="adminsubject"><?php _e('Subject', 'regplus'); ?></label></th>
+				<td><input type="text" name="regplus_adminsubject" id="adminsubject" style="width:350px;" value="<?php echo $rprSettings['adminsubject']; ?>" /></td>
+			</tr>
+			<tr valign="top">
+				<th scope="row"><label for="adminmsg"><?php _e('Admin Message', 'regplus'); ?></label></th>
+				<td><p><strong><?php _e('Replacement Keys', 'regplus'); ?>:</strong>&nbsp;%user_login% &nbsp;%user_email%&nbsp;%blogname%&nbsp;%siteurl%  <?php echo $custom_keys; ?>&nbsp; %user_ip%&nbsp;%user_ref%&nbsp;%user_host%&nbsp;%user_agent%</p><textarea name="regplus_adminmsg" id="adminmsg" rows="10" cols="25" style="width:80%;height:300px;"><?php echo $rprSettings['adminmsg']; ?></textarea><br /><label><input type="checkbox" name="regplus_adminhtml" id="adminhtml" value="1" <?php if ( $rprSettings['adminhtml']) echo 'checked="checked"'; ?> /><?php _e('Send as HTML' , 'regplus'); ?></label>&nbsp;<label><input type="checkbox" name="regplus_admin_nl2br" id="html" value="1" <?php if ( $rprSettings['admin_nl2br']) echo 'checked="checked"'; ?> /><?php _e('Convert new lines to &lt;br/> tags (HTML only)' , 'regplus'); ?></label></td>
+			</tr>
 		</table>
 	</div>
 	<br />
 	<h3><?php _e('Custom CSS for Register & Login Pages', 'regplus'); ?></h3>
 	<p><?php _e('CSS Rule Example:', 'regplus'); ?><code>#user_login{ font-size: 20px; width: 97%; padding: 3px; margin-right: 6px; }</code></p>
 	<table class="form-table">
-		<tbody>
-			<tr valign="top">
-				<th scope="row"><label for="register_css"><?php _e('Custom Register CSS', 'regplus'); ?></label></th>
-				<td><textarea name="regplus_register_css" id="register_css" rows="20" cols="40" style="width:80%; height:200px;"><?php echo $rprSettings['register_css']; ?></textarea></td>
-			</tr>
-			<tr valign="top">
-				<th scope="row"><label for="login_css"><?php _e('Custom Login CSS', 'regplus'); ?></label></th>
-				<td><textarea name="regplus_login_css" id="login_css" rows="20" cols="40" style="width:80%; height:200px;"><?php echo $rprSettings['login_css']; ?></textarea></td>
-			</tr>
-		</tbody>
+		<tr valign="top">
+			<th scope="row"><label for="register_css"><?php _e('Custom Register CSS', 'regplus'); ?></label></th>
+			<td><textarea name="regplus_register_css" id="register_css" rows="20" cols="40" style="width:80%; height:200px;"><?php echo $rprSettings['register_css']; ?></textarea></td>
+		</tr>
+		<tr valign="top">
+			<th scope="row"><label for="login_css"><?php _e('Custom Login CSS', 'regplus'); ?></label></th>
+			<td><textarea name="regplus_login_css" id="login_css" rows="20" cols="40" style="width:80%; height:200px;"><?php echo $rprSettings['login_css']; ?></textarea></td>
+		</tr>
 	</table>
-	<p class="submit"><input name="Submit" value="<?php _e('Save Changes','regplus'); ?>" type="submit" />
-	<input name="action" value="reg_plus_update" type="hidden" />
+	<p class="submit"><input class="button-primary" type="submit" value="<?php _e('Save Changes','regplus'); ?>" name="Submit" /></p>
 	</form>
 </div>
 <?php
@@ -956,8 +1022,8 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			$rprSettings = get_option('plugin_register_plus_redux_settings');
 			$regplus_custom = get_option('register_plus_custom');
 			if ( !is_array($regplus_custom) ) $regplus_custom = array();
-			if ( $rprSettings['email_exists'] ) {
-				if ($errors->errors['email_exists'] ) unset($errors->errors['email_exists']);
+			if ( $rprSettings['allow_duplicate_emails'] ) {
+				if ($errors->errors['allow_duplicate_emails'] ) unset($errors->errors['allow_duplicate_emails']);
 			}
 			if ( $rprSettings['show_firstname_field'] && in_array('firstname', $rprSettings['required_fields']) ) {
 				if ( empty($_POST['firstname']) || $_POST['firstname'] == '' ) {
@@ -1016,10 +1082,10 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				}
 			}
 			if ( $rprSettings['enable_invitation_code'] && $rprSettings['require_invitation_code'] ) {
-				if ( empty($_POST['regcode']) || $_POST['regcode'] == '' ) {
-					$errors->add('empty_regcode', __('<strong>ERROR</strong>: Please enter the Invitation Code.', 'regplus'));
-				} elseif ( !in_array(strtolower($_POST['regcode']), $rprSettings['invitation_code_bank']) ) {
-					$errors->add('regcode_mismatch', __('<strong>ERROR</strong>: Your Invitation Code is incorrect.', 'regplus'));
+				if ( empty($_POST['invitation_code']) || $_POST['invitation_code'] == '' ) {
+					$errors->add('empty_invitation_code', __('<strong>ERROR</strong>: Please enter the Invitation Code.', 'regplus'));
+				} elseif ( !in_array(strtolower($_POST['invitation_code']), $rprSettings['invitation_code_bank']) ) {
+					$errors->add('invitation_code_mismatch', __('<strong>ERROR</strong>: Your Invitation Code is incorrect.', 'regplus'));
 				}
 			}
 			if ( $rprSettings['show_disclaimer'] ) {
@@ -1147,11 +1213,11 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 <?php
 			}
 			if ( $rprSettings['enable_invitation_code'] ) {
-				if ( isset($_GET['regcode']) ) $_POST['regcode'] = $_GET['regcode'];
+				if ( isset($_GET['invitation_code']) ) $_POST['invitation_code'] = $_GET['invitation_code'];
 					?>
 <p>
 	<label><?php _e('Invitation Code:', 'regplus'); ?><br />
-	<input name="regcode" id="regcode" size="25" value="<?php echo $_POST['regcode']; ?>" type="text" tabindex="45" /></label><br />
+	<input name="invitation_code" id="invitation_code" size="25" value="<?php echo $_POST['invitation_code']; ?>" type="text" tabindex="45" /></label><br />
 	<?php if ($rprSettings['require_invitation_code']) { ?>
 		<small><?php _e('This website is currently closed to public registrations.  You will need an invitation code to register.', 'regplus'); ?></small>
 	<?php } else { ?>
@@ -1301,7 +1367,7 @@ jQuery(function() {
 a.dp-choose-date { float: left; width: 16px; height: 16px; padding: 0; margin: 5px 3px 0; display: block; text-indent: -2000px; overflow: hidden; background: url(<?php echo $plugin_url; ?>datepicker/calendar.png) no-repeat; }
 a.dp-choose-date.dp-disabled { background-position: 0 -20px; cursor: default; } /* makes the input field shorter once the date picker code * has run (to allow space for the calendar icon */
 input.dp-applied { width: 140px; float: left; }
-#pass1, #pass2, #regcode, #firstname, #lastname, #user_url, #aim, #yahoo, #jabber, #about, .custom_field {
+#pass1, #pass2, #invitation_code, #firstname, #lastname, #user_url, #aim, #yahoo, #jabber, #about, .custom_field {
         font-size:24px;
         width:97%;
         padding:3px;
@@ -1632,7 +1698,7 @@ if ( !function_exists('wp_new_user_notification') ) :
 		if ( $rprSettings['show_yahoo_field'] && $_POST['yahoo'] ) update_user_meta($user_id, 'yim', $wpdb->prepare($_POST['yahoo']));
 		if ( $rprSettings['show_jabber_field'] && $_POST['jabber'] ) update_user_meta($user_id, 'jabber', $wpdb->prepare($_POST['jabber']));
 		if ( $rprSettings['show_about_field'] && $_POST['about'] ) update_user_meta($user_id, 'description', $wpdb->prepare($_POST['about']));
-		if ( $rprSettings['enable_invitation_code'] && $_POST['regcode'] ) update_user_meta($user_id, 'invite_code', $wpdb->prepare($_POST['regcode']));
+		if ( $rprSettings['enable_invitation_code'] && $_POST['invitation_code'] ) update_user_meta($user_id, 'invite_code', $wpdb->prepare($_POST['invitation_code']));
 		if ( $ref != $admin && $rprSettings['admin_verify'] ) {
 			update_user_meta($user_id, 'admin_verify_user', $user->user_login);
 			$temp_login = 'unverified__' . $registerPlusRedux->RandomString(7);
@@ -1688,7 +1754,7 @@ if ( !function_exists('wp_new_user_notification') ) :
 			if ( $rprSettings['show_yahoo_field'] ) $message = str_replace('%yahoo%', $_POST['yahoo'], $message);
 			if ( $rprSettings['show_jabber_field'] ) $message = str_replace('%jabber%', $_POST['jabber'], $message);
 			if ( $rprSettings['show_about_field'] ) $message = str_replace('%about%', $_POST['about'], $message);
-			if ( $rprSettings['enable_invitation_code'] ) $message = str_replace('%invitecode%', $_POST['enable_invitation_code'], $message);
+			if ( $rprSettings['enable_invitation_code'] ) $message = str_replace('%invitecode%', $_POST['invitation_code'], $message);
 			if ( !is_array($regplus_custom) ) $regplus_custom = array();
 			if ( !empty($regplus_custom) ) {
 				foreach ( $regplus_custom as $k => $v ) {
@@ -1736,7 +1802,7 @@ if ( !function_exists('wp_new_user_notification') ) :
 			if ( $rprSettings['show_yahoo_field'] ) $message = str_replace('%yahoo%', $_POST['yahoo'], $message);
 			if ( $rprSettings['show_jabber_field'] ) $message = str_replace('%jabber%', $_POST['jabber'], $message);
 			if ( $rprSettings['show_about_field'] ) $message = str_replace('%about%', $_POST['about'], $message);
-			if ( $rprSettings['enable_invitation_code'] ) $message = str_replace('%invitecode%', $_POST['enable_invitation_code'], $message);
+			if ( $rprSettings['enable_invitation_code'] ) $message = str_replace('%invitecode%', $_POST['invitation_code'], $message);
 			if ( !is_array($regplus_custom) ) $regplus_custom = array();
 			if ( !empty($regplus_custom) ) {
 				foreach ( $regplus_custom as $k => $v ) {
@@ -1762,4 +1828,4 @@ if ( !function_exists('wp_new_user_notification') ) :
 			wp_update_user(array('ID' => $user_id, 'user_login' => $wpdb->prepare($temp_login)));
 	}
 endif;
- ?>
+?>

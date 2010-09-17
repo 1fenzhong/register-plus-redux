@@ -47,9 +47,6 @@ Register Plus was abandoned by skullbit sometime after September, 2008 following
 = Didn't Register Plus have CAPTCHA? =
 Register Plus offered two different CAPTCHA methods, a simple random CAPTCHA and reCAPTCHA.  The simple one randomly created a 6-character sequence on a background image with two random lines drawn across the image, this CAPTCHA would be very easy for any OCR program to decipher as the characters were not modified in anyway and contrast was high.  reCAPTCHA is a great idea, but there is another plugin, [WP-reCAPTCHA](http://wordpress.org/extend/plugins/wp-recaptcha/) endorsed by the reCAPTCHA developers that can be used to add reCAPTCHA to the registration page.  I also endorse the use of that plugin for that purpose.
 
-= Localization =
-Place your language file in the plugin folder directory and name it "regplus-{language}.mo" replacing {language} with your language value from wp-config.php 
-
 == Screenshots ==
 
 1. Registration Page
@@ -78,21 +75,29 @@ TODO: After renaming all settings, need to delete unused settings
 
 TODO: Migrate settings from Register Plus
 
+TODO: Add localiztion back in
+
 == Changelog ==
 
 = 3.6.2 =
 September 13, 2010 by radiok
 
-* Fixed two bugs found by Gene53 and markwadds
+* Fixed bug found by seanchk, shrikantjoshi, and ljmac, this was due to incomplete renaming of settings
 
-  http://wordpress.org/support/topic/plugin-register-plus-redux-fatal-error?replies=3
-
-= 3.6.1 =
-September 13, 2010 by radiok
+  http://wordpress.org/support/topic/plugin-register-plus-redux-settings-cleared-when-saving
 
 * Fixed jQuery datePicker as specified by DanoNH
 
   http://wordpress.org/support/topic/register-plus-is-adding-s-to-all-quote-marks-in-registration-email
+
+* Redesigned settings page
+
+= 3.6.1 =
+September 13, 2010 by radiok
+
+* Fixed two bugs found by Gene53 and markwadds, both typos
+
+  http://wordpress.org/support/topic/plugin-register-plus-redux-fatal-error?replies=3
 
 * More renaming of settings
 
