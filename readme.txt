@@ -45,7 +45,7 @@ Also includes fixes for known Register Plus bugs which has been abandoned.
 Register Plus was abandoned by skullbit sometime after September, 2008 following the release of Register Plus 3.5.1.  As of September, 2009 skullbit's website was undergoing maintence.  Several bugs have been reported to the Register Plus plugin forum since that time, to resolve these bugs and continue development radiok forked the project.
 
 = Didn't Register Plus have CAPTCHA? =
-Register Plus offered two different CAPTCHA methods, a simple random CAPTCHA and reCAPTCHA.  The simple one randomly created a 6-character sequence on a background image with two random lines drawn across the image, this CAPTCHA would be very easy for any OCR program to decipher as the characters were not modified in anyway and contrast was high.  reCAPTCHA is a great idea, but there is another plugin, [WP-reCAPTCHA](http://wordpress.org/extend/plugins/wp-recaptcha/) endorsed by the reCAPTCHA developers that can be used to add reCAPTCHA to the registration page.  I also endorse the use of that plugin for that purpose.
+Register Plus offered two different CAPTCHA methods, a simple random CAPTCHA and reCAPTCHA.  The simple one randomly created a 5-character sequence on a background image with two random lines drawn across the image, this CAPTCHA would be very easy for any OCR program to decipher as the characters were not modified in anyway and contrast was high.  reCAPTCHA is a great idea, but there is another plugin, [WP-reCAPTCHA](http://wordpress.org/extend/plugins/wp-recaptcha/) endorsed by the reCAPTCHA developers that can be used to add reCAPTCHA to the registration page.  I also endorse the use of that plugin for that purpose.
 
 == Screenshots ==
 
@@ -75,12 +75,20 @@ TODO: After renaming all settings, need to delete unused settings
 
 TODO: Migrate settings from Register Plus
 
-TODO: Add localiztion back in
+TODO: Add localization back in
+
+TODO: Add uninstall function
 
 == Changelog ==
 
+= 3.6.3 =
+September 17, 2010 by radiok
+
+* More renaming of settings
+* More redesigned of settings page
+
 = 3.6.2 =
-September 13, 2010 by radiok
+September 16, 2010 by radiok
 
 * Fixed bug found by seanchk, shrikantjoshi, and ljmac, this was due to incomplete renaming of settings
 
