@@ -1584,13 +1584,8 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			}
 		}
 
-		function SaveCustomFields( $user_id_passed ) {
-			echo 'user_id_passed:', $user_id_passed, '<br/>';
-			echo '$_REQUEST:',$_REQUEST['user_id'], '<br/>';
-			global $wpdb, $user_ID;
-			get_currentuserinfo();
-			echo 'get_currentuserinfo:', $user_ID, '<br/>';
-			if( $_REQUEST['user_id'] ) $user_ID = $_REQUEST['user_id'];
+		function SaveCustomFields( $user_id ) {
+			global $wpdb;
 			$custom_fields = get_option('register_plus_redux_custom_fieldsx');
 			if ( !is_array($custom_fields) ) $custom_fields = array();
 			//if ( !empty($custom_fields) ) {
@@ -1600,7 +1595,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 						$key = $this->LabelId($v['label']);
 						if ( is_array($_POST[$key]) ) $_POST[$key] = implode(', ', $_POST[$key]);
 						$value = $wpdb->prepare($_POST[$key]);
-						update_user_meta($user_ID ,$key ,$value);
+						update_user_meta($user_id ,$key ,$value);
 					}
 				}
 			//}
