@@ -79,6 +79,8 @@ TODO: Add localization back in
 
 TODO: Add uninstall function
 
+TODO: Make Redux compatible with Wordpress MU (wp-signup.php)
+
 == Changelog ==
 
 = 3.6.3 =
