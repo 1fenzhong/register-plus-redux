@@ -16,44 +16,30 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 	class RegisterPlusReduxPlugin {
 		function RegisterPlusReduxPlugin() {
 			global $wp_version;
-
 			register_activation_hook(__FILE__, array($this, 'InitializeSettings'));
-			
 			if ( is_admin() ) {
-				add_action('admin_menu', array($this, 'AddPages') );
-				if ( $_GET['page'] == 'register-plus-redux' ) {
-					add_action('admin_head', array($this, 'OptionsHead'));
-					if ( $_POST['action'] == 'update_settings' )
-						add_action('init', array($this, 'UpdateSettings') );
-				}
-				add_action('init', array($this, 'DeleteInvalidUsers'));
+				add_action('init', array($this, 'DeleteInvalidUsers'));  //Runs after WordPress has finished loading but before any headers are sent.
+				add_action('admin_menu', array($this, 'AddPages') );  //Runs after the basic admin panel menu structure is in place.
+				if ( $_GET['page'] == 'register-plus-redux' && $_POST['action'] == 'update_settings')
+					add_action('init', array($this, 'UpdateSettings') );  //Runs after WordPress has finished loading but before any headers are sent.
+				if ( $_POST['verifyit'] )
+					add_action('init', array($this, 'AdminValidate'));  //Runs after WordPress has finished loading but before any headers are sent.
+				if ( $_POST['emailverifyit'] )
+					add_action('init', array($this, 'AdminEmailValidate'));  //Runs after WordPress has finished loading but before any headers are sent.
+				if ( $_POST['vdeleteit'] )
+					add_action('init', array($this, 'AdminDeleteUnvalidated'));  //Runs after WordPress has finished loading but before any headers are sent.
 			}
-
 			if ( $_GET['action'] == 'register' )
-				add_action('register_form', array($this, 'RegisterForm'));
+				add_action('register_form', array($this, 'RegisterForm'));  //Runs just before the end of the new user registration form. 
 			add_filter('registration_errors', array($this, 'RegistrationErrors'));
 
-			add_action('login_head', array($this, 'PassHead'));
-			#Add Custom Logo CSS to Login Page
-			add_action('login_head', array($this, 'LogoHead'));
-			#Hide initial login fields when email verification is enabled
-			add_action('login_head', array($this, 'HideLogin'));
+			add_action('login_head', array($this, 'PassHead'));  //Runs just before the end of the HTML head section of the login page. 
+			add_action('login_head', array($this, 'LoginHead'));  //Runs just before the end of the HTML head section of the login page. 
+			add_action('login_form', array($this, 'ValidateUser'));  //Runs just before the end of the HTML head section of the login page. 
 			
-			add_action('show_user_profile', array($this, 'ShowCustomFields')); //whenever profile is shown, show custom fields
-			add_action('edit_user_profile', array($this, 'ShowCustomFields')); //whenever profile is edit, add custom fields
-			add_action('profile_update', array($this, 'SaveCustomFields'));	//whenever profile is updated, also update custom fields
-			#Validate User
-			add_action('login_form', array($this, 'ValidateUser'));
-			#Delete Invalid Users
-			#Admin Validate Users
-			if ( $_POST['verifyit'] )
-				add_action('init', array($this, 'AdminValidate'));
-			#Admin Resend VerificatioN Email
-			if ( $_POST['emailverifyit'] )
-				add_action('init', array($this, 'AdminEmailValidate'));
-			#Admin Delete Unverified User
-			if ( $_POST['vdeleteit'] )
-				add_action('init', array($this, 'AdminDeleteUnvalidated'));
+			add_action('show_user_profile', array($this, 'ShowCustomFields')); //Runs near the end of the user profile editing screen.
+			add_action('edit_user_profile', array($this, 'ShowCustomFields')); //Runs near the end of the user profile editing screen in the admin menus. 
+			add_action('profile_update', array($this, 'SaveCustomFields'));	//Runs when a user's profile is updated. Action function argument: user ID. 
 
 			//LOCALIZATION
 			#Place your language file in the plugin folder and name it "regplus-{language}.mo"
@@ -66,7 +52,8 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		}
 
 		function AddPages() {
-			add_submenu_page('options-general.php', 'Register Plus Redux Settings', 'Register Plus Redux', 'manage_options', 'register-plus-redux', array($this, 'OptionsPage'));
+			$options_page = add_submenu_page('options-general.php', 'Register Plus Redux Settings', 'Register Plus Redux', 'manage_options', 'register-plus-redux', array($this, 'OptionsPage'));
+			add_action("admin_head-$options_page", array($this, 'OptionsHead'));
 			add_filter('plugin_action_links', array($this, 'filter_plugin_actions'), 10, 2);
 			$options = get_option('register_plus_redux_options');
 			if ( $options['verify_new_user_email'] || $options['verify_new_user_admin'] )
@@ -107,7 +94,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				'show_jabber_field' => '0',
 				'show_about_field' => '0',
 				'required_fields' => array(),
-				'required_fields_style' => 'border:solid 1px #E6DB55;background-color:#FFFFE0;',
+				'required_fields_style' => 'border:solid 1px #E6DB55; background-color:#FFFFE0;',
 				'show_disclaimer' => '0',
 				'message_disclaimer_title' => 'Disclaimer',
 				'message_disclaimer' => '',
@@ -137,7 +124,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				'disable_admin'		=> '0',
 				'adminfrom'		=> get_option('admin_email'),
 				'adminfromname'		=> get_option('blogname'),
-				'admin_email_subject'		=> sprintf(__('[%s] New User Register', 'regplus'), get_option('blogname')),
+				'admin_email_subject'	=> sprintf(__('[%s] New User Register', 'regplus'), get_option('blogname')),
 				'custom_adminmsg'	=> '0',
 				'admin_nl2br'		=> '0',
 				'adminmsg'		=> " New %blogname% Registration \r\n --------------------------- \r\n\r\n Username: %user_login% \r\n E-Mail: %user_email% \r\n",
@@ -145,8 +132,8 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				'login_redirect'	=> site_url(),
 				'register_css'		=> '',
 				'login_css'		=> '',
-				'datepicker_firstdayofweek'		=> 6,
-				'datepicker_dateformat'		=> 'mm/dd/yyyy',
+				'datepicker_firstdayofweek'	=> 6,
+				'datepicker_dateformat'	=> 'mm/dd/yyyy',
 				'startdate'		=> '',
 				'calyear'		=> '',
 				'calmonth'		=> 'cur'
@@ -172,150 +159,171 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			$options = get_option('register_plus_redux_options');
 			?>
 			<script type="text/javascript">
-				function set_add_del_code() {
-					jQuery('.remove_code').show();
-					jQuery('.add_code').hide();
-					jQuery('.add_code:last').show();
-					jQuery(".invitation_code:only-child > .remove_code").hide();
-				}
-			
-				function selremcode(clickety) {
-					jQuery(clickety).parent().remove();
-					//set_add_del_code();
-					//return false;
-				}
-			
-				function seladdcode(clickety) {
-					jQuery('.invitation_code:last').after(jQuery('.invitation_code:last').clone());
-					jQuery('.invitation_code:last input').attr('value', '');
-					//set_add_del_code(); 
-					//return false;
-				}
-			
-				function set_add_del() {
-					jQuery('.remove_row').show();
-					jQuery('.add_row').hide();
-					jQuery('.add_row:last').show();
-					jQuery(".custom_field:only-child > .remove_row").hide();
-				}
-			
-				function selrem(clickety) {
-					jQuery(clickety).parent().parent().remove();
-					set_add_del();
-					return false;
-				}
-			
-				function seladd(clickety) {
-					jQuery('.custom_field:last').after(jQuery('.custom_field:last').clone());
-					jQuery('.custom_field:last input.custom').attr('value', '');
-					jQuery('.custom_field:last input.extraoptions').attr('value', '');
-					var custom = jQuery('.custom_field:last input.custom').attr('name');
-					var reg = jQuery('.custom_field:last input.reg').attr('name');
-					var profile = jQuery('.custom_field:last input.profile').attr('name');
-					var req = jQuery('.custom_field:last input.required').attr('name');
-					var fieldtype = jQuery('.custom_field:last select.fieldtype').attr('name');
-					var extraoptions = jQuery('.custom_field:last input.extraoptions').attr('name');
-					var c_split = custom.split("[");
-					var r_split = reg.split("[");
-					var p_split = profile.split("[");
-					var q_split = req.split("[");
-					var f_split = fieldtype.split("[");
-					var e_split = extraoptions.split("[");
-					var split2 = c_split[1].split("]");
-					var index = parseInt(split2[0]) + 1;
-					var c_name = c_split[0] + '[' + index + ']';
-					var r_name = r_split[0] + '[' + index + ']';
-					var p_name = p_split[0] + '[' + index + ']';
-					var q_name = q_split[0] + '[' + index + ']';
-					var f_name = f_split[0] + '[' + index + ']';
-					var e_name = e_split[0] + '[' + index + ']';
-					jQuery('.custom_field:last input.custom').attr('name', c_name);
-					jQuery('.custom_field:last input.reg').attr('name', r_name);
-					jQuery('.custom_field:last input.profile').attr('name', p_name);
-					jQuery('.custom_field:last input.required').attr('name', q_name);
-					jQuery('.custom_field:last select.fieldtype').attr('name', f_name);
-					jQuery('.custom_field:last input.extraoptionscustom_field').attr('name', e_name);
-					set_add_del();
-					return false;
-				}
-			
-				jQuery(document).ready(function() {
-					<?php if ( !$options['enable_invitation_code']) echo "jQuery('#invitation_code_settings').hide();" ?>
-					<?php if ( !$options['show_password_meter']) 	echo "jQuery('#meter_settings').hide();" ?>
-					<?php if ( !$options['show_disclaimer']) 	echo "jQuery('#disclaim_settings').hide();" ?>
-					<?php if ( !$options['show_license_agreement']) echo "jQuery('#license_agreement_settings').hide();" ?>
-					<?php if ( !$options['show_privacy_policy']) 	echo "jQuery('#privacy_policy_settings').hide();" ?>
-					<?php if ( !$options['verify_new_user_email']) 	echo "jQuery('#verify_new_user_email_settings').hide();" ?>
-					<?php if ( !$options['custom_msg']) 		echo "jQuery('#enabled_msg').hide();" ?>
-					<?php if ( !$options['custom_adminmsg']) 	echo "jQuery('#enabled_adminmsg').hide();" ?>
+			function removeItem(clickety) {
+				jQuery(clickety).parent().remove();
+			}
 
-					jQuery('#verify_new_user_email').change(function() {
-						if ( jQuery('#verify_new_user_email').attr('checked') )
-							jQuery('#verify_new_user_email_settings').show();
-						else
-							jQuery('#verify_new_user_email_settings').hide();
-						return true;
-					});
+			function addInvitationCode() {
+				jQuery('<div class="invitation_code"><input type="text" name="invitation_code_bank[]" value="" />&nbsp;<a href="#" onClick="return removeItem(this);" class="remove_code"><img src="<?php echo plugins_url('removeBtn.gif', __FILE__); ?>" alt="<?php echo __("Remove Code", "regplus"); ?>" title="<?php echo __("Remove Code", "regplus"); ?>" /></a></div>').appendTo('#invitation_code_bank');
+			}
 
-					jQuery('#enable_invitation_code').change(function() {
-						if (jQuery('#enable_invitation_code').attr('checked') )
-							jQuery('#invitation_code_settings').show();
-						else
-							jQuery('#invitation_code_settings').hide();
-						return true;
-					});
+			function addCustomField() {
+				jQuery("#custom_fields").find('tbody')
+					.append(jQuery('<tr>')
+						.attr('valign', 'center')
+						.attr('class', 'custom_field')
+						.append(jQuery('<td>')
+							.attr('style', 'padding-top: 0px; padding-bottom: 0px;')
+							.append(jQuery('<input>')
+								.attr('type', 'text')
+								.attr('name', 'label[]')
+								.attr('class', 'custom')
+							)
+						)
+						.append(jQuery('<td>')
+							.attr('style', 'padding-top: 0px; padding-bottom: 0px;')
+							.append(jQuery('<select>')
+								.attr('class', 'fieldtype')
+								.attr('name', 'fieldtype[]')
+								.append('<option value="text">Text Field</option>')
+								.append('<option value="select">Select Field</option>')
+								.append('<option value="radio">Radio Field</option>')
+								.append('<option value="textarea">Text Area</option>')
+								.append('<option value="date">Date Field</option>')
+								.append('<option value="hidden">Hidden Field</option>')
+							)
+						)
+						.append(jQuery('<td>')
+							.attr('style', 'padding-top: 0px; padding-bottom: 0px;')
+							.append(jQuery('<input>')
+								.attr('type', 'text')
+								.attr('name', 'extraoptions[]')
+								.attr('class', 'extraoptions')
+							)
+						)
+						.append(jQuery('<td>')
+							.attr('align', 'center')
+							.attr('style', 'padding-top: 0px; padding-bottom: 0px;')
+							.append(jQuery('<input>')
+								.attr('type', 'checkbox')
+								.attr('name', 'profile[]')
+								.attr('class', 'profile')
+								.attr('value', '1')
+							)
+						)
+						.append(jQuery('<td>')
+							.attr('align', 'center')
+							.attr('style', 'padding-top: 0px; padding-bottom: 0px;')
+							.append(jQuery('<input>')
+								.attr('type', 'checkbox')
+								.attr('name', 'reg[]')
+								.attr('class', 'reg')
+								.attr('value', '1')
+							)
+						)
+						.append(jQuery('<td>')
+							.attr('align', 'center')
+							.attr('style', 'padding-top: 0px; padding-bottom: 0px;')
+							.append(jQuery('<input>')
+								.attr('type', 'checkbox')
+								.attr('name', 'required[]')
+								.attr('class', 'required')
+								.attr('value', '1')
+							)
+						)
+						.append(jQuery('<td>')
+							.attr('align', 'center')
+							.attr('style', 'padding-top: 0px; padding-bottom: 0px;')
+							.append(jQuery('<a>')
+								.attr('href', '#')
+								.attr('onClick', 'return removeItem(this);')
+								.attr('class', 'required')
+								.attr('value', '1')
+								.append(jQuery('<img>')
+									.attr('src', '<?php echo plugins_url('removeBtn.gif', __FILE__); ?>')
+									.attr('alt', '<?php echo __("Remove Field", "regplus"); ?>')
+									.attr('title', '<?php echo __("Remove Field", "regplus"); ?>')
+								)
+							)
+						)
+					);
+			}
 
-					jQuery('#show_password_meter').change(function() {
-						if (jQuery('#show_password_meter').attr('checked') )
-							jQuery('#meter_settings').show();
-						else
-							jQuery('#meter_settings').hide();
-						return true;
-					});
-
-					jQuery('#show_disclaimer').change(function() {
-						if (jQuery('#show_disclaimer').attr('checked') )
-							jQuery('#disclaim_settings').show();
-						else
-							jQuery('#disclaim_settings').hide();
-						return true;
-					});
-
-					jQuery('#show_license_agreement').change(function() {
-						if (jQuery('#show_license_agreement').attr('checked') )
-							jQuery('#license_agreement_settings').show();
-						else
-							jQuery('#license_agreement_settings').hide();
-						return true;
-					});
-
-					jQuery('#show_privacy_policy').change(function() {
-						if (jQuery('#show_privacy_policy').attr('checked') )
-							jQuery('#privacy_policy_settings').show();
-						else
-							jQuery('#privacy_policy_settings').hide();
-						return true;
-					});
-
-					jQuery('#custom_msg').change(function() {
-						if ( jQuery('#custom_msg').attr('checked') )
-							jQuery('#enabled_msg').show();
-						else
-							jQuery('#enabled_msg').hide();
-						return true;
-					});
-
-					jQuery('#custom_adminmsg').change(function() {
-						if ( jQuery('#custom_adminmsg').attr('checked') )
-							jQuery('#enabled_adminmsg').show();
-						else
-							jQuery('#enabled_adminmsg').hide();
-						return true;
-					});
-					
-					//set_add_del_code();
-					//set_add_del();
+			jQuery(document).ready(function() {
+				jQuery('#verify_new_user_email').change(function() {
+					if ( jQuery('#verify_new_user_email').attr('checked') )
+						jQuery('#verify_new_user_email_settings').show();
+					else
+						jQuery('#verify_new_user_email_settings').hide();
+					return true;
 				});
+
+				jQuery('#enable_invitation_code').change(function() {
+					if (jQuery('#enable_invitation_code').attr('checked') )
+						jQuery('#invitation_code_settings').show();
+					else
+						jQuery('#invitation_code_settings').hide();
+					return true;
+				});
+
+				jQuery('#show_password_meter').change(function() {
+					if (jQuery('#show_password_meter').attr('checked') )
+						jQuery('#meter_settings').show();
+					else
+						jQuery('#meter_settings').hide();
+					return true;
+				});
+
+				jQuery('#show_disclaimer').change(function() {
+					if (jQuery('#show_disclaimer').attr('checked') )
+						jQuery('#disclaim_settings').show();
+					else
+						jQuery('#disclaim_settings').hide();
+					return true;
+				});
+
+				jQuery('#show_license_agreement').change(function() {
+					if (jQuery('#show_license_agreement').attr('checked') )
+						jQuery('#license_agreement_settings').show();
+					else
+						jQuery('#license_agreement_settings').hide();
+					return true;
+				});
+
+				jQuery('#show_privacy_policy').change(function() {
+					if (jQuery('#show_privacy_policy').attr('checked') )
+						jQuery('#privacy_policy_settings').show();
+					else
+						jQuery('#privacy_policy_settings').hide();
+					return true;
+				});
+
+				jQuery('#custom_msg').change(function() {
+					if ( jQuery('#custom_msg').attr('checked') )
+						jQuery('#enabled_msg').show();
+					else
+						jQuery('#enabled_msg').hide();
+					return true;
+				});
+
+				jQuery('#custom_adminmsg').change(function() {
+					if ( jQuery('#custom_adminmsg').attr('checked') )
+						jQuery('#enabled_adminmsg').show();
+					else
+						jQuery('#enabled_adminmsg').hide();
+					return true;
+				});
+				<?php
+				if ( !$options['enable_invitation_code'] ) echo "jQuery('#invitation_code_settings').hide();\n";
+				if ( !$options['show_password_meter'] ) echo "jQuery('#meter_settings').hide();\n";
+				if ( !$options['show_disclaimer'] ) echo "jQuery('#disclaim_settings').hide();\n";
+				if ( !$options['show_license_agreement'] ) echo "jQuery('#license_agreement_settings').hide();\n";
+				if ( !$options['show_privacy_policy'] ) echo "jQuery('#privacy_policy_settings').hide();\n";
+				if ( !$options['verify_new_user_email'] ) echo "jQuery('#verify_new_user_email_settings').hide();\n";
+				if ( !$options['custom_msg'] ) echo "jQuery('#enabled_msg').hide();\n";
+				if ( !$options['custom_adminmsg'] ) echo "jQuery('#enabled_adminmsg').hide();\n";
+				?>
+			});
 			</script>
 		<?php
 		}
@@ -391,14 +399,15 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 							<div id="invitation_code_settings">
 								<label><input type="checkbox" name="regplus_dash_widget" value="1" <?php if ( $options['enable_invitation_tracking_widget']) echo 'checked="checked"';  ?>  />&nbsp;<?php _e('Enable Invitation Tracking Dashboard Widget', 'regplus'); ?></label><br />
 								<label><input type="checkbox" name="require_invitation_code" value="1" <?php if ( $options['require_invitation_code']) echo 'checked="checked"'; ?> />&nbsp;<?php _e('Require Invitation Code to Register', 'regplus'); ?></label>
+								<div id="invitation_code_bank">
 								<?php
 									$invitation_codes = $options['invitation_code_bank'];
 									if ( !is_array($options['invitation_code_bank']) ) $options['invitation_code_bank'] = array();
 									foreach ($options['invitation_code_bank'] as $invitation_code )
-										echo '<div class="invitation_code"><input type="text" name="invitation_code_bank[]" value="', $invitation_code, '" />&nbsp;<a href="#" onClick="return selremcode(this);" class="remove_code"><img src="', plugins_url('removeBtn.gif', __FILE__), '" alt="', __("Remove Code", "regplus"), '" title="', __("Remove Code", "regplus"), '" /></a></div>';
+										echo '<div class="invitation_code"><input type="text" name="invitation_code_bank[]" value="', $invitation_code, '" />&nbsp;<a href="#" onClick="return removeItem(this);" class="remove_code"><img src="', plugins_url('removeBtn.gif', __FILE__), '" alt="', __("Remove Code", "regplus"), '" title="', __("Remove Code", "regplus"), '" /></a></div>';
 								?>
-								<div class="code_block"><input type="text" name="invitation_code_bank[]"  value="" />&nbsp;<a href="#" onClick="return seladdcode(this);" class="add_code"><img src="<?php echo plugins_url('addBtn.gif', __FILE__); ?>" alt="<?php _e("Add Code", "regplus") ?>" title="<?php _e("Add Code", "regplus") ?>" /></a></div>
-								<small><?php _e('One of these codes will be required for users to register.', 'regplus'); ?></small>
+								</div>
+								<a href="#" onClick="return addInvitationCode();"><img src="<?php echo plugins_url('addBtn.gif', __FILE__); ?>" alt="<?php _e("Add Code", "regplus") ?>" title="<?php _e("Add Code", "regplus") ?>" /></a>&nbsp;<?php _e("Add a new invitation code", "regplus") ?><br />
 							</div>
 						</td>
 					</tr>
@@ -562,13 +571,13 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					</tr>
 				</table>
 				<h3><?php _e('User Defined Fields', 'regplus'); ?></h3>
-				<p><?php _e('Enter the custom fields you would like to appear on the Registration Page.', 'regplus'); ?></p>
+				<p><?php _e('Enter custom fields you would like to appear on the Profile and/or Registration Page.', 'regplus'); ?></p>
 				<p><small><?php _e('Enter Extra Options for Select, Checkboxes and Radio Fields as comma seperated values. For example, if you chose a select box for a custom field of "Gender", your extra options would be "Male,Female".','regplus'); ?></small></p>
 				<table class="form-table">
 					<tr valign="top">
 						<th scope="row"><?php _e('Custom Fields', 'regplus'); ?></th>
 						<td style="padding: 0px;">
-							<table>
+							<table id="custom_fields">
 								<thead valign="top">
 									<td style="padding-top: 0px; padding-bottom: 0px;">Name</td>
 									<td style="padding-top: 0px; padding-bottom: 0px;">Type</td>
@@ -599,30 +608,13 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 										echo '	<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="profile[', $k, ']" class="profile" value="1"'; if ( $v['profile'] ) echo ' checked="checked"'; echo ' /></td>';
 										echo '	<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="reg[', $k, ']" class="reg" value="1"'; if ( $v['reg'] ) echo ' checked="checked"'; echo ' /></td>';
 										echo '	<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required[', $k, ']" class="required" value="1"'; if ( $v['required'] ) echo ' checked="checked"'; echo ' /></td>';
-										echo '	<td style="padding-top: 0px; padding-bottom: 0px;"><a href="#" onClick="return selrem(this);" class="remove_row"><img src="', plugins_url('removeBtn.gif', __FILE__), '" alt="', __("Remove Field", "regplus"), '" title="', __("Remove Field", "regplus"), '" /></a></td>';
+										echo '	<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><a href="#" onClick="return removeItem(this);"><img src="', plugins_url('removeBtn.gif', __FILE__), '" alt="', __("Remove Field", "regplus"), '" title="', __("Remove Field", "regplus"), '" /></a></td>';
 										echo '</tr>';
 									}
 									?>
-									<tr valign="center" class="custom_field">
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="label[]" class="custom" value="" /></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;">
-											<select class="fieldtype" name="name="fieldtype[0]">
-												<option value="text">Text Field</option>
-												<option value="select">Select Field</option>
-												<option value="radio">Radio Field</option>
-												<option value="textarea">Text Area</option>
-												<option value="date">Date Field</option>
-												<option value="hidden">Hidden Field</option>
-											</select>
-										</td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="extraoptions[]" class="extraoptions" value="" /></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="profile[]" class="profile" value="1" /></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="reg[]" class="reg" value="1" /></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required[]" class="required" value="1" /></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><a href="#" onClick="return seladd(this);" class="add_row"><img src="<?php echo plugins_url('addBtn.gif', __FILE__); ?>" alt="<?php _e("Add Field","regplus") ?>" title="<?php _e("Add Field","regplus") ?>" /></a></td>
-									</tr>
 								</tbody>
 							</table>
+							<a href="#" onClick="return addCustomField();"><img src="<?php echo plugins_url('addBtn.gif', __FILE__); ?>" alt="<?php _e("Add Field","regplus") ?>" title="<?php _e("Add Field","regplus") ?>" /></a>&nbsp;<?php _e("Add a new custom field.", "regplus") ?>
 						</td>
 					</tr>
 					<tr valign="top">
@@ -981,7 +973,6 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			$options = get_option('register_plus_redux_options');
 			check_admin_referer('regplus-unverified');
 			$delete = $_POST['vusers'];
-			include_once(admin_url('/includes/user.php'));
 			foreach ( $delete as $user_id ) {
 				if ( $user_id ) wp_delete_user($user_id);
 			}
@@ -1228,47 +1219,44 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			<?php
 		}
 
-		function HideLogin() {
+		function LoginHead() {
 			$options = get_option('register_plus_redux_options');
 			if ( ($options['verify_new_user_admin'] || $options['verify_new_user_email']) && $_GET['checkemail'] == 'registered' ) {
-				?>
-<style type="text/css">
-label, #user_login, #user_pass, .forgetmenot, #wp-submit, .message {
-	display:none;
-}
-</style>
-<?php
+				echo '<style type="text/css">';
+				echo 'label, #user_login, #user_pass, .forgetmenot, #wp-submit, .message { display:none; }';
+				echo '</style>';
 			}
-		}
-
-		function LogoHead() {
-			$options = get_option('register_plus_redux_options');
 			if ( $options['logo'] ) { 
 				$logo = str_replace(trailingslashit(site_url()), ABSPATH, $options['logo']);
 				list($width, $height, $type, $attr) = getimagesize($logo);
 				if ( $_GET['action'] != 'register' )
 					wp_enqueue_script('jquery');
-					?>
-<script type="text/javascript">
-	jQuery(document).ready(function() {
-		jQuery('#login h1 a').attr('href', '<?php echo get_option('home'); ?>');
-		jQuery('#login h1 a').attr('title', '<?php echo get_option('blogname'), ' - ', get_option('blogdescription'); ?>');
-	});
-</script>
-<style type="text/css">
-#login h1 a {
-	background-image: url(<?php echo $options['logo']; ?>);
-	background-position:center top;
-	width: <?php echo $width; ?>px;
-	min-width:292px;
-	height: '.$height; ?>px;
-}
-<?php 
-			if ( $options['register_css'] &&  $_GET['action'] == 'register' ) echo $options['register_css'];
-			elseif ( $options['login_css'] ) echo $options['login_css'];
-			?>
-</style>
-<?php
+					echo '<script type="text/javascript">';
+					echo 'jQuery(document).ready(function() {';
+					echo 'jQuery("#login h1 a").attr("href", "', get_option('home'), '");';
+					echo 'jQuery("#login h1 a").attr("title", "', get_option('blogname'), ' - ', get_option('blogdescription'). ');';
+					echo '});';
+					echo '</script>';
+					echo '<style type="text/css">';
+					echo '#login h1 a {';
+					echo 'background-image: url(', $options['logo'], ');';
+					echo 'background-position:center top;';
+					echo 'width: ', $width, 'px;';
+					echo 'min-width:292px;';
+					echo 'height: ', $height, 'px;';
+					echo '</style>';
+			}
+			if ( $options['register_css'] && $_GET['action'] == 'register' )
+			{
+				echo '<style type="text/css">';
+				echo $options['register_css'];
+				echo '</style>';
+			}
+			elseif ( $options['login_css'] )
+			{
+				echo '<style type="text/css">';
+				echo $options['login_css'];
+				echo '</style>';
 			}
 		}
 
@@ -1298,26 +1286,6 @@ label, #user_login, #user_pass, .forgetmenot, #wp-submit, .message {
 			}
 		}
 
-		function adminfrom() {
-			$options = get_option('register_plus_redux_options');
-			return $options['adminfrom'];
-		}
-
-		function userfrom() {
-			$options = get_option('register_plus_redux_options');
-			return $options['from'];
-		}
-
-		function adminfromname() {
-			$options = get_option('register_plus_redux_options');
-			return $options['adminfromname'];
-		}
-
-		function userfromname() {
-			$options = get_option('register_plus_redux_options');
-			return $options['fromname'];
-		}
-
 		function DeleteInvalidUsers() {
 			//TODO: delete_unverified_users_after period is being ignored
 			global $wpdb;
@@ -1326,6 +1294,7 @@ label, #user_login, #user_pass, .forgetmenot, #wp-submit, .message {
 			$unverified_users = $wpdb->get_results("SELECT user_id, meta_value FROM $wpdb->usermeta WHERE meta_key='email_verify_date'");
 			$grace_date = date('Ymd', strtotime("-7 days"));
 			if( count($results) > 0 )
+			{
 				foreach ( $unverified_users as $unverified_user ) {
 					if ( $grace_date > $unverified_user->meta_value ) {
 						wp_delete_user($unverified_user->user_id);
@@ -1615,9 +1584,12 @@ label, #user_login, #user_pass, .forgetmenot, #wp-submit, .message {
 			}
 		}
 
-		function SaveCustomFields() {
+		function SaveCustomFields( $user_id_passed ) {
+			echo 'user_id_passed:', $user_id_passed, '<br/>';
+			echo '$_REQUEST:',$_REQUEST['user_id'], '<br/>';
 			global $wpdb, $user_ID;
 			get_currentuserinfo();
+			echo 'get_currentuserinfo:', $user_ID, '<br/>';
 			if( $_REQUEST['user_id'] ) $user_ID = $_REQUEST['user_id'];
 			$custom_fields = get_option('register_plus_redux_custom_fieldsx');
 			if ( !is_array($custom_fields) ) $custom_fields = array();
@@ -1632,6 +1604,26 @@ label, #user_login, #user_pass, .forgetmenot, #wp-submit, .message {
 					}
 				}
 			//}
+		}
+
+		function filter_admin_mail_from() {
+			$options = get_option('register_plus_redux_options');
+			return $options['adminfrom'];
+		}
+
+		function filter_admin_mail_from_name() {
+			$options = get_option('register_plus_redux_options');
+			return $options['adminfromname'];
+		}
+
+		function filter_user_mail_from() {
+			$options = get_option('register_plus_redux_options');
+			return $options['from'];
+		}
+
+		function filter_user_mail_from_name() {
+			$options = get_option('register_plus_redux_options');
+			return $options['fromname'];
 		}
 
 		function fnRandomString( $len ) {
@@ -1707,8 +1699,8 @@ if ( !function_exists('wp_new_user_notification') ) :
 				$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 			}
 			//$headers .= 'From: ' . $options['adminfrom'] . "\r\n" . 'Reply-To: ' . $options['adminfrom'] . "\r\n";
-			add_filter('wp_mail_from', array($registerPlusRedux, 'adminfrom'));
-			add_filter('wp_mail_from_name', array($registerPlusRedux, 'adminfromname'));
+			add_filter('wp_mail_from', array($registerPlusRedux, 'filter_admin_mail_from'));
+			add_filter('wp_mail_from_name', array($registerPlusRedux, 'filter_admin_mail_from_name'));
 			$message = str_replace('%user_login%', $user_login, $options['adminmsg']);
 			$message = str_replace('%user_email%', $user_email, $message);
 			$message = str_replace('%blogname%', get_option('blogname'), $message);
@@ -1739,6 +1731,7 @@ if ( !function_exists('wp_new_user_notification') ) :
 			$message .= sprintf(__('Username: %s', 'regplus'), $user_login) . "\r\n\r\n";
 			$message .= sprintf(__('E-mail: %s', 'regplus'), $user_email) . "\r\n";
 			wp_mail(get_option('admin_email'), sprintf(__('[%s] New User Register', 'regplus'), get_option('blogname')), $message);
+		}
 		if ( empty($plaintext_pass) )
 			return;
 		if ( $options['custom_msg'] ) {
@@ -1747,8 +1740,8 @@ if ( !function_exists('wp_new_user_notification') ) :
 				$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 			}
 			//$headers .= 'From: ' . $options['from'] . "\r\n" . 'Reply-To: ' . $options['from'] . "\r\n";
-			add_filter('wp_mail_from', array($registerPlusRedux, 'userfrom'));
-			add_filter('wp_mail_from_name', array($registerPlusRedux, 'userfromname'));
+			add_filter('wp_mail_from', array($registerPlusRedux, 'filter_user_mail_from'));
+			add_filter('wp_mail_from_name', array($registerPlusRedux, 'filter_user_mail_from_name'));
 			$message = str_replace('%user_pass%', $plaintext_pass, $options['msg']);
 			$message = str_replace('%user_login%', $user_login, $message);
 			$message = str_replace('%user_email%', $user_email, $message);
@@ -1775,7 +1768,7 @@ if ( !function_exists('wp_new_user_notification') ) :
 			if ( $options['verify_new_user_email'] )
 				$siteurl = site_url('/wp-login.php') . $email_code . '&' . $redirect;
 			else
-				$siteurl = site_url('/wp-login.php') . '?' admin_email_subject. $redirect;
+				$siteurl = site_url('/wp-login.php') . '?' . admin_email_subject . $redirect;
 			$message = str_replace('%admin_email_subject%', $siteurl, $message);
 			if ( $options['html'] && $options['user_nl2br'] )
 				$message = nl2br($message);
