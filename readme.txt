@@ -81,13 +81,23 @@ TODO: Add uninstall function
 
 TODO: Make Redux compatible with Wordpress MU (wp-signup.php)
 
+TODO: Fix datepicker
+
 == Changelog ==
 
 = 3.6.3 =
 September 17, 2010 by radiok
 
-* More renaming of settings
-* More redesigned of settings page
+* Completed renaming of settings (hopefully)
+* More redesign of settings page
+* Rewrote all jQuery on settings page
+* Fixed bug found by me.prosenjeet, this was due to some changes made to the jQuery previously used
+  
+  http://wordpress.org/support/topic/plugin-register-plus-redux-new-fields-problem
+
+* Fixed bug found by craigbic, this was due to incomplete renaming of settings
+  
+  http://wordpress.org/support/topic/plugin-register-plus-redux-form-cannot-accept-license-or-privacy-policy
 
 = 3.6.2 =
 September 16, 2010 by radiok
