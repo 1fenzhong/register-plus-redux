@@ -5,7 +5,7 @@ Plugin Name: Register Plus Redux
 Author URI: http://radiok.info/
 Plugin URI: http://radiok.info/register-plus-redux/
 Description: Fork of Register Plus
-Version: 3.6.3
+Version: 3.6.4
 */
 
 $ops = get_option('register_plus_redux_options');
@@ -896,8 +896,8 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 							$user_object = new WP_User($un->ID);
 							$roles = $user_object->roles;
 							$role = array_shift($roles);
-							if ( $options['verify_user_email'] ) $user_login = get_user_meta($un->ID, 'email_verify_user', false);
-							elseif ( $options['verify_user_admin'] ) $user_login = get_user_meta($un->ID, 'admin_verify_user', false);
+							if ( $options['verify_user_email'] ) $user_login = get_user_meta($un->ID, 'email_verify_user', true);
+							elseif ( $options['verify_user_admin'] ) $user_login = get_user_meta($un->ID, 'admin_verify_user', true);
 						?>
 						<tr id="user-1" class="<?php echo $alt; ?>">
 							<th scope="row" class="check-column"><input name="vusers[]" id="user_<?php echo $un->ID; ?>" class="administrator" value="<?php echo $un->ID; ?>" type="checkbox"></th>
@@ -922,13 +922,13 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			foreach ( $valid as $user_id ) {
 				if ( $user_id ) {
 					if ( $options['verify_user_email'] ) {
-						$stored_user_login = get_user_meta($user_id, 'email_verify_user', false);
+						$stored_user_login = get_user_meta($user_id, 'email_verify_user', true);
 						wp_update_user(array('ID' => $user_id, 'user_login' => $wpdb->prepare($stored_user_login)));
 						delete_user_meta($user_id, 'email_verification_code');
 						delete_user_meta($user_id, 'email_verify_date');
 						delete_user_meta($user_id, 'email_verify_user');
 					} elseif ( $options['verify_user_admin'] ) {
-						$stored_user_login = get_user_meta($user_id, 'admin_verify_user', false);
+						$stored_user_login = get_user_meta($user_id, 'admin_verify_user', true);
 						wp_update_user(array('ID' => $user_id, 'user_login' => $wpdb->prepare($stored_user_login)));
 						delete_user_meta($user_id, 'admin_verify_user');
 					}
@@ -997,8 +997,8 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			$valid = $_POST['vusers'];
 			if ( is_array($valid) ):
 				foreach ( $valid as $user_id ) {
-					$email_verification_code = get_user_meta($user_id, 'email_verification_code', false);
-					$user_login = get_user_meta($user_id, 'email_verify_user', false);
+					$email_verification_code = get_user_meta($user_id, 'email_verification_code', true);
+					$user_login = get_user_meta($user_id, 'email_verify_user', true);
 					$user_info = get_userdata($user_id);
 					//$user_email = $user_info->user_email;
 					$prelink = __('Verification URL: ', 'regplus');
@@ -1280,7 +1280,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				$verify_key = $_GET['email_verification_code'];
 				$user_id = $wpdb->get_var("SELECT user_id FROM $wpdb->usermeta WHERE meta_key='email_verification_code' AND meta_value='$verify_key'");
 				if ( $user_id ) {
-					$stored_user_login = get_user_meta($user_id, 'email_verify_user', false);
+					$stored_user_login = get_user_meta($user_id, 'email_verify_user', true);
 					wp_update_user(array('ID' => $user_id, 'user_login' => $wpdb->prepare($stored_user_login)));
 					delete_user_meta($user_id, 'email_verification_code');
 					delete_user_meta($user_id, 'email_verify_date');
@@ -1531,7 +1531,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				foreach ( $custom_fields as $k => $v ) {
 					if ( $v['show_on_profile'] ) {
 						$id = $this->LabelId($v['custom_field_name']);
-						$value = get_user_meta($user_ID, $id, false);
+						$value = get_user_meta($user_ID, $id, true);
 						$custom_field_options = explode(',', $v['custom_field_options']);
 						switch ( $v['custom_field_type'] ) {
 							case "text":
@@ -1718,7 +1718,7 @@ if ( !function_exists('wp_new_user_notification') ) :
 			if ( !is_array($custom_fields) ) $custom_fields = array();
 			foreach ( $custom_fields as $k => $v ) {
 				$meta = $registerPlusRedux->LabelId($v['custom_field_name']);
-				$value = get_user_meta($user_id, $meta, false);
+				$value = get_user_meta($user_id, $meta, true);
 				$message = str_replace('%'.$meta.'%', $value, $message);
 			}
 			$message = str_replace('%siteurl%', site_url(), $message);
@@ -1760,7 +1760,7 @@ if ( !function_exists('wp_new_user_notification') ) :
 			if ( !is_array($custom_fields) ) $custom_fields = array();
 			foreach ( $custom_fields as $k => $v ) {
 				$meta = $registerPlusRedux->LabelId($v['custom_field_name']);
-				$value = get_user_meta($user_id, $meta, false);
+				$value = get_user_meta($user_id, $meta, true);
 				$message = str_replace('%'.$meta.'%', $value, $message);
 			}
 			$redirect = 'redirect_to=' . $options['user_email_login_link'];

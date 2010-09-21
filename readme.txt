@@ -3,7 +3,7 @@ Contributors: skullbit, radiok
 Tags: registration, register, password, invitation, code, invite, disclaimer, email, validation, privacy, policy, license, agreement, logo, moderation, user
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable tag: 3.6.1
+Stable tag: 3.6.4
 
 Fork of Register Plus
 
@@ -85,8 +85,13 @@ TODO: Fix datepicker
 
 == Changelog ==
 
+= 3.6.4 =
+September 21, 2010 by radiok
+
+* Fixed dumb bug with get_user_meta returning arrays
+
 = 3.6.3 =
-September 17, 2010 by radiok
+September 21, 2010 by radiok
 
 * Completed renaming of settings (hopefully)
 * More redesign of settings page
