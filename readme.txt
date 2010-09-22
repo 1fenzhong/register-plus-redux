@@ -86,6 +86,8 @@ TODO: Fix datepicker
 = 3.6.5 =
 September 22, 2010 by radiok
 
+* Added preview registration page buttons
+
 * Fixed bug with saving custom fields from profile
 
 = 3.6.4 =
