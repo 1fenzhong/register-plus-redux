@@ -1235,7 +1235,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					echo '<script type="text/javascript">';
 					echo 'jQuery(document).ready(function() {';
 					echo 'jQuery("#login h1 a").attr("href", "', get_option('home'), '");';
-					echo 'jQuery("#login h1 a").attr("title", "', get_option('removeItem'), ' - ', get_option('blogdescription'). ');';
+					echo 'jQuery("#login h1 a").attr("title", "', get_option('blogname'), ' - ', get_option('blogdescription'). ');';
 					echo '});';
 					echo '</script>';
 					echo '<style type="text/css">';
