@@ -5,7 +5,7 @@ Plugin Name: Register Plus Redux
 Author URI: http://radiok.info/
 Plugin URI: http://radiok.info/register-plus-redux/
 Description: Fork of Register Plus
-Version: 3.6.4
+Version: 3.6.5
 */
 
 $ops = get_option('register_plus_redux_options');
@@ -780,7 +780,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			$options["enable_invitation_tracking_widget"] = $_POST['enable_invitation_tracking_widget'];
 			$options["require_invitation_code"] = $_POST['require_invitation_code'];
 			$options["invitation_code_bank"] = $_POST['invitation_code_bank'];
-			if ( is_array($options["invitation_code_bank"]) {
+			if ( is_array($options["invitation_code_bank"]) ) {
 				foreach ( $options["invitation_code_bank"] as $k => $v ) {
 					$options["invitation_code_bank"][$k] = strtolower($v);
 				}

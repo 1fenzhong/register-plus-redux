@@ -3,7 +3,7 @@ Contributors: skullbit, radiok
 Tags: registration, register, password, invitation, code, invite, disclaimer, email, validation, privacy, policy, license, agreement, logo, moderation, user
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable tag: 3.6.4
+Stable tag: 3.6.5
 
 Fork of Register Plus
 
@@ -89,6 +89,10 @@ September 22, 2010 by radiok
 * Added preview registration page buttons
 
 * Fixed bug with saving custom fields from profile
+
+* Fixed bug with saving settings as reported by mrpatulski, array check was missing
+
+  http://wordpress.org/support/topic/plugin-register-plus-redux-getting-fatal-error-when-activating
 
 = 3.6.4 =
 September 21, 2010 by radiok
