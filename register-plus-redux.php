@@ -30,8 +30,13 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					add_action('init', array($this, 'AdminDeleteUnvalidated')); //Runs after WordPress has finished loading but before any headers are sent.
 			}
 			if ( $_GET['action'] == 'register' )
-				add_action('register_form', array($this, 'RegisterForm')); //Runs just before the end of the new user registration form. 
-			add_filter('registration_errors', array($this, 'RegistrationErrors'));
+				add_action('register_form', array($this, 'AlterRegistrationForm')); //Runs just before the end of the new user registration form.
+			add_action('register_post', array($this, 'CheckRegistration'), 10, 3); //Runs before a new user registration request is processed. 
+			add_filter('registration_errors', array($this, 'OverrideRegistrationErrors'));
+			
+			//add_action('signup_extra_fields', array($this, 'AlterSignupForm'));
+			//add_filter('wpmu_validate_user_signup', array($this, 'CheckSignup'));
+			//add_action('wpmu_activate_user', array($this, 'UpdateSignup'), 10, 3);
 
 			add_action('login_head', array($this, 'PassHead')); //Runs just before the end of the HTML head section of the login page. 
 			add_action('login_head', array($this, 'LoginHead')); //Runs just before the end of the HTML head section of the login page. 
@@ -1230,7 +1235,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					echo '<script type="text/javascript">';
 					echo 'jQuery(document).ready(function() {';
 					echo 'jQuery("#login h1 a").attr("href", "', get_option('home'), '");';
-					echo 'jQuery("#login h1 a").attr("title", "', get_option('blogname'), ' - ', get_option('blogdescription'). ');';
+					echo 'jQuery("#login h1 a").attr("title", "', get_option('removeItem'), ' - ', get_option('blogdescription'). ');';
 					echo '});';
 					echo '</script>';
 					echo '<style type="text/css">';
@@ -1292,7 +1297,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			}
 		}
 
-		function RegisterForm() {
+		function AlterRegistrationForm() {
 			$options = get_option('register_plus_redux_options');
 			if ( $options['show_firstname_field'] ) {
 				if ( isset($_GET['firstname']) ) $_POST['firstname'] = $_GET['firstname'];
@@ -1417,25 +1422,21 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			}
 		}
 
-		function RegistrationErrors( $errors ) {
+		function CheckRegistration( $sanitized_user_login, $user_email, $errors ) {
 			$options = get_option('register_plus_redux_options');
-			if ( $options['allow_duplicate_emails'] ) {
-				//TODO: Verify this error
-				if ($errors->errors['allow_duplicate_emails'] ) unset($errors->errors['allow_duplicate_emails']);
-			}
 			if ( $options['show_firstname_field'] && in_array('firstname', $options['required_fields']) ) {
 				if ( empty($_POST['firstname']) || $_POST['firstname'] == '' ) {
-					$errors->add('empty_firstname', __('<strong>ERROR</strong>: Please enter your First Name.', 'regplus'));
+					$errors->add('empty_firstname', __('<strong>ERROR</strong>: Please enter your first name.', 'regplus'));
 				}
 			}
 			if ( $options['show_lastname_field'] && in_array('lastname', $options['required_fields']) ) {
 				if ( empty($_POST['lastname']) || $_POST['lastname'] == '' ) {
-					$errors->add('empty_lastname', __('<strong>ERROR</strong>: Please enter your Last Name.', 'regplus'));
+					$errors->add('empty_lastname', __('<strong>ERROR</strong>: Please enter your last name.', 'regplus'));
 				}
 			}
 			if ( $options['show_website_field'] && in_array('website', $options['required_fields']) ) {
 				if ( empty($_POST['user_url']) || $_POST['user_url'] == '' ) {
-					$errors->add('empty_user_url', __('<strong>ERROR</strong>: Please enter your Website URL.', 'regplus'));
+					$errors->add('empty_user_url', __('<strong>ERROR</strong>: Please enter your website URL.', 'regplus'));
 				}
 			}
 			if ( $options['show_aim_field'] && in_array('aim', $options['required_fields']) ) {
@@ -1455,35 +1456,35 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			}
 			if ( $options['show_about_field'] && in_array('about', $options['required_fields']) ) {
 				if ( empty($_POST['about']) || $_POST['about'] == '' ) {
-					$errors->add('empty_about', __('<strong>ERROR</strong>: Please enter some information About Yourself.', 'regplus'));
+					$errors->add('empty_about', __('<strong>ERROR</strong>: Please enter some information about yourself.', 'regplus'));
 				}
 			}
 			$custom_fields = get_option('register_plus_redux_custom_fields');
 			if ( !is_array($custom_fields) ) $custom_fields = array();
 			foreach ( $custom_fields as $k => $v ) {
-				if ( $v['required_on_registration'] && $v['show_on_registration'] ) {
-					$id = $this->fnSanitizeFieldName($v['custom_field_name']);
-					if ( empty($_POST[$id]) || $_POST[$id] == '' ) {
-						$errors->add('empty_' . $id, __('<strong>ERROR</strong>: Please complete '.$v['custom_field_name'].'.', 'regplus'));
+				if ( $v['show_on_registration'] && $v['required_on_registration'] ) {
+					$key = $this->fnSanitizeFieldName($v['custom_field_name']);
+					if ( empty($_POST[$key]) || $_POST[$key] == '' ) {
+						$errors->add('empty_'.$key, __('<strong>ERROR</strong>: Please complete '.$v['custom_field_name'].'.', 'regplus'));
 					}
 				}
 			}
 			if ( $options['user_set_password'] ) {
 				if ( empty($_POST['pass1']) || $_POST['pass1'] == '' || empty($_POST['pass2']) || $_POST['pass2'] == '' ) {
-					$errors->add('empty_password', __('<strong>ERROR</strong>: Please enter a Password.', 'regplus'));
+					$errors->add('empty_password', __('<strong>ERROR</strong>: Please enter a password.', 'regplus'));
 				} elseif ( $_POST['pass1'] != $_POST['pass2'] ) {
-					$errors->add('password_mismatch', __('<strong>ERROR</strong>: Your Password does not match.', 'regplus'));
+					$errors->add('password_mismatch', __('<strong>ERROR</strong>: Your password does not match.', 'regplus'));
 				} elseif ( strlen($_POST['pass1']) < 6 ) {
-					$errors->add('password_length', __('<strong>ERROR</strong>: Your Password must be at least 6 characters in length.', 'regplus'));
+					$errors->add('password_length', __('<strong>ERROR</strong>: Your password must be at least 6 characters in length.', 'regplus'));
 				} else {
 					$_POST['password'] = $_POST['pass1'];
 				}
 			}
 			if ( $options['enable_invitation_code'] && $options['require_invitation_code'] ) {
 				if ( empty($_POST['invitation_code']) || $_POST['invitation_code'] == '' ) {
-					$errors->add('empty_invitation_code', __('<strong>ERROR</strong>: Please enter an Invitation Code.', 'regplus'));
+					$errors->add('empty_invitation_code', __('<strong>ERROR</strong>: Please enter an invitation code.', 'regplus'));
 				} elseif ( !in_array(strtolower($_POST['invitation_code']), $options['invitation_code_bank']) ) {
-					$errors->add('invitation_code_mismatch', __('<strong>ERROR</strong>: Your Invitation Code is incorrect.', 'regplus'));
+					$errors->add('invitation_code_mismatch', __('<strong>ERROR</strong>: Your invitation code is incorrect.', 'regplus'));
 				}
 			}
 			if ( $options['show_disclaimer'] ) {
@@ -1501,7 +1502,140 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					$errors->add('show_privacy_policy', __('<strong>ERROR</strong>: Please accept the ', 'regplus') . stripslashes($options['message_privacy_policy_title']) . '.');
 				}
 			}
+		}
+
+		function OverrideRegistrationErrors( $errors ) {
+			$options = get_option('register_plus_redux_options');
+			if ( $options['allow_duplicate_emails'] ) {
+				//TODO: Verify this works
+				if ( $errors->errors['email_exists'] ) unset($errors->errors['email_exists']);
+			}
 			return $errors;
+		}
+		
+		function AlterSignupForm() {
+			$options = get_option('register_plus_redux_options');
+			if ( $options['show_firstname_field'] ) {
+				if ( isset($_GET['firstname']) ) $_POST['firstname'] = $_GET['firstname'];
+				echo '<p><label>', _e('First Name', 'regplus'), '<br /><input autocomplete="off" name="firstname" id="firstname" size="25" value="', $_POST['firstname'], '" type="text" tabindex="30" /></label></p>';
+			}
+			if ( $options['show_lastname_field'] ) {
+				if ( isset($_GET['lastname']) ) $_POST['lastname'] = $_GET['lastname'];
+				echo '<p><label>', _e('Last Name', 'regplus'), '<br /><input autocomplete="off" name="lastname" id="lastname" size="25" value="', $_POST['lastname'], '" type="text" tabindex="31" /></label></p>';
+			}
+			if ( $options['show_website_field'] ) {
+				if ( isset($_GET['user_url']) ) $_POST['user_url'] = $_GET['user_url'];
+				echo '<p><label>', _e('Website', 'regplus'), '<br /><input autocomplete="off" name="user_url" id="user_url" size="25" value="', $_POST['user_url'], '" type="text" tabindex="32" /></label></p>';
+			}
+			if ( $options['show_aim_field'] ) {
+				if ( isset($_GET['aim']) ) $_POST['aim'] = $_GET['aim'];
+				echo '<p><label>', _e('AIM', 'regplus'), '<br /><input autocomplete="off" name="aim" id="aim" size="25" value="', $_POST['aim'], '" type="text" tabindex="32" /></label></p>';
+			}
+			if ( $options['show_yahoo_field'] ) {
+				if ( isset($_GET['yahoo']) ) $_POST['yahoo'] = $_GET['yahoo'];
+				echo '<p><label>', _e('Yahoo IM', 'regplus'), '<br /><input autocomplete="off" name="yahoo" id="yahoo" size="25" value="', $_POST['yahoo'], '" type="text" tabindex="33" /></label></p>';
+			}
+			if ( $options['show_jabber_field'] ) {
+				if ( isset($_GET['jabber']) ) $_POST['jabber'] = $_GET['jabber'];
+				echo '<p><label>', _e('Jabber / Google Talk', 'regplus'), '<br /><input autocomplete="off" name="jabber" id="jabber" size="25" value="', $_POST['jabber'], '" type="text" tabindex="34" /></label></p>';
+			}
+			if ( $options['show_about_field'] ) {
+				if ( isset($_GET['about']) ) $_POST['about'] = $_GET['about'];
+				echo '<p><label for="about">', _e('About Yourself', 'regplus'), '</label><br />';
+				echo '<small>', _e('Share a little biographical information to fill out your profile. This may be shown publicly.', 'regplus'), '</small><br />';
+				echo '<textarea autocomplete="off" name="about" id="about" cols="25" rows="5" tabindex="35">', stripslashes($_POST['about']), '</textarea></p>';
+			}
+			$custom_fields = get_option('register_plus_redux_custom_fields');
+			if ( !is_array($custom_fields) ) $custom_fields = array();
+			foreach ( $custom_fields as $k => $v ) {
+				if ( $v['show_on_registration'] ) {
+					$id = $this->fnSanitizeFieldName($v['custom_field_name']);
+					if ( isset($_GET[$id]) ) $_POST[$id] = $_GET[$id];
+					switch ( $v['custom_field_type'] ) {
+						case "text":
+							echo '<p><label>', $v['custom_field_name'], '<br /><input autocomplete="off" class="custom_field" tabindex="36" name="', $id, '" id="', $id, '" size="25" value="', $_POST[$id], '" type="text" /></label></p>';
+							break;
+						case "date":
+							echo '<p><label>', $v['custom_field_name'], '<br /><input autocomplete="off" class="custom_field date-pick" tabindex="36" name="', $id, '" id="', $id, '" size="25" value="', $_POST[$id], '" type="text" /></label><br /></p>';
+							break;
+						case "select":
+							$custom_field_options = explode(',',$v['custom_field_options']);
+							$custom_field_options_text = '';
+							foreach ( $custom_field_options as $custom_field_option ) {
+								$custom_field_options_text .= '<option value="'.$custom_field_option.'" ';
+								if ( $_POST[$id] == $custom_field_option ) $custom_field_options_text .= 'selected="selected"';
+								$custom_field_options_text .= '>' . $custom_field_option . '</option>';
+							}
+							echo '<p><label>', $v['custom_field_name'], '<br /><select class="custom_select" tabindex="36" name="', $id, '" id="', $id, '">', $custom_field_options_text, '</select></label><br /></p>';
+							break;
+						case "checkbox":
+							$custom_field_options = explode(',',$v['custom_field_options']);
+							$check = '';
+							foreach ( $custom_field_options as $custom_field_option ) {
+								$check .= '<label><input type="checkbox" class="custom_checkbox" tabindex="36" name="'.$id.'[]" id="'.$id.'" ';
+								//if ( in_array($custom_field_option, $_POST[$id])) $check .= 'checked="checked" ';
+								$check .= 'value="'.$custom_field_option.'" /> '.$custom_field_option.'</label> ';
+							}
+							echo '<p><label>', $v['custom_field_name'], '</label><br />';
+							echo $check.'<br /></p>';
+							break;
+						case "radio":
+							$custom_field_options = explode(',',$v['custom_field_options']);
+							$radio = '';
+							foreach ( $custom_field_options as $custom_field_option ) {
+								$radio .= '<label><input type="radio" class="custom_radio" tabindex="36" name="'.$id.'" id="'.$id.'" ';
+								//if ( in_array($custom_field_option, $_POST[$id])) $radio .= 'checked="checked" ';
+								$radio .= 'value="'.$custom_field_option.'" /> '.$custom_field_option.'</label> ';
+							}
+							echo '<p><label>', $v['custom_field_name'], '</label><br />';
+							echo $radio.'<br /></p>';
+							break;
+						case "textarea":
+							echo '<p><label>', $v['custom_field_name'], ': <br /><textarea tabindex="36" name="', $id, '" cols="25" rows="5" id="', $id, '" class="custom_textarea">', $_POST[$id], '</textarea></label><br /></p>';
+							break;
+						case "hidden":
+							echo '<input class="custom_field" tabindex="36" name="', $id, '" value="', $_POST[$id], '" type="hidden" />';
+							break;
+					}
+				}
+			}
+			if ( $options['user_set_password'] ) {
+				echo '<p><label>', _e('Password', 'regplus'), '<br /><input autocomplete="off" name="pass1" id="pass1" size="25" value="', $_POST['password'], '" type="password" tabindex="40" /></label></p>';
+				echo '<p><label>', _e('Confirm Password', 'regplus'), '<br /><input autocomplete="off" name="pass2" id="pass2" size="25" value="', $_POST['password'], '" type="password" tabindex="41" /></label></p>';
+				if ( $options['show_password_meter']) { 
+					echo '<div id="pass-strength-result">', $options['message_short_password'], '</div>';
+					echo '<small>', _e('Hint: The password should be at least seven characters long. To make it stronger, use upper and lower case letters, numbers and symbols like ! " ? $ % ^ &amp; ).', 'regplus'), '</small>';
+				}
+			}
+			if ( $options['enable_invitation_code'] ) {
+				if ( isset($_GET['invitation_code']) ) $_POST['invitation_code'] = $_GET['invitation_code'];
+				echo '<p><label>', _e('Invitation Code', 'regplus'), '<br /><input name="invitation_code" id="invitation_code" size="25" value="', $_POST['invitation_code'], '" type="text" tabindex="45" /></label></p>';
+				if ($options['require_invitation_code'])
+					echo '<small>', _e('This website is currently closed to public registrations. You will need an invitation code to register.', 'regplus'), '</small>';
+				else
+					echo '<small>', _e('Have an invitation code? Enter it here. (This is not required)', 'regplus'), '</small>';
+			}
+			if ($options['show_disclaimer'] ) {
+				echo '<p>';
+				echo '	<label>', stripslashes($options['message_disclaimer_title']), '<br />';
+				echo '	<span id="license">', stripslashes($options['message_disclaimer']), '</span>';
+				echo '	<input name="accept_disclaimer" value="1" type="checkbox" tabindex="50"'; if ( $_POST['accept_disclaimer']) echo ' checked="checked"'; echo '/>', $options['message_disclaimer_agree'], '</label>';
+				echo '</p>';
+			}
+			if ( $options['show_license_agreement'] ) {
+				echo '<p>';
+				echo '	<label>', stripslashes($options['message_license_title']), '<br />';
+				echo '	<span id="license">', stripslashes($options['message_license']), '</span>';
+				echo '	<input name="accept_license_agreement" value="1" type="checkbox" tabindex="50"'; if ( $_POST['accept_license_agreement']) echo ' checked="checked"'; echo '/>', $options['message_license_agree'], '</label>';
+				echo '</p>';
+			}
+			if ( $options['show_privacy_policy'] ) {
+				echo '<p>';
+				echo '	<label>', stripslashes($options['message_privacy_policy_title']), '<br />';
+				echo '	<span id="license">', stripslashes($options['message_privacy_policy']), '</span>';
+				echo '	<input name="accept_privacy_policy" value="1" type="checkbox" tabindex="50"'; if ( $_POST['accept_privacy_policy']) echo ' checked="checked"'; echo '/>', $options['message_privacy_policy_agree'], '</label>';
+				echo '</p>';
+			}
 		}
 
 		function ShowCustomFields() {
@@ -1621,9 +1755,12 @@ if ( function_exists('wp_new_user_notification') )
 	add_action('admin_notices', array($registerPlusRedux, 'override_warning'));
 
 # Override set user password and send email to User #
-if ( !function_exists('wp_new_user_notification') ) :
+if ( !function_exists('wp_new_user_notification') ) {
 	function wp_new_user_notification($user_id, $plaintext_pass = '') {
 		$user = new WP_User($user_id);
+		$user_login = stripslashes($user->user_login);
+		$user_email = stripslashes($user->user_email);
+		$blogname = wp_specialchars_decode(get_option('blogname'), ENT_QUOTES);
 		global $wpdb, $registerPlusRedux;
 		$options = get_option('register_plus_redux_options');
 		$ref = explode('?', $_SERVER['HTTP_REFERER']);
@@ -1662,13 +1799,10 @@ if ( !function_exists('wp_new_user_notification') ) :
 			update_user_meta($user_id, 'email_verification_code', $email_verification_code);
 			update_user_meta($user_id, 'email_verify_date', date('Ymd'));
 			update_user_meta($user_id, 'email_verify_user', $user->user_login);
-			$prelink = __('Verification URL: ', 'regplus');
 			$notice = __('Please use the link above to verify and activate your account', 'regplus') . "\r\n";
 			$temp_login = 'unverified__' . $registerPlusRedux->fnRandomString(7);
 		}
 		wp_set_password($plaintext_pass, $user_id);
-		$user_login = stripslashes($user->user_login);
-		$user_email = stripslashes($user->user_email);
 		$user_url = stripslashes($user->user_url);
 		if ( $options['custom_admin_message'] && !$options['disable_admin_message'] ) {
 			if ( $options['send_admin_message_in_html'] ) {
@@ -1680,7 +1814,7 @@ if ( !function_exists('wp_new_user_notification') ) :
 			add_filter('wp_mail_from_name', array($registerPlusRedux, 'filter_admin_message_from_name'));
 			$message = str_replace('%user_login%', $user_login, $options['admin_message_body']);
 			$message = str_replace('%user_email%', $user_email, $message);
-			$message = str_replace('%blogname%', get_option('blogname'), $message);
+			$message = str_replace('%blogname%', $blogname, $message);
 			$message = str_replace('%user_ip%', $_SERVER['REMOTE_ADDR'], $message);
 			$message = str_replace('%user_host%', gethostbyaddr($_SERVER['REMOTE_ADDR']), $message);
 			$message = str_replace('%user_ref%', $_SERVER['HTTP_REFERER'], $message);
@@ -1701,12 +1835,13 @@ if ( !function_exists('wp_new_user_notification') ) :
 			$message = str_replace('%siteurl%', site_url(), $message);
 			if ( $options['send_admin_message_in_html'] && $options['admin_message_newline_as_br'] )
 				$message = nl2br($message);
-			wp_mail(get_option('admin_message'), $options['admin_message_subject'], $message, $headers); 
+			@wp_mail(get_option('admin_message'), $options['admin_message_subject'], $message, $headers); 
 		} elseif ( !$options['custom_admin_message'] && !$options['disable_admin_message']) {
-			$message = sprintf(__('New user Register on your blog %s:', 'regplus'), get_option('blogname')) . "\r\n\r\n";
+			//Wordpress 3.0.1 default admin message
+			$message = sprintf(__('New user registration on your site %s:', 'regplus'), $blogname) . "\r\n\r\n";
 			$message .= sprintf(__('Username: %s', 'regplus'), $user_login) . "\r\n\r\n";
 			$message .= sprintf(__('E-mail: %s', 'regplus'), $user_email) . "\r\n";
-			wp_mail(get_option('admin_email'), sprintf(__('[%s] New User Register', 'regplus'), get_option('blogname')), $message);
+			@wp_mail(get_option('admin_email'), sprintf(__('[%s] New User Registration'), $blogname), $message);
 		}
 		if ( empty($plaintext_pass) )
 			return;
@@ -1721,7 +1856,7 @@ if ( !function_exists('wp_new_user_notification') ) :
 			$message = str_replace('%user_pass%', $plaintext_pass, $options['user_message_body']);
 			$message = str_replace('%user_login%', $user_login, $message);
 			$message = str_replace('%user_email%', $user_email, $message);
-			$message = str_replace('%blogname%', get_option('blogname'), $message);
+			$message = str_replace('%blogname%', $blogname, $message);
 			$message = str_replace('%user_ip%', $_SERVER['REMOTE_ADDR'], $message);
 			$message = str_replace('%user_host%', gethostbyaddr($_SERVER['REMOTE_ADDR']), $message);
 			$message = str_replace('%user_ref%', $_SERVER['HTTP_REFERER'], $message);
@@ -1749,15 +1884,18 @@ if ( !function_exists('wp_new_user_notification') ) :
 				$message = nl2br($message);
 			wp_mail($user_email, $options['user_message_subject'], $message, $headers); 
 		} elseif ( !$options['custom_user_message'] ) {
+			//Wordpress 3.0.1 default user message
 			$message = sprintf(__('Username: %s', 'regplus'), $user_login) . "\r\n";
 			$message .= sprintf(__('Password: %s', 'regplus'), $plaintext_pass) . "\r\n";
-			//$message .= site_url('/wp-login.php');
-			$message .= $prelink . site_url('/wp-login.php') . '?email_verification_code=' . $email_verification_code . "\r\n"; 
-			$message .= $notice; 
-			wp_mail($user_email, sprintf(__('[%s] Your username and password', 'regplus'), get_option('blogname')), $message);
+			//$message .= wp_login_url() . "\r\n";
+
+			$message .= __('Verification URL: ', 'regplus') . site_url('/wp-login.php') . '?email_verification_code=' . $email_verification_code . "\r\n";
+			$message .= $notice;
+			
+			wp_mail($user_email, sprintf(__('[%s] Your username and password', 'regplus'), $blogname), $message);
 		}
 		if ( $ref != $admin && ($options['verify_user_email'] || $options['verify_user_admin']) ) 
 			wp_update_user(array('ID' => $user_id, 'user_login' => $wpdb->prepare($temp_login)));
 	}
-endif;
+}
 ?>

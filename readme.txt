@@ -1,6 +1,6 @@
 === Register Plus Redux ===
 Contributors: skullbit, radiok
-Tags: registration, register, password, invitation, code, invite, disclaimer, email, validation, privacy, policy, license, agreement, logo, moderation, user
+Tags: registration, register, plus, redux, password, invitation, code, invite, disclaimer, email, validation, privacy, policy, license, agreement, logo, moderation, user
 Requires at least: 3.0
 Tested up to: 3.0.1
 Stable tag: 3.6.5
@@ -82,6 +82,13 @@ TODO: Make Redux compatible with Wordpress MU (wp-signup.php)
 TODO: Fix datepicker
 
 == Changelog ==
+
+= 3.6.6 =
+September 22, 2010 by radiok
+
+* Introduce hooks for WPMU
+
+* Cleaned up wp_new_user_notification
 
 = 3.6.5 =
 September 22, 2010 by radiok
