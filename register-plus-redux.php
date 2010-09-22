@@ -18,24 +18,24 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			global $wp_version;
 			register_activation_hook(__FILE__, array($this, 'InitializeSettings'));
 			if ( is_admin() ) {
-				add_action('init', array($this, 'DeleteInvalidUsers'));  //Runs after WordPress has finished loading but before any headers are sent.
-				add_action('admin_menu', array($this, 'AddPages') );  //Runs after the basic admin panel menu structure is in place.
+				add_action('init', array($this, 'DeleteInvalidUsers')); //Runs after WordPress has finished loading but before any headers are sent.
+				add_action('admin_menu', array($this, 'AddPages') ); //Runs after the basic admin panel menu structure is in place.
 				if ( $_GET['page'] == 'register-plus-redux' && $_POST['action'] == 'update_settings')
-					add_action('init', array($this, 'UpdateSettings') );  //Runs after WordPress has finished loading but before any headers are sent.
+					add_action('init', array($this, 'UpdateSettings') ); //Runs after WordPress has finished loading but before any headers are sent.
 				if ( $_POST['verifyit'] )
-					add_action('init', array($this, 'AdminValidate'));  //Runs after WordPress has finished loading but before any headers are sent.
+					add_action('init', array($this, 'AdminValidate')); //Runs after WordPress has finished loading but before any headers are sent.
 				if ( $_POST['emailverifyit'] )
-					add_action('init', array($this, 'AdminEmailValidate'));  //Runs after WordPress has finished loading but before any headers are sent.
+					add_action('init', array($this, 'AdminEmailValidate')); //Runs after WordPress has finished loading but before any headers are sent.
 				if ( $_POST['vdeleteit'] )
-					add_action('init', array($this, 'AdminDeleteUnvalidated'));  //Runs after WordPress has finished loading but before any headers are sent.
+					add_action('init', array($this, 'AdminDeleteUnvalidated')); //Runs after WordPress has finished loading but before any headers are sent.
 			}
 			if ( $_GET['action'] == 'register' )
-				add_action('register_form', array($this, 'RegisterForm'));  //Runs just before the end of the new user registration form. 
+				add_action('register_form', array($this, 'RegisterForm')); //Runs just before the end of the new user registration form. 
 			add_filter('registration_errors', array($this, 'RegistrationErrors'));
 
-			add_action('login_head', array($this, 'PassHead'));  //Runs just before the end of the HTML head section of the login page. 
-			add_action('login_head', array($this, 'LoginHead'));  //Runs just before the end of the HTML head section of the login page. 
-			add_action('login_form', array($this, 'ValidateUser'));  //Runs just before the end of the HTML head section of the login page. 
+			add_action('login_head', array($this, 'PassHead')); //Runs just before the end of the HTML head section of the login page. 
+			add_action('login_head', array($this, 'LoginHead')); //Runs just before the end of the HTML head section of the login page. 
+			add_action('login_form', array($this, 'ValidateUser')); //Runs just before the end of the HTML head section of the login page. 
 			
 			add_action('show_user_profile', array($this, 'ShowCustomFields')); //Runs near the end of the user profile editing screen.
 			add_action('edit_user_profile', array($this, 'ShowCustomFields')); //Runs near the end of the user profile editing screen in the admin menus. 
@@ -392,7 +392,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 						<td>
 							<label><input type="checkbox" name="enable_invitation_code" id="enable_invitation_code" value="1" <?php if ( $options['enable_invitation_code']) echo 'checked="checked"'; ?> />&nbsp;<?php _e('Enable Invitation Code(s)', 'regplus'); ?></label>
 							<div id="invitation_code_settings">
-								<label><input type="checkbox" name="enable_invitation_tracking_widget" value="1" <?php if ( $options['enable_invitation_tracking_widget']) echo 'checked="checked"';  ?>  />&nbsp;<?php _e('Enable Invitation Tracking Dashboard Widget', 'regplus'); ?></label><br />
+								<label><input type="checkbox" name="enable_invitation_tracking_widget" value="1" <?php if ( $options['enable_invitation_tracking_widget']) echo 'checked="checked"'; ?> />&nbsp;<?php _e('Enable Invitation Tracking Dashboard Widget', 'regplus'); ?></label><br />
 								<label><input type="checkbox" name="require_invitation_code" value="1" <?php if ( $options['require_invitation_code']) echo 'checked="checked"'; ?> />&nbsp;<?php _e('Require Invitation Code to Register', 'regplus'); ?></label>
 								<div id="invitation_code_bank">
 								<?php
@@ -626,7 +626,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 								<option value="6" <?php if ( $options['datepicker_firstdayofweek'] == '6' ) echo 'selected="selected"'; ?>><?php _e('Sunday', 'regplus'); ?></option>
 							</select><br />
 							<label for="datepicker_dateformat"><?php _e('Date Format', 'regplus'); ?>:</label><input type="text" name="datepicker_dateformat" value="<?php echo $options['datepicker_dateformat']; ?>" style="width:100px;" /><br />
-							<label for="datepicker_startdate"><?php _e('First Selectable Date', 'regplus'); ?>:</label><input type="text" name="datepicker_startdate" id="datepicker_startdate" value="<?php echo $options['datepicker_startdate']; ?>"  style="width:100px;" /><br />
+							<label for="datepicker_startdate"><?php _e('First Selectable Date', 'regplus'); ?>:</label><input type="text" name="datepicker_startdate" id="datepicker_startdate" value="<?php echo $options['datepicker_startdate']; ?>" style="width:100px;" /><br />
 							<label for="datepicker_calyear"><?php _e('Default Year', 'regplus'); ?>:</label><input type="text" name="datepicker_calyear" id="datepicker_calyear" value="<?php echo $options['datepicker_calyear']; ?>" style="width:40px;" /><br />
 							<label for="datepicker_calmonth"><?php _e('Default Month', 'regplus'); ?>:</label>
 							<select name="datepicker_calmonth" id="datepicker_calmonth">
@@ -648,7 +648,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					</tr>
 				</table>
 				<h3><?php _e('Auto-Complete Queries', 'regplus'); ?></h3>
-				<p><?php _e('You can now link to the registration page with queries to autocomplete specific fields for the user.  I have included the query keys below and an example of a query URL.', 'regplus'); ?></p>
+				<p><?php _e('You can now link to the registration page with queries to autocomplete specific fields for the user. I have included the query keys below and an example of a query URL.', 'regplus'); ?></p>
 				<code>user_login&nbsp;user_email&nbsp;firstname&nbsp;lastname&nbsp;user_url&nbsp;aim&nbsp;yahoo&nbsp;jabber&nbsp;about&nbsp;code</code>
 				<p><?php _e('For any custom fields, use your custom field label with the text all lowercase, using underscores instead of spaces. For example if your custom field was "Middle Name" your query key would be <code>middle_name</code>', 'regplus'); ?></p>
 				<p><strong><?php _e('Example Query URL', 'regplus'); ?></strong></p>
@@ -687,8 +687,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 							if ( $options['show_jabber_field'] ) $registration_fields .= ' %jabber%';
 							if ( $options['show_about_field'] ) $registration_fields .= ' %about%';
 							if ( $options['enable_invitation_code'] ) $registration_fields .= ' %invitation_code%';
-							foreach ( $custom_fields as $k => $v ) 
-							{
+							foreach ( $custom_fields as $k => $v ) {
 								if ( $v['show_on_registration'] )
 								$registration_fields .= ' %'.$this->fnSanitizeFieldName($v['custom_field_name']).'%';
 							}
@@ -781,8 +780,11 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			$options["enable_invitation_tracking_widget"] = $_POST['enable_invitation_tracking_widget'];
 			$options["require_invitation_code"] = $_POST['require_invitation_code'];
 			$options["invitation_code_bank"] = $_POST['invitation_code_bank'];
-			foreach ( $options["invitation_code_bank"] as $k => $v )
-				$options["invitation_code_bank"][$k] = strtolower($v);
+			if ( is_array($options["invitation_code_bank"]) {
+				foreach ( $options["invitation_code_bank"] as $k => $v ) {
+					$options["invitation_code_bank"][$k] = strtolower($v);
+				}
+			}
 			$options["allow_duplicate_emails"] = $_POST['allow_duplicate_emails'];
 
 			$options["show_firstname_field"] = $_POST['show_firstname_field'];
@@ -809,8 +811,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 
 			if ( $_POST['custom_field_name'] ) {
 				foreach ( $_POST['custom_field_name'] as $k => $field ) {
-					if ( $field )
-					{
+					if ( $field ) {
 						$custom_fields[$k] = array('custom_field_name' => $field,
 							'custom_field_type' => $_POST['custom_field_type'][$k],
 							'custom_field_options' => $_POST['custom_field_options'][$k],
@@ -1129,14 +1130,14 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			a.dp-choose-date.dp-disabled { background-position: 0 -20px; cursor: default; } /* makes the input field shorter once the date picker code * has run (to allow space for the calendar icon */
 			input.dp-applied { width: 140px; float: left; }
 			#pass1, #pass2, #invitation_code, #firstname, #lastname, #user_url, #aim, #yahoo, #jabber, #about, .custom_field {
-			        font-size:24px;
-			        width:97%;
-			        padding:3px;
-			        margin-top:2px;
-			        margin-right:6px;
-			        margin-bottom:16px;
-			        border:1px solid #e5e5e5;
-			        background:#fbfbfb;
+				font-size:24px;
+				width:97%;
+				padding:3px;
+				margin-top:2px;
+				margin-right:6px;
+				margin-bottom:16px;
+				border:1px solid #e5e5e5;
+				background:#fbfbfb;
 			}
 			.custom_select, .custom_textarea {
 				width: 97%;
@@ -1241,14 +1242,11 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					echo 'height: ', $height, 'px;';
 					echo '</style>';
 			}
-			if ( $options['custom_registration_page_css'] && $_GET['action'] == 'register' )
-			{
+			if ( $options['custom_registration_page_css'] && $_GET['action'] == 'register' ) {
 				echo '<style type="text/css">';
 				echo $options['custom_registration_page_css'];
 				echo '</style>';
-			}
-			elseif ( $options['custom_login_page_css'] )
-			{
+			} elseif ( $options['custom_login_page_css'] ) {
 				echo '<style type="text/css">';
 				echo $options['custom_login_page_css'];
 				echo '</style>';
@@ -1285,8 +1283,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			$grace = $options['delete_unverified_users_after'];
 			$unverified_users = $wpdb->get_results("SELECT user_id, meta_value FROM $wpdb->usermeta WHERE meta_key='email_verify_date'");
 			$grace_date = date('Ymd', strtotime("-7 days"));
-			if ( count($results) > 0 )
-			{
+			if ( count($results) > 0 ) {
 				foreach ( $unverified_users as $unverified_user ) {
 					if ( $grace_date > $unverified_user->meta_value ) {
 						wp_delete_user($unverified_user->user_id);
@@ -1393,7 +1390,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				if ( isset($_GET['invitation_code']) ) $_POST['invitation_code'] = $_GET['invitation_code'];
 				echo '<p><label>', _e('Invitation Code', 'regplus'), '<br /><input name="invitation_code" id="invitation_code" size="25" value="', $_POST['invitation_code'], '" type="text" tabindex="45" /></label></p>';
 				if ($options['require_invitation_code'])
-					echo '<small>', _e('This website is currently closed to public registrations.  You will need an invitation code to register.', 'regplus'), '</small>';
+					echo '<small>', _e('This website is currently closed to public registrations. You will need an invitation code to register.', 'regplus'), '</small>';
 				else
 					echo '<small>', _e('Have an invitation code? Enter it here. (This is not required)', 'regplus'), '</small>';
 			}
@@ -1474,7 +1471,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			if ( $options['user_set_password'] ) {
 				if ( empty($_POST['pass1']) || $_POST['pass1'] == '' || empty($_POST['pass2']) || $_POST['pass2'] == '' ) {
 					$errors->add('empty_password', __('<strong>ERROR</strong>: Please enter a Password.', 'regplus'));
-				} elseif ( $_POST['pass1'] !=  $_POST['pass2'] ) {
+				} elseif ( $_POST['pass1'] != $_POST['pass2'] ) {
 					$errors->add('password_mismatch', __('<strong>ERROR</strong>: Your Password does not match.', 'regplus'));
 				} elseif ( strlen($_POST['pass1']) < 6 ) {
 					$errors->add('password_length', __('<strong>ERROR</strong>: Your Password must be at least 6 characters in length.', 'regplus'));
@@ -1533,7 +1530,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 								echo '			<select name="', $custom_field_name, '" id="', $custom_field_name, '">';
 								$custom_field_options = explode(',', $v['custom_field_options']);
 								foreach ( $custom_field_options as $custom_field_option )
-									echo '				<option value="',  $custom_field_option,  '"'; if ( $value == $custom_field_option ) echo ' selected="selected"'; echo '>', $custom_field_option, '</option>';
+									echo '				<option value="', $custom_field_option, '"'; if ( $value == $custom_field_option ) echo ' selected="selected"'; echo '>', $custom_field_option, '</option>';
 								echo '			</select>';
 								echo '		</td>';
 								break;
