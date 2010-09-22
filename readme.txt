@@ -71,8 +71,6 @@ http://wordpress.org/support/topic/plugin-register-plus-custom-logo-help
 
 CONSIDERATION: There could exist multiple unverified users with the same username, when a new user signs up, need to check that username isn't in que already
 
-TODO: After renaming all settings, need to delete unused settings
-
 TODO: Migrate settings from Register Plus
 
 TODO: Add localization back in
@@ -84,6 +82,11 @@ TODO: Make Redux compatible with Wordpress MU (wp-signup.php)
 TODO: Fix datepicker
 
 == Changelog ==
+
+= 3.6.5 =
+September 22, 2010 by radiok
+
+* Fixed bug with saving custom fields from profile
 
 = 3.6.4 =
 September 21, 2010 by radiok
