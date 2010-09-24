@@ -1648,20 +1648,20 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				echo '<table class="form-table">';
 				foreach ( $custom_fields as $k => $v ) {
 					if ( $v['show_on_profile'] ) {
-						$custom_field_name = $this->fnSanitizeFieldName($v['custom_field_name']);
-						$value = get_user_meta($user_ID, $custom_field_name, true);
+						$key = $this->fnSanitizeFieldName($v['custom_field_name']);
+						$value = get_user_meta($user_ID, $key, true);
 						echo '	<tr>';
-						echo '		<th><label for="', $custom_field_name, '">', $v['custom_field_name'], '</label></th>';
+						echo '		<th><label for="', $key, '">', $v['custom_field_name'], '</label></th>';
 						switch ( $v['custom_field_type'] ) {
 							case "text":
-								echo '		<td><input type="text" name="', $custom_field_name, '" id="', $custom_field_name, '" value="', $value, '" class="regular-text" /></td>';
+								echo '		<td><input type="text" name="', $key, '" id="', $key, '" value="', $value, '" class="regular-text" /></td>';
 								break;
 							case "hidden":
-								echo '		<td><input type="text" disabled="disabled" name="', $custom_field_name, '" id="', $custom_field_name, '" value="', $value, '" /></td>';
+								echo '		<td><input type="text" disabled="disabled" name="', $key, '" id="', $key, '" value="', $value, '" /></td>';
 								break;
 							case "select":
 								echo '		<td>';
-								echo '			<select name="', $custom_field_name, '" id="', $custom_field_name, '">';
+								echo '			<select name="', $key, '" id="', $key, '">';
 								$custom_field_options = explode(',', $v['custom_field_options']);
 								foreach ( $custom_field_options as $custom_field_option )
 									echo '				<option value="', $custom_field_option, '"'; if ( $value == $custom_field_option ) echo ' selected="selected"'; echo '>', $custom_field_option, '</option>';
@@ -1669,21 +1669,21 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 								echo '		</td>';
 								break;
 							case "textarea":
-								echo '		<td><textarea name="', $custom_field_name, '" id="', $custom_field_name, '" rows="5" cols="30">', stripslashes($value), '</textarea></td>';
+								echo '		<td><textarea name="', $key, '" id="', $key, '" rows="5" cols="30">', stripslashes($value), '</textarea></td>';
 								break;
 							case "checkbox":
 								echo '		<td>';
 								$custom_field_options = explode(',', $v['custom_field_options']);
 								$values = explode(', ', $value);
 								foreach ( $custom_field_options as $custom_field_option )
-									echo '			<label><input type="checkbox" name="', $custom_field_name, '[]" value="', $custom_field_option, '"'; if ( in_array($custom_field_option, $values) ) echo ' checked="checked"'; echo ' />&nbsp;', $custom_field_option, '</label>';
+									echo '			<label><input type="checkbox" name="', $key, '[]" value="', $custom_field_option, '"'; if ( in_array($custom_field_option, $values) ) echo ' checked="checked"'; echo ' />&nbsp;', $custom_field_option, '</label>';
 								echo '		</td>';
 								break;
 							case "radio":
 								echo '		<td>';
 								$custom_field_options = explode(',', $v['custom_field_options']);
 								foreach ( $custom_field_options as $custom_field_option )
-									echo '			<label><input type="radio" name="', $custom_field_name, '" value="', $custom_field_option, '"'; if ( $value == $custom_field_option ) echo ' checked="checked"'; echo '>&nbsp;', $custom_field_option, '</label>';
+									echo '			<label><input type="radio" name="', $key, '" value="', $custom_field_option, '"'; if ( $value == $custom_field_option ) echo ' checked="checked"'; echo '>&nbsp;', $custom_field_option, '</label>';
 								echo '		</td>';
 								break;
 						}
@@ -1740,7 +1740,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		}
 
 		function fnSanitizeFieldName( $key ) {
-			$key = str_replace(' ', '_', $custom_field_name);
+			$key = str_replace(' ', '_', $key);
 			$key = strtolower($key);
 			$key = sanitize_key($key);
 			return $key;
@@ -1780,7 +1780,7 @@ if ( !function_exists('wp_new_user_notification') ) {
 		$custom_fields = get_option('register_plus_redux_custom_fields');
 		if ( !is_array($custom_fields) ) $custom_fields = array();
 		foreach ( $custom_fields as $k => $v ) {
-			$custom_field_name = $registerPlusRedux->fnSanitizeFieldName($v['custom_field_name']);
+			$v['custom_field_name'] = $registerPlusRedux->fnSanitizeFieldName($v['custom_field_name']);
 			if ( $v['show_on_registration'] && $_POST[$custom_field_name] ) {
 				if ( is_array($_POST[$custom_field_name]) ) $_POST[$custom_field_name] = implode(', ', $_POST[$custom_field_name]);
 				update_user_meta($user_id, $custom_field_name, $wpdb->prepare($_POST[$custom_field_name]));
