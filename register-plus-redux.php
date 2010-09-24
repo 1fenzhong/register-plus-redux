@@ -654,10 +654,25 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				</table>
 				<h3><?php _e('Auto-Complete Queries', 'regplus'); ?></h3>
 				<p><?php _e('You can now link to the registration page with queries to autocomplete specific fields for the user. I have included the query keys below and an example of a query URL.', 'regplus'); ?></p>
-				<code>user_login&nbsp;user_email&nbsp;firstname&nbsp;lastname&nbsp;user_url&nbsp;aim&nbsp;yahoo&nbsp;jabber&nbsp;about&nbsp;code</code>
+				<?php
+				$registration_fields = '';
+				if ( $options['show_firstname_field'] ) $registration_fields .= ' %firstname%';
+				if ( $options['show_lastname_field'] ) $registration_fields .= ' %lastname%';
+				if ( $options['show_website_field'] ) $registration_fields .= ' %user_url%';
+				if ( $options['show_aim_field'] ) $registration_fields .= ' %aim%';
+				if ( $options['show_yahoo_field'] ) $registration_fields .= ' %yahoo%';
+				if ( $options['show_jabber_field'] ) $registration_fields .= ' %jabber%';
+				if ( $options['show_about_field'] ) $registration_fields .= ' %about%';
+				if ( $options['enable_invitation_code'] ) $registration_fields .= ' %invitation_code%';
+				foreach ( $custom_fields as $k => $v ) {
+					if ( $v['show_on_registration'] )
+					$registration_fields .= ' %'.$this->fnSanitizeFieldName($v['custom_field_name']).'%';
+				}
+				?>
+				<code><?php echo $registration_fields; ?></code>
 				<p><?php _e('For any custom fields, use your custom field label with the text all lowercase, using underscores instead of spaces. For example if your custom field was "Middle Name" your query key would be <code>middle_name</code>', 'regplus'); ?></p>
 				<p><strong><?php _e('Example Query URL', 'regplus'); ?></strong></p>
-				<code>http://www.skullbit.com/wp-login.php?action=register&user_login=skullbit&user_email=info@skullbit.com&firstname=Skull&lastname=Bit&user_url=www.skullbit.com&aim=skullaim&yahoo=skullhoo&jabber=skulltalk&about=I+am+a+WordPress+Plugin+developer.&code=invitation&middle_name=Danger</code>
+				<code>http://www.radiok.info/wp-login.php?action=register&user_login=skullbit&user_email=radiok@radiok.info&firstname=Radio&lastname=K&user_url=www.radiok.info&aim=radioko&invitation_code=1979&middle_name=Billy</code>
 				<h3><?php _e('Customize User Notification Email', 'regplus'); ?></h3>
 				<table class="form-table"> 
 					<tr valign="top">
@@ -682,21 +697,6 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 						<tr valign="top">
 							<th scope="row"><label for="user_message_body"><?php _e('User Message', 'regplus'); ?></label></th>
 							<td>
-							<?php
-							$registration_fields = '';
-							if ( $options['show_firstname_field'] ) $registration_fields .= ' %firstname%';
-							if ( $options['show_lastname_field'] ) $registration_fields .= ' %lastname%';
-							if ( $options['show_website_field'] ) $registration_fields .= ' %user_url%';
-							if ( $options['show_aim_field'] ) $registration_fields .= ' %aim%';
-							if ( $options['show_yahoo_field'] ) $registration_fields .= ' %yahoo%';
-							if ( $options['show_jabber_field'] ) $registration_fields .= ' %jabber%';
-							if ( $options['show_about_field'] ) $registration_fields .= ' %about%';
-							if ( $options['enable_invitation_code'] ) $registration_fields .= ' %invitation_code%';
-							foreach ( $custom_fields as $k => $v ) {
-								if ( $v['show_on_registration'] )
-								$registration_fields .= ' %'.$this->fnSanitizeFieldName($v['custom_field_name']).'%';
-							}
-							?>
 								<p><strong><?php _e('Replacement Keys', 'regplus'); ?>:</strong> %user_login %user_pass% %user_message% %blogname% %siteurl%<?php echo $registration_fields; ?> %user_ip% %user_ref% %user_host% %user_agent%</p>
 								<textarea name="user_message_body" id="user_message_body" rows="10" cols="25" style="width:80%;height:300px;"><?php echo $options['user_message_body']; ?></textarea><br />
 								<label><input type="checkbox" name="send_user_message_in_html" value="1" <?php if ( $options['send_user_message_in_html']) echo 'checked="checked"'; ?> /><?php _e('Send as HTML', 'regplus'); ?></label>
@@ -1638,10 +1638,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			}
 		}
 
-		function ShowCustomFields() {
-			global $user_ID;
-			get_currentuserinfo();					//fills $user_ID
-			if ( $_GET['user_id'] ) $user_ID = $_GET['user_id'];	//when editing a user use their user_ID
+		function ShowCustomFields( $profileuser ) {
 			$custom_fields = get_option('register_plus_redux_custom_fields');
 			if ( is_array($custom_fields) ) {
 				echo '<h3>', __('Additional Information', 'regplus'), '</h3>';
@@ -1649,7 +1646,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				foreach ( $custom_fields as $k => $v ) {
 					if ( $v['show_on_profile'] ) {
 						$key = $this->fnSanitizeFieldName($v['custom_field_name']);
-						$value = get_user_meta($user_ID, $key, true);
+						$value = get_user_meta($profileuser, $key, true);
 						echo '	<tr>';
 						echo '		<th><label for="', $key, '">', $v['custom_field_name'], '</label></th>';
 						switch ( $v['custom_field_type'] ) {
@@ -1698,16 +1695,13 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			global $wpdb;
 			$custom_fields = get_option('register_plus_redux_custom_fields');
 			if ( !is_array($custom_fields) ) $custom_fields = array();
-			//if ( !empty($custom_fields) ) {
-				foreach ( $custom_fields as $k => $v ) {
-					//echo 'in foreach<br/>';
-					if ( $v['show_on_profile'] ) {
-						$key = $this->fnSanitizeFieldName($v['custom_field_name']);
-						if ( is_array($_POST[$key]) ) $_POST[$key] = implode(', ', $_POST[$key]);
-						update_user_meta($user_id, $key, $wpdb->prepare($_POST[$key]));
-					}
+			foreach ( $custom_fields as $k => $v ) {
+				if ( $v['show_on_profile'] ) {
+					$key = $this->fnSanitizeFieldName($v['custom_field_name']);
+					if ( is_array($_POST[$key]) ) $_POST[$key] = implode(', ', $_POST[$key]);
+					update_user_meta($user_id, $key, $wpdb->prepare($_POST[$key]));
 				}
-			//}
+			}
 		}
 
 		function filter_admin_message_from_email() {
@@ -1791,14 +1785,14 @@ if ( !function_exists('wp_new_user_notification') ) {
 		elseif ( $plaintext_pass = '') $plaintext_pass = $registerPlusRedux->fnRandomString(6);
 		if ( $options['enable_invitation_code'] && $_POST['invitation_code'] ) update_user_meta($user_id, 'invitation_code', $wpdb->prepare($_POST['invitation_code']));
 		if ( $ref != $admin && $options['verify_user_admin'] ) {
-			update_user_meta($user_id, 'admin_verify_user', $user->user_login);
+			update_user_meta($user_id, 'admin_verify_user', $wpdb->prepare($user->user_login));
 			$temp_login = 'unverified__' . $registerPlusRedux->fnRandomString(7);
 			$notice = __('Your account requires activation by an administrator before you will be able to login.', 'regplus') . "\r\n";
 		} elseif ( $ref != $admin && $options['verify_user_email'] ) {
 			$email_verification_code = $registerPlusRedux->fnRandomString(25);
-			update_user_meta($user_id, 'email_verification_code', $email_verification_code);
-			update_user_meta($user_id, 'email_verify_date', date('Ymd'));
-			update_user_meta($user_id, 'email_verify_user', $user->user_login);
+			update_user_meta($user_id, 'email_verification_code', $wpdb->prepare($email_verification_code));
+			update_user_meta($user_id, 'email_verify_date', $wpdb->prepare(date('Ymd')));
+			update_user_meta($user_id, 'email_verify_user', $wpdb->prepare($user->user_login));
 			$notice = __('Please use the link above to verify and activate your account', 'regplus') . "\r\n";
 			$temp_login = 'unverified__' . $registerPlusRedux->fnRandomString(7);
 		}
