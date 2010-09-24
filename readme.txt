@@ -83,6 +83,11 @@ TODO: Fix datepicker
 
 == Changelog ==
 
+= 3.6.7 =
+September 24, 2010 by radiok
+
+* Update registration page HTML to better match Wordpress 3.0.1
+
 = 3.6.6 =
 September 24, 2010 by radiok
 
