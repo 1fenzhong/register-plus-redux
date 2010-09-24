@@ -5,7 +5,7 @@ Plugin Name: Register Plus Redux
 Author URI: http://radiok.info/
 Plugin URI: http://radiok.info/register-plus-redux/
 Description: Fork of Register Plus
-Version: 3.6.6
+Version: 3.6.7
 */
 
 $ops = get_option('register_plus_redux_options');
@@ -331,7 +331,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			<h2><?php _e('Register Plus Redux Settings', 'regplus') ?></h2>
 			<p><input type="button" class="button" value="<?php _e('Preview Registraton Page', 'regplus'); ?>" name="preview" onclick="window.open('<?php echo site_url('/wp-login.php?action=register'); ?>');" /></p>
 			<?php if ( $_POST['notice'] ) echo '<div id="message" class="updated fade"><p><strong>', $_POST['notice'], '.</strong></p></div>'; ?>
-			<form method="post" action="">
+			<form enctype="multipart/form-data" method="post">
 				<?php wp_nonce_field('register-plus-redux-update-settings'); ?>
 				<input type="hidden" name="action" value="update_settings" />
 				<?php $options = get_option('register_plus_redux_options'); ?>
@@ -366,12 +366,13 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					<tr valign="top">
 						<th scope="row"><?php _e('Custom Logo', 'regplus'); ?></th>
 						<td>
-							<input type="file" name="custom_logo" id="custom_logo" value="1" />&nbsp;<small><?php _e('Recommended Logo width is 292px, but any height should work.', 'regplus'); ?></small><br /><img src="<?php echo $options['custom_logo']; ?>" alt="" />
-							<?php if ($options['custom_logo']) { ?>
-							<br />
-							<label><input type="checkbox" name="remove_logo" value="1" /><?php _e('Delete Logo', 'regplus'); ?></label>
+							<?php if ( !$options['custom_logo'] ) { ?>
+								<input type="file" name="custom_logo" id="custom_logo" value="1" /><br />
+								<?php _e('Recommended logo width is 358px. You must Save Changes to upload logo.', 'regplus'); ?>
 							<?php } else { ?>
-							<p><small><strong><?php _e('Having troubles uploading?','regplus'); ?></strong>&nbsp;<?php _e('Uncheck "Organize my uploads into month- and year-based folders" in ','regplus'); ?><a href="<?php echo site_url('/wp-admin/options-misc.php'); ?>"><?php _e('Miscellaneous Settings', 'regplus'); ?></a>&nbsp;<?php _e('(You can recheck this option after your logo has uploaded.)','regplus'); ?></small></p>
+								<img src="<?php echo $options['custom_logo']; ?>" />
+								<label><input type="checkbox" name="remove_logo" value="1" /><?php _e('Remove Logo', 'regplus'); ?></label>
+								<?php _e('You must Save Changes to remove logo.', 'regplus'); ?>
 							<?php } ?>
 						</td>
 					</tr>
@@ -774,8 +775,11 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			$options["message_bad_password"] = $_POST['message_bad_password'];
 			$options["message_good_password"] = $_POST['message_good_password'];
 			$options["message_strong_password"] = $_POST['message_strong_password'];
-			if ( $_FILES['custom_logo']['name'] ) $options['custom_logo'] = $this->UploadLogo();
-			elseif ( $_POST['remove_logo'] ) $options['custom_logo'] = '';
+			if ( $_FILES['custom_logo']['name'] ) {
+				$upload = wp_upload_bits($_FILES['custom_logo']['name'], null, file_get_contents($_FILES['custom_logo']['tmp_name']));
+				if ( !$upload['error'] ) $options['custom_logo'] = $upload['url'];
+			}
+			if ( $_POST['remove_logo'] ) $options['custom_logo'] = '';
 			$options["verify_user_email"] = $_POST['verify_user_email'];
 			$options["delete_unverified_users_after"] = $_POST['delete_unverified_users_after'];
 			$options["verify_user_admin"] = $_POST['verify_user_admin'];
@@ -944,32 +948,6 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		function override_warning() {
 			if ( current_user_can(10) && $_GET['page'] == 'register-plus-redux' )
 			echo "<div id='register-plus-redux-warning' class='updated fade-ff0000'><p><strong>", __('You have another plugin installed that is conflicting with Register Plus Redux. This other plugin is overriding the user notification emails. Please see <a href="http://skullbit.com/news/register-plus-conflicts/">Register Plus Conflicts</a> for more information.', 'regplus'), "</strong></p></div>";
-		}
-
-		function UploadLogo() {
-			//v3.5.1 code
-			//$upload_dir = ABSPATH . get_option('upload_path');
-			//$upload_file = trailingslashit($upload_dir) . basename($_FILES['custom_logo']['name']);
-			//if ( !is_dir($upload_dir) )
-			//	wp_upload_dir();
-			//if ( move_uploaded_file($_FILES['custom_logo']['tmp_name'], $upload_file) ) {
-			//	chmod($upload_file, 0777);
-			//	$custom_logo = $_FILES['custom_logo']['name'];
-			//	return site_url('wp-content/uploads/').$custom_logo;
-			//} else { return false; }
-			//code recommended by nschmede
-			$uploads = wp_upload_dir();
-			$upload_dir = $uploads['basedir'];
-			$upload_url = $uploads['baseurl'];
-			$upload_file = trailingslashit($upload_dir) . basename($_FILES['custom_logo']['name']);
-			//echo $upload_file;
-			if ( !is_dir($upload_dir) )
-				wp_upload_dir();
-			if ( move_uploaded_file($_FILES['custom_logo']['tmp_name'], $upload_file) ) {
-				chmod($upload_file, 0777);
-				$custom_logo = $_FILES['custom_logo']['name'];
-				return trailingslashit($upload_url) . $custom_logo;
-			} else { return false; }
 		}
 
 		function AdminDeleteUnvalidated() {

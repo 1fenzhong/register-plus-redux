@@ -1,9 +1,9 @@
 === Register Plus Redux ===
 Contributors: skullbit, radiok
-Tags: registration, register, plus, redux, password, invitation, code, invite, disclaimer, email, validation, privacy, policy, license, agreement, logo, moderation, user
+Tags: registration, register, redux, register plus, register plus redux, password, invitation, code, invite, disclaimer, email, validation, privacy, policy, license, agreement, logo, moderation, user
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable tag: 3.6.6
+Stable tag: 3.6.7
 
 Fork of Register Plus
 
@@ -66,7 +66,7 @@ http://wordpress.org/support/topic/register-plus-is-adding-s-to-all-quote-marks-
 FEATURE REQUEST: Registration widget, need to look into whether someone else took care of that, and if so how RegPlusRe interacts with that.
 http://wordpress.org/support/topic/register-plus
 
-FEATURE REQUEST: URL to custom logo, curious if WP has a better way to get at files uploaded too
+FEATURE REQUEST: URL to custom logo
 http://wordpress.org/support/topic/plugin-register-plus-custom-logo-help
 
 CONSIDERATION: There could exist multiple unverified users with the same username, when a new user signs up, need to check that username isn't in que already
@@ -83,11 +83,14 @@ TODO: Fix datepicker
 
 TODO: Nickname options
 
+TODO: Would like to be able to upload the file a little bit nicer, almost like a form within a form
+
 == Changelog ==
 
 = 3.6.7 =
 September 24, 2010 by radiok
 
+* Fixed custom logo feature
 * Update registration page HTML to better match Wordpress 3.0.1
 * Changed add/remove buttons on settings page to not be links, no more jumping around the page
 * Invitation codes are no longer stored in lowercase, making way for option to enforce case sensitivity
