@@ -320,6 +320,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				<?php if ( !$options['show_privacy_policy'] ) echo "jQuery('#privacy_policy_settings').hide();"; ?>
 				<?php if ( !$options['custom_user_message'] ) echo "jQuery('#custom_user_message_settings').hide();"; ?>
 				<?php if ( !$options['custom_admin_message'] ) echo "jQuery('#custom_admin_message_settings').hide();"; ?>
+				jQuery('.disabled').hide();
 			});
 			</script>
 		<?php
@@ -410,9 +411,9 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 							</div>
 						</td>
 					</tr>
-					<tr valign="top">
+					<tr valign="top" class="disabled">
 						<th scope="row"><?php _e('Allow Duplicate Email Addresses', 'regplus'); ?></th>
-						<td><label><input type="checkbox" name="allow_duplicate_emails" value="1" <?php if ( $options['allow_duplicate_emails']) echo 'checked="checked""'; ?> />&nbsp;<?php _e('Allow new registrations to use an email address that has been previously registered', 'regplus'); ?></label></td>
+						<td><label><input type="checkbox" name="allow_duplicate_emails" value="1" <?php #if ( $options['allow_duplicate_emails']) echo 'checked="checked""'; ?> />&nbsp;<?php #_e('Allow new registrations to use an email address that has been previously registered', 'regplus'); ?></label></td>
 					</tr>
 				</table>
 				<h3><?php _e('Registration Page', 'regplus'); ?></h3>
@@ -1502,7 +1503,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			$options = get_option('register_plus_redux_options');
 			if ( $options['allow_duplicate_emails'] ) {
 				//TODO: Verify this works
-				if ( $errors->errors['email_exists'] ) unset($errors->errors['email_exists']);
+				//if ( $errors->errors['email_exists'] ) unset($errors->errors['email_exists']);
 			}
 			return $errors;
 		}
@@ -1779,6 +1780,7 @@ if ( !function_exists('wp_new_user_notification') ) {
 		$ref = explode('?', $_SERVER['HTTP_REFERER']);
 		$ref = $ref[0];
 		$admin = site_url('wp-admin/unverified-users.php');
+
 		if ( $options['show_firstname_field'] && $_POST['firstname'] ) update_user_meta($user_id, 'first_name', $wpdb->prepare($_POST['firstname']));
 		if ( $options['show_lastname_field'] && $_POST['lastname'] ) update_user_meta($user_id, 'last_name', $wpdb->prepare($_POST['lastname']));
 		if ( $options['show_website_field'] && $_POST['user_url'] ) {
@@ -1799,9 +1801,21 @@ if ( !function_exists('wp_new_user_notification') ) {
 				update_user_meta($user_id, $key, $wpdb->prepare($_POST[$key]));
 			}
 		}
-		if ( $options['user_set_password'] && $_POST['password'] ) $plaintext_pass = $wpdb->prepare($_POST['password']);
-		elseif ( $ref == $admin && $_POST['pass1'] == $_POST['pass2'] ) $plaintext_pass = $wpdb->prepare($_POST['pass1']);
-		elseif ( $plaintext_pass = '') $plaintext_pass = $registerPlusRedux->fnRandomString(6);
+
+		if ( $options['user_set_password'] && $_POST['password'] ) {
+			$plaintext_pass = $wpdb->prepare($_POST['password']);
+			update_user_option( $user_id, 'default_password_nag', false, true );
+			wp_set_password($plaintext_pass, $user_id);
+		} elseif ( $ref == $admin && $_POST['pass1'] == $_POST['pass2'] ) {
+			$plaintext_pass = $wpdb->prepare($_POST['pass1']);
+			update_user_option( $user_id, 'default_password_nag', false, true );
+			wp_set_password($plaintext_pass, $user_id);
+		} elseif ( !$plaintext_pass ) {
+			$plaintext_pass = $registerPlusRedux->fnRandomString(12);
+			update_user_option( $user_id, 'default_password_nag', true, true );
+			wp_set_password($plaintext_pass, $user_id);
+		}
+
 		if ( $options['enable_invitation_code'] && $_POST['invitation_code'] ) update_user_meta($user_id, 'invitation_code', $wpdb->prepare($_POST['invitation_code']));
 		if ( $ref != $admin && $options['verify_user_admin'] ) {
 			update_user_meta($user_id, 'admin_verify_user', $wpdb->prepare($user->user_login));
@@ -1815,7 +1829,6 @@ if ( !function_exists('wp_new_user_notification') ) {
 			$notice = __('Please use the link above to verify and activate your account', 'regplus') . "\r\n";
 			$temp_login = 'unverified__' . $registerPlusRedux->fnRandomString(7);
 		}
-		wp_set_password($plaintext_pass, $user_id);
 		$user_url = stripslashes($user->user_url);
 		if ( $options['custom_admin_message'] && !$options['disable_admin_message'] ) {
 			if ( $options['send_admin_message_in_html'] ) {

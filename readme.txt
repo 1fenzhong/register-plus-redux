@@ -90,6 +90,11 @@ TODO: Would like to be able to upload the file a little bit nicer, almost like a
 = 3.6.7 =
 September 24, 2010 by radiok
 
+* Disabled Allow Duplicate Email Addresses, I'll have to figure out how to work that one out
+
+= 3.6.7 =
+September 24, 2010 by radiok
+
 * Fixed custom logo feature
 * Update registration page HTML to better match Wordpress 3.0.1
 * Changed add/remove buttons on settings page to not be links, no more jumping around the page
