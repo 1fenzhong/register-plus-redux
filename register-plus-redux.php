@@ -47,8 +47,8 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			add_action('profile_update', array($this, 'SaveCustomFields'));	//Runs when a user's profile is updated. Action function argument: user ID. 
 
 			//LOCALIZATION
-			#Place your language file in the plugin folder and name it "regplus-{language}.mo"
-			#replace {language} with your language value from wp-config.php
+			//Place your language file in the plugin folder and name it "regplus-{language}.mo"
+			//replace {language} with your language value from wp-config.php
 			//load_plugin_textdomain('regplus', '/wp-content/plugins/register-plus-redux');
 			
 			//VERSION CONTROL
@@ -144,10 +144,10 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				'custom_login_page_css' => ''
 			);
 			if ( !get_option('register_plus_redux_options') ) {
-				#Check if settings exist, add defaults in necessary
+				//Check if settings exist, add defaults in necessary
 				add_option('register_plus_redux_options', $default);
 			} else {
-				#Check settings for new variables, add as necessary
+				//Check settings for new variables, add as necessary
 				$options = get_option('register_plus_redux_options');
 				foreach ( $default as $k => $v ) {
 					if ( !$options[$k] ) {
@@ -165,7 +165,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			?>
 			<script type="text/javascript">
 			function addInvitationCode() {
-				jQuery('<div class="invitation_code"><input type="text" name="invitation_code_bank[]" value="" />&nbsp;<a href="#" onClick="return removeInvitationCode(this);"><img src="<?php echo plugins_url('removeBtn.gif', __FILE__); ?>" alt="<?php echo __('Remove Code', 'regplus'); ?>" title="<?php echo __('Remove Code', 'regplus'); ?>" /></a></div>').appendTo('#invitation_code_bank');
+				jQuery('<div class="invitation_code"><input type="text" name="invitation_code_bank[]" value="" />&nbsp;<img src="<?php echo plugins_url('removeBtn.gif', __FILE__); ?>" alt="<?php echo __('Remove Code', 'regplus'); ?>" title="<?php echo __('Remove Code', 'regplus'); ?>" onClick="return removeInvitationCode(this);" style="cursor: pointer;" /></div>').appendTo('#invitation_code_bank');
 			}
 
 			function removeInvitationCode(clickety) {
@@ -233,14 +233,12 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 						.append(jQuery('<td>')
 							.attr('align', 'center')
 							.attr('style', 'padding-top: 0px; padding-bottom: 0px;')
-							.append(jQuery('<a>')
-								.attr('href', '#')
+							.append(jQuery('<img>')
+								.attr('src', '<?php echo plugins_url('removeBtn.gif', __FILE__); ?>')
+								.attr('alt', '<?php echo __('Remove Field', 'regplus'); ?>')
+								.attr('title', '<?php echo __('Remove Field', 'regplus'); ?>')
 								.attr('onClick', 'return removeCustomField(this);')
-								.append(jQuery('<img>')
-									.attr('src', '<?php echo plugins_url('removeBtn.gif', __FILE__); ?>')
-									.attr('alt', '<?php echo __('Remove Field', 'regplus'); ?>')
-									.attr('title', '<?php echo __('Remove Field', 'regplus'); ?>')
-								)
+								.attr('style', 'cursor: pointer;')
 							)
 						)
 					);
@@ -404,10 +402,10 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 									$invitation_codes = $options['invitation_code_bank'];
 									if ( !is_array($options['invitation_code_bank']) ) $options['invitation_code_bank'] = array();
 									foreach ($options['invitation_code_bank'] as $invitation_code )
-										echo '<div class="invitation_code"><input type="text" name="invitation_code_bank[]" value="', $invitation_code, '" />&nbsp;<a href="#" onClick="return removeInvitationCode(this);"><img src="', plugins_url('removeBtn.gif', __FILE__), '" alt="', __('Remove Code', 'regplus'), '" title="', __('Remove Code', 'regplus'), '" /></a></div>';
+										echo '<div class="invitation_code"><input type="text" name="invitation_code_bank[]" value="', $invitation_code, '" />&nbsp;<img src="', plugins_url('removeBtn.gif', __FILE__), '" alt="', __('Remove Code', 'regplus'), '" title="', __('Remove Code', 'regplus'), '" onClick="return removeInvitationCode(this);" style="cursor: pointer;" /></div>';
 								?>
 								</div>
-								<a href="#" onClick="return addInvitationCode();"><img src="<?php echo plugins_url('addBtn.gif', __FILE__); ?>" alt="<?php _e('Add Code', 'regplus') ?>" title="<?php _e('Add Code', 'regplus') ?>" /></a>&nbsp;<?php _e('Add a new invitation code', 'regplus') ?><br />
+								<img src="<?php echo plugins_url('addBtn.gif', __FILE__); ?>" alt="<?php _e('Add Code', 'regplus') ?>" title="<?php _e('Add Code', 'regplus') ?>" onClick="return addInvitationCode();" style="cursor: pointer;" />&nbsp;<?php _e('Add a new invitation code', 'regplus') ?><br />
 							</div>
 						</td>
 					</tr>
@@ -608,13 +606,13 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 										echo '	<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_on_profile[', $k, ']" value="1"'; if ( $v['show_on_profile'] ) echo ' checked="checked"'; echo ' /></td>';
 										echo '	<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_on_registration[', $k, ']" value="1"'; if ( $v['show_on_registration'] ) echo ' checked="checked"'; echo ' /></td>';
 										echo '	<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_on_registration[', $k, ']" value="1"'; if ( $v['required_on_registration'] ) echo ' checked="checked"'; echo ' /></td>';
-										echo '	<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><a href="#" onClick="return removeCustomField(this);"><img src="', plugins_url('removeBtn.gif', __FILE__), '" alt="', __('Remove Field', 'regplus'), '" title="', __('Remove Field', 'regplus'), '" /></a></td>';
+										echo '	<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><img src="', plugins_url('removeBtn.gif', __FILE__), '" alt="', __('Remove Field', 'regplus'), '" title="', __('Remove Field', 'regplus'), '" onClick="return removeCustomField(this);" style="cursor: pointer;" /></td>';
 										echo '</tr>';
 									}
 									?>
 								</tbody>
 							</table>
-							<a href="#" onClick="return addCustomField();"><img src="<?php echo plugins_url('addBtn.gif', __FILE__); ?>" alt="<?php _e('Add Field', 'regplus') ?>" title="<?php _e('Add Field', 'regplus') ?>" /></a>&nbsp;<?php _e('Add a new custom field.', 'regplus') ?>
+							<img src="<?php echo plugins_url('addBtn.gif', __FILE__); ?>" alt="<?php _e('Add Field', 'regplus') ?>" title="<?php _e('Add Field', 'regplus') ?>" onClick="return addCustomField();" style="cursor: pointer;" />&nbsp;<?php _e('Add a new custom field.', 'regplus') ?>
 						</td>
 					</tr>
 					<tr valign="top">
@@ -785,11 +783,6 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			$options["enable_invitation_tracking_widget"] = $_POST['enable_invitation_tracking_widget'];
 			$options["require_invitation_code"] = $_POST['require_invitation_code'];
 			$options["invitation_code_bank"] = $_POST['invitation_code_bank'];
-			if ( is_array($options["invitation_code_bank"]) ) {
-				foreach ( $options["invitation_code_bank"] as $k => $v ) {
-					$options["invitation_code_bank"][$k] = strtolower($v);
-				}
-			}
 			$options["allow_duplicate_emails"] = $_POST['allow_duplicate_emails'];
 
 			$options["show_firstname_field"] = $_POST['show_firstname_field'];

@@ -81,12 +81,16 @@ TODO: Make Redux compatible with Wordpress MU (wp-signup.php)
 
 TODO: Fix datepicker
 
+TODO: Nickname options
+
 == Changelog ==
 
 = 3.6.7 =
 September 24, 2010 by radiok
 
 * Update registration page HTML to better match Wordpress 3.0.1
+* Changed add/remove buttons on settings page to not be links, no more jumping around the page
+* Invitation codes are no longer stored in lowercase, making way for option to enforce case sensitivity
 
 = 3.6.6 =
 September 24, 2010 by radiok
