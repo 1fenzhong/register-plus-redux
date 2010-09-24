@@ -3,7 +3,7 @@ Contributors: skullbit, radiok
 Tags: registration, register, plus, redux, password, invitation, code, invite, disclaimer, email, validation, privacy, policy, license, agreement, logo, moderation, user
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable tag: 3.6.5
+Stable tag: 3.6.6
 
 Fork of Register Plus
 
@@ -84,19 +84,17 @@ TODO: Fix datepicker
 == Changelog ==
 
 = 3.6.6 =
-September 22, 2010 by radiok
+September 24, 2010 by radiok
 
 * Introduce hooks for WPMU
-
 * Cleaned up wp_new_user_notification
+* Fixed custom fields, tested, tested, and retested text fields, more testing due for other field types
 
 = 3.6.5 =
 September 22, 2010 by radiok
 
 * Added preview registration page buttons
-
 * Fixed bug with saving custom fields from profile
-
 * Fixed bug with saving settings as reported by mrpatulski, array check was missing
 
   http://wordpress.org/support/topic/plugin-register-plus-redux-getting-fatal-error-when-activating

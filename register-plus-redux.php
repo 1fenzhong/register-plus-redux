@@ -5,7 +5,7 @@ Plugin Name: Register Plus Redux
 Author URI: http://radiok.info/
 Plugin URI: http://radiok.info/register-plus-redux/
 Description: Fork of Register Plus
-Version: 3.6.5
+Version: 3.6.6
 */
 
 $ops = get_option('register_plus_redux_options');
@@ -815,15 +815,13 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			$options["message_privacy_policy_agree"] = $_POST['message_privacy_policy_agree'];
 
 			if ( $_POST['custom_field_name'] ) {
-				foreach ( $_POST['custom_field_name'] as $k => $field ) {
-					if ( $field ) {
-						$custom_fields[$k] = array('custom_field_name' => $field,
-							'custom_field_type' => $_POST['custom_field_type'][$k],
-							'custom_field_options' => $_POST['custom_field_options'][$k],
-							'show_on_profile' => $_POST['show_on_profile'][$k],
-							'show_on_registration' => $_POST['show_on_registration'][$k],
-							'required_on_registration' => $_POST['required_on_registration'][$k]);
-					}
+				foreach ( $_POST['custom_field_name'] as $k => $v ) {
+					$custom_fields[$k] = array('custom_field_name' => $v,
+						'custom_field_type' => $_POST['custom_field_type'][$k],
+						'custom_field_options' => $_POST['custom_field_options'][$k],
+						'show_on_profile' => $_POST['show_on_profile'][$k],
+						'show_on_registration' => $_POST['show_on_registration'][$k],
+						'required_on_registration' => $_POST['required_on_registration'][$k]);
 				}
 			}
 			$options['datepicker_firstdayofweek'] = $_POST['datepicker_firstdayofweek'];
@@ -1646,7 +1644,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				foreach ( $custom_fields as $k => $v ) {
 					if ( $v['show_on_profile'] ) {
 						$key = $this->fnSanitizeFieldName($v['custom_field_name']);
-						$value = get_user_meta($profileuser, $key, true);
+						$value = get_user_meta($profileuser->ID, $key, true);
 						echo '	<tr>';
 						echo '		<th><label for="', $key, '">', $v['custom_field_name'], '</label></th>';
 						switch ( $v['custom_field_type'] ) {
@@ -1774,10 +1772,10 @@ if ( !function_exists('wp_new_user_notification') ) {
 		$custom_fields = get_option('register_plus_redux_custom_fields');
 		if ( !is_array($custom_fields) ) $custom_fields = array();
 		foreach ( $custom_fields as $k => $v ) {
-			$v['custom_field_name'] = $registerPlusRedux->fnSanitizeFieldName($v['custom_field_name']);
-			if ( $v['show_on_registration'] && $_POST[$custom_field_name] ) {
-				if ( is_array($_POST[$custom_field_name]) ) $_POST[$custom_field_name] = implode(', ', $_POST[$custom_field_name]);
-				update_user_meta($user_id, $custom_field_name, $wpdb->prepare($_POST[$custom_field_name]));
+			$key = $registerPlusRedux->fnSanitizeFieldName($v['custom_field_name']);
+			if ( $v['show_on_registration'] && $_POST[$key] ) {
+				if ( is_array($_POST[$key]) ) $_POST[$key] = implode(', ', $_POST[$key]);
+				update_user_meta($user_id, $key, $wpdb->prepare($_POST[$key]));
 			}
 		}
 		if ( $options['user_set_password'] && $_POST['password'] ) $plaintext_pass = $wpdb->prepare($_POST['password']);
@@ -1823,8 +1821,8 @@ if ( !function_exists('wp_new_user_notification') ) {
 			if ( $options['enable_invitation_code'] ) $message = str_replace('%invitation_code%', $_POST['invitation_code'], $message);
 			if ( !is_array($custom_fields) ) $custom_fields = array();
 			foreach ( $custom_fields as $k => $v ) {
-				$custom_field_name = $registerPlusRedux->fnSanitizeFieldName($v['custom_field_name']);
-				$message = str_replace('%'.$custom_field_name.'%', get_user_meta($user_id, $custom_field_name, true), $message);
+				$key = $registerPlusRedux->fnSanitizeFieldName($v['custom_field_name']);
+				$message = str_replace('%'.$key.'%', get_user_meta($user_id, $key, true), $message);
 			}
 			$message = str_replace('%siteurl%', site_url(), $message);
 			if ( $options['send_admin_message_in_html'] && $options['admin_message_newline_as_br'] )
@@ -1865,8 +1863,8 @@ if ( !function_exists('wp_new_user_notification') ) {
 			if ( $options['enable_invitation_code'] ) $message = str_replace('%invitation_code%', $_POST['invitation_code'], $message);
 			if ( !is_array($custom_fields) ) $custom_fields = array();
 			foreach ( $custom_fields as $k => $v ) {
-				$custom_field_name = $registerPlusRedux->fnSanitizeFieldName($v['custom_field_name']);
-				$message = str_replace('%'.$custom_field_name.'%', get_user_meta($user_id, $custom_field_name, true), $message);
+				$key = $registerPlusRedux->fnSanitizeFieldName($v['custom_field_name']);
+				$message = str_replace('%'.$key.'%', get_user_meta($user_id, $key, true), $message);
 			}
 			$redirect = 'redirect_to=' . $options['user_message_login_link'];
 			if ( $options['verify_user_email'] )
