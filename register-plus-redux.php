@@ -367,7 +367,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					<tr valign="top">
 						<th scope="row"><?php _e('Custom Logo URL', 'regplus'); ?></th>
 						<td>
-							<input type="text" name="custom_logo_url" id="custom_logo_url" value="<?php echo $options['custom_logo_url']; ?>" /><br />
+							<input type="text" name="custom_logo_url" id="custom_logo_url" value="<?php echo $options['custom_logo_url']; ?>" style="width: 30%;" /><br />
 							Upload a new logo: <input type="file" name="custom_logo" id="custom_logo" value="1" /><br />
 							<?php _e('Recommended logo width is 358px. You must Save Changes to upload logo.', 'regplus'); ?>
 							<?php if ( $options['custom_logo_url'] ) { ?>
@@ -767,6 +767,10 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		}
 
 		function UpdateSettings() {
+			/*
+			UpdateSettings is much harsher than it used to be, does not load old settings and
+			update them, just pulls whatever is on the current settings page
+			*/
 			check_admin_referer('register-plus-redux-update-settings');
 			//$current_options = get_option('register_plus_redux_options');
 			$options = array();
