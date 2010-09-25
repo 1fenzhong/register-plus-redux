@@ -5,7 +5,7 @@ Plugin Name: Register Plus Redux
 Author URI: http://radiok.info/
 Plugin URI: http://radiok.info/register-plus-redux/
 Description: Fork of Register Plus
-Version: 3.6.7
+Version: 3.6.8
 */
 
 $ops = get_option('register_plus_redux_options');
@@ -84,7 +84,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				'message_bad_password' => 'Bad Password',
 				'message_good_password' => 'Good Password',
 				'message_strong_password' => 'Strong Password',
-				'custom_logo' => '',
+				'custom_logo_url' => '',
 				'verify_user_email' => '0',
 				'delete_unverified_users_after' => '7',
 				'verify_user_admin' => '0',
@@ -365,13 +365,13 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 						</td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php _e('Custom Logo', 'regplus'); ?></th>
+						<th scope="row"><?php _e('Custom Logo URL', 'regplus'); ?></th>
 						<td>
-							<?php if ( !$options['custom_logo'] ) { ?>
-								<input type="file" name="custom_logo" id="custom_logo" value="1" /><br />
-								<?php _e('Recommended logo width is 358px. You must Save Changes to upload logo.', 'regplus'); ?>
-							<?php } else { ?>
-								<img src="<?php echo $options['custom_logo']; ?>" />
+							<input type="text" name="custom_logo_url" id="custom_logo_url" value="<?php echo $options['custom_logo_url']; ?>" /><br />
+							Upload a new logo: <input type="file" name="custom_logo" id="custom_logo" value="1" /><br />
+							<?php _e('Recommended logo width is 358px. You must Save Changes to upload logo.', 'regplus'); ?>
+							<?php if ( $options['custom_logo_url'] ) { ?>
+								<br /><img src="<?php echo $options['custom_logo_url']; ?>" /><br />
 								<label><input type="checkbox" name="remove_logo" value="1" /><?php _e('Remove Logo', 'regplus'); ?></label>
 								<?php _e('You must Save Changes to remove logo.', 'regplus'); ?>
 							<?php } ?>
@@ -768,7 +768,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 
 		function UpdateSettings() {
 			check_admin_referer('register-plus-redux-update-settings');
-			//$options = get_option('register_plus_redux_options');
+			//$current_options = get_option('register_plus_redux_options');
 			$options = array();
 			$options["user_set_password"] = $_POST['user_set_password'];
 			$options["show_password_meter"] = $_POST['show_password_meter'];
@@ -776,11 +776,12 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			$options["message_bad_password"] = $_POST['message_bad_password'];
 			$options["message_good_password"] = $_POST['message_good_password'];
 			$options["message_strong_password"] = $_POST['message_strong_password'];
+			$options['custom_logo_url'] = $_POST['custom_logo_url'];
 			if ( $_FILES['custom_logo']['name'] ) {
 				$upload = wp_upload_bits($_FILES['custom_logo']['name'], null, file_get_contents($_FILES['custom_logo']['tmp_name']));
-				if ( !$upload['error'] ) $options['custom_logo'] = $upload['url'];
+				if ( !$upload['error'] ) $options['custom_logo_url'] = $upload['url'];
 			}
-			if ( $_POST['remove_logo'] ) $options['custom_logo'] = '';
+			if ( $_POST['remove_logo'] ) $options['custom_logo_url'] = '';
 			$options["verify_user_email"] = $_POST['verify_user_email'];
 			$options["delete_unverified_users_after"] = $_POST['delete_unverified_users_after'];
 			$options["verify_user_admin"] = $_POST['verify_user_admin'];
@@ -1197,9 +1198,10 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				echo 'label, #user_login, #user_pass, .forgetmenot, #wp-submit, .message { display:none; }';
 				echo '</style>';
 			}
-			if ( $options['custom_logo'] ) { 
-				$custom_logo = str_replace(trailingslashit(site_url()), ABSPATH, $options['custom_logo']);
-				list($width, $height, $type, $attr) = getimagesize($custom_logo);
+			if ( $options['custom_logo_url'] ) { 
+				//$custom_logo = str_replace(trailingslashit(site_url()), ABSPATH, $options['custom_logo_url']);
+				//list($width, $height, $type, $attr) = getimagesize($custom_logo);
+				list($width, $height, $type, $attr) = getimagesize($options['custom_logo_url']);
 				if ( $_GET['action'] != 'register' )
 					wp_enqueue_script('jquery');
 					echo '<script type="text/javascript">';
@@ -1210,7 +1212,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					echo '</script>';
 					echo '<style type="text/css">';
 					echo '#login h1 a {';
-					echo 'background-image: url(', $options['custom_logo'], ');';
+					echo 'background-image: url(', $options['custom_logo_url'], ');';
 					echo 'background-position:center top;';
 					echo 'width: ', $width, 'px;';
 					echo 'min-width:292px;';
