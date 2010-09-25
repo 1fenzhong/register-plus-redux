@@ -17,19 +17,19 @@ Enhancements to registration include:
 
 * Added profile fields
 
-* Additional required fields
+* Additional required fields for registration
 
 * Invitation code system (with dashboard widget to track invites)
 
 * User-defined fields
 
-* Email verification
+* Email verification of new users
 
 * Administration verification of new users
 
-* Customized new user email
+* Customized new user message
 
-* Customized administrator email
+* Customized administrator message
 
 Also includes fixes for known Register Plus bugs which has been abandoned. 
 
@@ -85,9 +85,11 @@ TODO: Would like to be able to upload the file a little bit nicer, almost like a
 == Changelog ==
 
 = 3.6.8 =
-September 24, 2010 by radiok
+September 25, 2010 by radiok
 
-* Fixed custom logo feature not persisting and added feature to supply URL to custom logo
+* Fixed custom logo feature not persisting as reported by saury316, and added feature to supply URL to custom logo
+
+  http://wordpress.org/support/topic/plugin-register-plus-redux-logo-and-other-issues
 
   http://wordpress.org/support/topic/plugin-register-plus-custom-logo-help
 
