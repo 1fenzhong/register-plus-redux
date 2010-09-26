@@ -18,7 +18,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			global $wp_version;
 			register_activation_hook(__FILE__, array($this, 'InitializeSettings'));
 			if ( is_admin() ) {
-				add_action('init', array($this, 'DeleteInvalidUsers')); //Runs after WordPress has finished loading but before any headers are sent.
+				add_action('init', array($this, 'DeleteExpiredUsers')); //Runs after WordPress has finished loading but before any headers are sent.
 				add_action('admin_menu', array($this, 'AddPages') ); //Runs after the basic admin panel menu structure is in place.
 				if ( $_GET['page'] == 'register-plus-redux' && $_POST['action'] == 'update_settings')
 					add_action('init', array($this, 'UpdateSettings') ); //Runs after WordPress has finished loading but before any headers are sent.
@@ -367,12 +367,15 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					<tr valign="top">
 						<th scope="row"><?php _e('Custom Logo URL', 'regplus'); ?></th>
 						<td>
-							<input type="text" name="custom_logo_url" id="custom_logo_url" value="<?php echo $options['custom_logo_url']; ?>" style="width: 30%;" /><br />
-							Upload a new logo: <input type="file" name="custom_logo" id="custom_logo" value="1" /><br />
-							<?php _e('Recommended logo width is 358px. You must Save Changes to upload logo.', 'regplus'); ?>
+							<input type="text" name="custom_logo_url" id="custom_logo_url" value="<?php echo $options['custom_logo_url']; ?>" style="width: 50%;" /><br />
+							<?php _e('Upload a new logo:', 'regplus'); ?>&nbsp;<input type="file" name="upload_custom_logo" id="upload_custom_logo" value="1" /><br />
+							<?php _e('You must Save Changes to upload logo.', 'regplus'); ?><br />
+							<?php _e('Recommended logo should not exceed 358px width.', 'regplus'); ?>
 							<?php if ( $options['custom_logo_url'] ) { ?>
 								<br /><img src="<?php echo $options['custom_logo_url']; ?>" /><br />
-								<label><input type="checkbox" name="remove_logo" value="1" /><?php _e('Remove Logo', 'regplus'); ?></label>
+								<?php list($custom_logo_width, $custom_logo_height) = getimagesize($options['custom_logo_url']); ?>
+								<?php echo $custom_logo_width; ?>x<?php echo $custom_logo_height; ?><br />
+								<label><input type="checkbox" name="remove_logo" value="1" />&nbsp;<?php _e('Remove Logo', 'regplus'); ?></label><br />
 								<?php _e('You must Save Changes to remove logo.', 'regplus'); ?>
 							<?php } ?>
 						</td>
@@ -381,10 +384,10 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 						<th scope="row"><?php _e('Email Verification', 'regplus'); ?></th>
 						<td>
 							<label><input type="checkbox" name="verify_user_email" id="verify_user_email" value="1" <?php if ( $options['verify_user_email']) echo 'checked="checked"'; ?> />&nbsp;<?php _e('Prevent fake email address registrations.', 'regplus'); ?></label><br />
-							<?php _e('Requires new registrations to click a link in the notification email to enable their account.', 'regplus'); ?>
+							<?php _e('New users will be sent an activation code via email.', 'regplus'); ?>
 							<div id="verify_user_email_settings">
 								<label><strong><?php _e('Grace Period (days):', 'regplus'); ?></strong>&nbsp;<input type="text" name="delete_unverified_users_after" id="delete_unverified_users_after" style="width:50px;" value="<?php echo $options['delete_unverified_users_after']; ?>" /></label><br />
-								<?php _e('Unverified Users will be automatically deleted after grace period expires', 'regplus'); ?>
+								<?php _e('Unverified users will be automatically deleted after grace period expires.', 'regplus'); ?>
 							</div>
 						</td>
 					</tr>
@@ -677,7 +680,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				<table class="form-table"> 
 					<tr valign="top">
 						<th scope="row"><label><?php _e('Custom User Email Notification', 'regplus'); ?></label></th>
-						<td><label><input type="checkbox" name="custom_user_message" id="custom_user_message" value="1" <?php if ( $options['custom_user_message']) echo 'checked="checked"'; ?> /><?php _e('Enable', 'regplus'); ?></label></td>
+						<td><label><input type="checkbox" name="custom_user_message" id="custom_user_message" value="1" <?php if ( $options['custom_user_message']) echo 'checked="checked"'; ?> />&nbsp;<?php _e('Enable', 'regplus'); ?></label></td>
 					</tr>
 				</table>
 				<div id="custom_user_message_settings">
@@ -713,11 +716,11 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				<table class="form-table"> 
 					<tr valign="top">
 						<th scope="row"><label for="disable_admin_message"><?php _e('Admin Email Notification', 'regplus'); ?></label></th>
-						<td><label><input type="checkbox" name="disable_admin_message" id="disable_admin_message" value="1" <?php if ( $options['disable_admin_message']) echo 'checked="checked"'; ?> /><?php _e('Disable', 'regplus'); ?></label></td>
+						<td><label><input type="checkbox" name="disable_admin_message" id="disable_admin_message" value="1" <?php if ( $options['disable_admin_message']) echo 'checked="checked"'; ?> />&nbsp;<?php _e('Disable', 'regplus'); ?></label></td>
 					</tr>
 					<tr valign="top">
 						<th scope="row"><label><?php _e('Custom Admin Email Notification', 'regplus'); ?></label></th>
-						<td><label><input type="checkbox" name="custom_admin_message" id="custom_admin_message" value="1" <?php if ( $options['custom_admin_message']) echo 'checked="checked"'; ?> /><?php _e('Enable', 'regplus'); ?></label></td>
+						<td><label><input type="checkbox" name="custom_admin_message" id="custom_admin_message" value="1" <?php if ( $options['custom_admin_message']) echo 'checked="checked"'; ?> />&nbsp;<?php _e('Enable', 'regplus'); ?></label></td>
 					</tr>
 				</table>
 				<div id="custom_admin_message_settings">
@@ -781,8 +784,8 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			$options["message_good_password"] = $_POST['message_good_password'];
 			$options["message_strong_password"] = $_POST['message_strong_password'];
 			$options['custom_logo_url'] = $_POST['custom_logo_url'];
-			if ( $_FILES['custom_logo']['name'] ) {
-				$upload = wp_upload_bits($_FILES['custom_logo']['name'], null, file_get_contents($_FILES['custom_logo']['tmp_name']));
+			if ( $_FILES['upload_custom_logo']['name'] ) {
+				$upload = wp_upload_bits($_FILES['upload_custom_logo']['name'], null, file_get_contents($_FILES['upload_custom_logo']['tmp_name']));
 				if ( !$upload['error'] ) $options['custom_logo_url'] = $upload['url'];
 			}
 			if ( $_POST['remove_logo'] ) $options['custom_logo_url'] = '';
@@ -926,7 +929,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 						$stored_user_login = get_user_meta($user_id, 'email_verify_user', true);
 						wp_update_user(array('ID' => $user_id, 'user_login' => $wpdb->prepare($stored_user_login)));
 						delete_user_meta($user_id, 'email_verification_code');
-						delete_user_meta($user_id, 'email_verify_date');
+						delete_user_meta($user_id, 'email_verification_sent');
 						delete_user_meta($user_id, 'email_verify_user');
 					} elseif ( $options['verify_user_admin'] ) {
 						$stored_user_login = get_user_meta($user_id, 'admin_verify_user', true);
@@ -1203,8 +1206,6 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				echo '</style>';
 			}
 			if ( $options['custom_logo_url'] ) { 
-				//$custom_logo = str_replace(trailingslashit(site_url()), ABSPATH, $options['custom_logo_url']);
-				//list($width, $height, $type, $attr) = getimagesize($custom_logo);
 				list($width, $height, $type, $attr) = getimagesize($options['custom_logo_url']);
 				if ( $_GET['action'] != 'register' )
 					wp_enqueue_script('jquery');
@@ -1249,7 +1250,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					$stored_user_login = get_user_meta($user_id, 'email_verify_user', true);
 					wp_update_user(array('ID' => $user_id, 'user_login' => $wpdb->prepare($stored_user_login)));
 					delete_user_meta($user_id, 'email_verification_code');
-					delete_user_meta($user_id, 'email_verify_date');
+					delete_user_meta($user_id, 'email_verification_sent');
 					delete_user_meta($user_id, 'email_verify_user');
 					$msg = '<p>' . sprintf(__('Thank you %s, your account has been verified, please login.', 'regplus'), $stored_user_login) . '</p>';
 					echo $msg;
@@ -1257,18 +1258,17 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			}
 		}
 
-		function DeleteInvalidUsers() {
-			//TODO: delete_unverified_users_after period is being ignored
+		function DeleteExpiredUsers() {
 			global $wpdb;
-			$options = get_option('register_plus_redux_options');
-			$grace = $options['delete_unverified_users_after'];
-			$unverified_users = $wpdb->get_results("SELECT user_id, meta_value FROM $wpdb->usermeta WHERE meta_key='email_verify_date'");
-			$grace_date = date('Ymd', strtotime("-7 days"));
-			if ( count($results) > 0 ) {
+			$unverified_users = $wpdb->get_results("SELECT user_id, meta_value FROM $wpdb->usermeta WHERE meta_key='email_verification_sent'");
+			if ( $unverified_users ) {
+				$options = get_option('register_plus_redux_options');
+				$expirationdate = date('Ymd', strtotime('-'.$options['delete_unverified_users_after'].' days'));
 				foreach ( $unverified_users as $unverified_user ) {
-					if ( $grace_date > $unverified_user->meta_value ) {
+					if ( $unverified_user->meta_value < $expirationdate ) {
 						wp_delete_user($unverified_user->user_id);
 					}
+					
 				}
 			}
 		}
@@ -1390,7 +1390,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			}
 			if ( $options['enable_invitation_code'] ) {
 				if ( isset($_GET['invitation_code']) ) $_POST['invitation_code'] = $_GET['invitation_code'];
-				echo '<p><label>', _e('Invitation Code', 'regplus'), '<br /><input type="text" name="invitation_code" id="invitation_code" size="25" value="', $_POST['invitation_code'], '" tabindex="', $tabindex, '" /></label></p>';
+				echo '<p><label>', _e('Invitation Code', 'regplus'), '<br /><input type="text" name="invitation_code" id="invitation_code" class="input" value="', $_POST['invitation_code'], '" size="25" tabindex="', $tabindex, '" /></label></p>';
 				$tabindex++;
 				if ($options['require_invitation_code'])
 					echo '<small>', _e('This website is currently closed to public registrations. You will need an invitation code to register.', 'regplus'), '</small>';
@@ -1830,7 +1830,7 @@ if ( !function_exists('wp_new_user_notification') ) {
 		} elseif ( $ref != $admin && $options['verify_user_email'] ) {
 			$email_verification_code = $registerPlusRedux->fnRandomString(25);
 			update_user_meta($user_id, 'email_verification_code', $wpdb->prepare($email_verification_code));
-			update_user_meta($user_id, 'email_verify_date', $wpdb->prepare(date('Ymd')));
+			update_user_meta($user_id, 'email_verification_sent', $wpdb->prepare(date('Ymd')));
 			update_user_meta($user_id, 'email_verify_user', $wpdb->prepare($user->user_login));
 			$notice = __('Please use the link above to verify and activate your account', 'regplus') . "\r\n";
 			$temp_login = 'unverified__' . $registerPlusRedux->fnRandomString(7);

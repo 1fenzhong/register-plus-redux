@@ -84,6 +84,11 @@ TODO: Would like to be able to upload the file a little bit nicer, almost like a
 
 == Changelog ==
 
+= 3.6.9 =
+September 25, 2010 by radiok
+
+* Rewrote function to purge unverified users exceeding grace period
+
 = 3.6.8 =
 September 25, 2010 by radiok
 
