@@ -900,7 +900,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 							$user_object = new WP_User($un->ID);
 							$roles = $user_object->roles;
 							$role = array_shift($roles);
-							if ( $options['verify_user_email'] ) $user_login = get_user_meta($un->ID, 'email_verify_user', true);
+							if ( $options['verify_user_email'] ) $user_login = get_user_meta($un->ID, 'email_verification_user_login', true);
 							elseif ( $options['verify_user_admin'] ) $user_login = get_user_meta($un->ID, 'admin_verify_user', true);
 						?>
 						<tr id="user-1" class="<?php echo $alt; ?>">
@@ -926,11 +926,11 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			foreach ( $valid as $user_id ) {
 				if ( $user_id ) {
 					if ( $options['verify_user_email'] ) {
-						$stored_user_login = get_user_meta($user_id, 'email_verify_user', true);
+						$stored_user_login = get_user_meta($user_id, 'email_verification_user_login', true);
 						wp_update_user(array('ID' => $user_id, 'user_login' => $wpdb->prepare($stored_user_login)));
 						delete_user_meta($user_id, 'email_verification_code');
 						delete_user_meta($user_id, 'email_verification_sent');
-						delete_user_meta($user_id, 'email_verify_user');
+						delete_user_meta($user_id, 'email_verification_user_login');
 					} elseif ( $options['verify_user_admin'] ) {
 						$stored_user_login = get_user_meta($user_id, 'admin_verify_user', true);
 						wp_update_user(array('ID' => $user_id, 'user_login' => $wpdb->prepare($stored_user_login)));
@@ -976,13 +976,12 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			if ( is_array($valid) ):
 				foreach ( $valid as $user_id ) {
 					$email_verification_code = get_user_meta($user_id, 'email_verification_code', true);
-					$user_login = get_user_meta($user_id, 'email_verify_user', true);
+					$user_login = get_user_meta($user_id, 'email_verification_user_login', true);
 					$user_info = get_userdata($user_id);
 					//$user_email = $user_info->user_email;
-					$prelink = __('Verification URL: ', 'regplus');
 					$message = sprintf(__('Username: %s', 'regplus'), $user_login) . "\r\n";
 					//$message .= sprintf(__('Password: %s', 'regplus'), $plaintext_pass) . "\r\n";
-					$message .= $prelink . site_url('/wp-login.php') . '?email_verification_code=' . $email_verification_code . "\r\n";
+					$message .= __('Verification URL: ', 'regplus') . site_url('/wp-login.php') . '?verification_code=' . $email_verification_code . "\r\n";
 					$message .= $notice;
 					add_filter('wp_mail_from', array($this, 'filter_user_message_from_email'));
 					add_filter('wp_mail_from_name', array($this, 'filter_user_message_from_name'));
@@ -1236,24 +1235,23 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		}
 
 		function ValidateUser() {
-			global $wpdb;
 			$options = get_option('register_plus_redux_options');
 			if ( $options['verify_user_admin'] && isset($_GET['checkemail']) ) {
 				echo '<p style="text-align:center;">', __('Your account will be reviewed by an administrator and you will be notified when it is activated.', 'regplus'), '</p>';
 			} elseif ( $options['verify_user_email'] && isset($_GET['checkemail']) ) {
 				echo '<p style="text-align:center;">', __('Please activate your account using the verification link sent to your email address.', 'regplus'), '</p>';
 			}
-			if ( $options['verify_user_email'] && isset($_GET['email_verification_code']) ) {
-				$verify_key = $_GET['email_verification_code'];
-				$user_id = $wpdb->get_var("SELECT user_id FROM $wpdb->usermeta WHERE meta_key='email_verification_code' AND meta_value='$verify_key'");
+			if ( $options['verify_user_email'] && isset($_GET['verification_code']) ) {
+				global $wpdb;
+				$email_verification_code = $_GET['verification_code'];
+				$user_id = $wpdb->get_var("SELECT user_id FROM $wpdb->usermeta WHERE meta_key='email_verification_code' AND meta_value='$email_verification_code'");
 				if ( $user_id ) {
-					$stored_user_login = get_user_meta($user_id, 'email_verify_user', true);
+					$stored_user_login = get_user_meta($user_id, 'email_verification_user_login', true);
 					wp_update_user(array('ID' => $user_id, 'user_login' => $wpdb->prepare($stored_user_login)));
 					delete_user_meta($user_id, 'email_verification_code');
 					delete_user_meta($user_id, 'email_verification_sent');
-					delete_user_meta($user_id, 'email_verify_user');
-					$msg = '<p>' . sprintf(__('Thank you %s, your account has been verified, please login.', 'regplus'), $stored_user_login) . '</p>';
-					echo $msg;
+					delete_user_meta($user_id, 'email_verification_user_login');
+					echo '<p>', sprintf(__('Thank you %s, your account has been verified, please login.', 'regplus'), $stored_user_login), '</p>';
 				}
 			}
 		}
@@ -1790,9 +1788,9 @@ if ( !function_exists('wp_new_user_notification') ) {
 		if ( $options['show_first_name_field'] && $_POST['first_name'] ) update_user_meta($user_id, 'first_name', $wpdb->prepare($_POST['first_name']));
 		if ( $options['show_last_name_field'] && $_POST['last_name'] ) update_user_meta($user_id, 'last_name', $wpdb->prepare($_POST['last_name']));
 		if ( $options['show_website_field'] && $_POST['user_url'] ) {
-			$url = esc_url_raw( $_POST['user_url'] );
-			$user->user_url = preg_match('/^(https?|ftps?|mailto|news|irc|gopher|nntp|feed|telnet):/is', $url) ? $url : 'http://'.$url;
-			wp_update_user(array('ID' => $user_id, 'user_url' => $wpdb->prepare($url)));
+			$user_url = esc_url_raw( $_POST['user_url'] );
+			$user_url = preg_match('/^(https?|ftps?|mailto|news|irc|gopher|nntp|feed|telnet):/is', $user_url) ? $user_url : 'http://'.$user_url;
+			wp_update_user(array('ID' => $user_id, 'user_url' => $wpdb->prepare($user_url)));
 		}
 		if ( $options['show_aim_field'] && $_POST['aim'] ) update_user_meta($user_id, 'aim', $wpdb->prepare($_POST['aim']));
 		if ( $options['show_yahoo_field'] && $_POST['yahoo'] ) update_user_meta($user_id, 'yim', $wpdb->prepare($_POST['yahoo']));
@@ -1831,7 +1829,7 @@ if ( !function_exists('wp_new_user_notification') ) {
 			$email_verification_code = $registerPlusRedux->fnRandomString(25);
 			update_user_meta($user_id, 'email_verification_code', $wpdb->prepare($email_verification_code));
 			update_user_meta($user_id, 'email_verification_sent', $wpdb->prepare(date('Ymd')));
-			update_user_meta($user_id, 'email_verify_user', $wpdb->prepare($user->user_login));
+			update_user_meta($user_id, 'email_verification_user_login', $wpdb->prepare($user->user_login));
 			$notice = __('Please use the link above to verify and activate your account', 'regplus') . "\r\n";
 			$temp_login = 'unverified__' . $registerPlusRedux->fnRandomString(7);
 		}
@@ -1908,7 +1906,7 @@ if ( !function_exists('wp_new_user_notification') ) {
 			}
 			$redirect = 'redirect_to=' . $options['user_message_login_link'];
 			if ( $options['verify_user_email'] )
-				$siteurl = site_url('/wp-login.php') . '?email_verification_code=' . $email_verification_code . '&' . $redirect;
+				$siteurl = site_url('/wp-login.php') . '?verification_code=' . $email_verification_code . '&' . $redirect;
 			else
 				$siteurl = site_url('/wp-login.php') . '?' . admin_message_subject . $redirect;
 			$message = str_replace('%admin_message_subject%', $siteurl, $message);
@@ -1921,7 +1919,7 @@ if ( !function_exists('wp_new_user_notification') ) {
 			$message .= sprintf(__('Password: %s', 'regplus'), $plaintext_pass) . "\r\n";
 			//$message .= wp_login_url() . "\r\n";
 
-			$message .= __('Verification URL: ', 'regplus') . site_url('/wp-login.php') . '?email_verification_code=' . $email_verification_code . "\r\n";
+			$message .= __('Verification URL: ', 'regplus') . site_url('/wp-login.php') . '?verification_code=' . $email_verification_code . "\r\n";
 			$message .= $notice;
 			
 			wp_mail($user_email, sprintf(__('[%s] Your username and password', 'regplus'), $blogname), $message);
