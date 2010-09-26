@@ -33,14 +33,14 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				add_action('register_form', array($this, 'AlterRegistrationForm')); //Runs just before the end of the new user registration form.
 			add_action('register_post', array($this, 'CheckRegistration'), 10, 3); //Runs before a new user registration request is processed. 
 			add_filter('registration_errors', array($this, 'OverrideRegistrationErrors'));
+			add_action('login_form', array($this, 'ValidateUser')); //Runs just before the end of the HTML head section of the login page. 
 			
+			//add_action('wpmu_activate_user', array($this, 'UpdateSignup'), 10, 3);
 			//add_action('signup_extra_fields', array($this, 'AlterSignupForm'));
 			//add_filter('wpmu_validate_user_signup', array($this, 'CheckSignup'));
-			//add_action('wpmu_activate_user', array($this, 'UpdateSignup'), 10, 3);
 
 			add_action('login_head', array($this, 'PassHead')); //Runs just before the end of the HTML head section of the login page. 
 			add_action('login_head', array($this, 'LoginHead')); //Runs just before the end of the HTML head section of the login page. 
-			add_action('login_form', array($this, 'ValidateUser')); //Runs just before the end of the HTML head section of the login page. 
 			
 			add_action('show_user_profile', array($this, 'ShowCustomFields')); //Runs near the end of the user profile editing screen.
 			add_action('edit_user_profile', array($this, 'ShowCustomFields')); //Runs near the end of the user profile editing screen in the admin menus. 
@@ -94,8 +94,8 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				'invitation_code_bank' => array(),
 				'allow_duplicate_emails' => '0',
 
-				'show_firstname_field' => '0',
-				'show_lastname_field' => '0',
+				'show_first_name_field' => '0',
+				'show_last_name_field' => '0',
 				'show_website_field' => '0',
 				'show_aim_field' => '0',
 				'show_yahoo_field' => '0',
@@ -435,13 +435,13 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 									<?php if ( !is_array($options['required_fields']) ) $options['required_fields'] = array(); ?>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e('First Name', 'regplus'); ?></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_firstname_field" value="1" <?php if ( $options['show_firstname_field']) echo 'checked="checked"'; ?> /></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="firstname" <?php if ( in_array('firstname', $options['required_fields'])) echo 'checked="checked"'; ?> /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_first_name_field" value="1" <?php if ( $options['show_first_name_field']) echo 'checked="checked"'; ?> /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="first_name" <?php if ( in_array('first_name', $options['required_fields'])) echo 'checked="checked"'; ?> /></td>
 									</tr>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e('Last Name', 'regplus'); ?></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_lastname_field" value="1" <?php if ( $options['show_lastname_field']) echo 'checked="checked"'; ?> /></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="lastname" <?php if ( in_array('lastname', $options['required_fields'])) echo 'checked="checked"'; ?> /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_last_name_field" value="1" <?php if ( $options['show_last_name_field']) echo 'checked="checked"'; ?> /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="last_name" <?php if ( in_array('last_name', $options['required_fields'])) echo 'checked="checked"'; ?> /></td>
 									</tr>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e('Website', 'regplus'); ?></td>
@@ -659,8 +659,8 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				<p><?php _e('You can now link to the registration page with queries to autocomplete specific fields for the user. I have included the query keys below and an example of a query URL.', 'regplus'); ?></p>
 				<?php
 				$registration_fields = '';
-				if ( $options['show_firstname_field'] ) $registration_fields .= ' %firstname%';
-				if ( $options['show_lastname_field'] ) $registration_fields .= ' %lastname%';
+				if ( $options['show_first_name_field'] ) $registration_fields .= ' %first_name%';
+				if ( $options['show_last_name_field'] ) $registration_fields .= ' %last_name%';
 				if ( $options['show_website_field'] ) $registration_fields .= ' %user_url%';
 				if ( $options['show_aim_field'] ) $registration_fields .= ' %aim%';
 				if ( $options['show_yahoo_field'] ) $registration_fields .= ' %yahoo%';
@@ -675,7 +675,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				<code><?php echo $registration_fields; ?></code>
 				<p><?php _e('For any custom fields, use your custom field label with the text all lowercase, using underscores instead of spaces. For example if your custom field was "Middle Name" your query key would be <code>middle_name</code>', 'regplus'); ?></p>
 				<p><strong><?php _e('Example Query URL', 'regplus'); ?></strong></p>
-				<code>http://www.radiok.info/wp-login.php?action=register&user_login=skullbit&user_email=radiok@radiok.info&firstname=Radio&lastname=K&user_url=www.radiok.info&aim=radioko&invitation_code=1979&middle_name=Billy</code>
+				<code>http://www.radiok.info/wp-login.php?action=register&user_login=skullbit&user_email=radiok@radiok.info&first_name=Radio&last_name=K&user_url=www.radiok.info&aim=radioko&invitation_code=1979&middle_name=Billy</code>
 				<h3><?php _e('Customize User Notification Email', 'regplus'); ?></h3>
 				<table class="form-table"> 
 					<tr valign="top">
@@ -798,8 +798,8 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			$options["invitation_code_bank"] = $_POST['invitation_code_bank'];
 			$options["allow_duplicate_emails"] = $_POST['allow_duplicate_emails'];
 
-			$options["show_firstname_field"] = $_POST['show_firstname_field'];
-			$options["show_lastname_field"] = $_POST['show_lastname_field'];
+			$options["show_first_name_field"] = $_POST['show_first_name_field'];
+			$options["show_last_name_field"] = $_POST['show_last_name_field'];
 			$options["show_website_field"] = $_POST['show_website_field'];
 			$options["show_aim_field"] = $_POST['show_aim_field'];
 			$options["show_yahoo_field"] = $_POST['show_yahoo_field'];
@@ -1112,7 +1112,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			a.dp-choose-date { float: left; width: 16px; height: 16px; padding: 0; margin: 5px 3px 0; display: block; text-indent: -2000px; overflow: hidden; background: url('<?php echo plugins_url('datepicker/calendar.png', __FILE__); ?>') no-repeat; }
 			a.dp-choose-date.dp-disabled { background-position: 0 -20px; cursor: default; } /* makes the input field shorter once the date picker code * has run (to allow space for the calendar icon */
 			input.dp-applied { width: 140px; float: left; }
-			#pass1, #pass2, #invitation_code, #firstname, #lastname, #user_url, #aim, #yahoo, #jabber, #about, .custom_field {
+			#pass1, #pass2, #invitation_code, #first_name, #last_name, #user_url, #aim, #yahoo, #jabber, #about, .custom_field {
 				font-size:24px;
 				width:97%;
 				padding:3px;
@@ -1276,14 +1276,14 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		function AlterRegistrationForm() {
 			$options = get_option('register_plus_redux_options');
 			$tabindex = 21;
-			if ( $options['show_firstname_field'] ) {
-				if ( isset($_GET['firstname']) ) $_POST['firstname'] = $_GET['firstname'];
-				echo '<p><label>', _e('First Name', 'regplus'), '<br /><input type="text" name="firstname" id="firstname" class="input" value="', $_POST['firstname'], '" size="25" tabindex="', $tabindex, '" /></label></p>';
+			if ( $options['show_first_name_field'] ) {
+				if ( isset($_GET['first_name']) ) $_POST['first_name'] = $_GET['first_name'];
+				echo '<p><label>', _e('First Name', 'regplus'), '<br /><input type="text" name="first_name" id="first_name" class="input" value="', $_POST['first_name'], '" size="25" tabindex="', $tabindex, '" /></label></p>';
 				$tabindex++;
 			}
-			if ( $options['show_lastname_field'] ) {
-				if ( isset($_GET['lastname']) ) $_POST['lastname'] = $_GET['lastname'];
-				echo '<p><label>', _e('Last Name', 'regplus'), '<br /><input type="text" name="lastname" id="lastname" class="input" value="', $_POST['lastname'], '" size="25" tabindex="', $tabindex, '" /></label></p>';
+			if ( $options['show_last_name_field'] ) {
+				if ( isset($_GET['last_name']) ) $_POST['last_name'] = $_GET['last_name'];
+				echo '<p><label>', _e('Last Name', 'regplus'), '<br /><input type="text" name="last_name" id="last_name" class="input" value="', $_POST['last_name'], '" size="25" tabindex="', $tabindex, '" /></label></p>';
 				$tabindex++;
 			}
 			if ( $options['show_website_field'] ) {
@@ -1425,14 +1425,14 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 
 		function CheckRegistration( $sanitized_user_login, $user_email, $errors ) {
 			$options = get_option('register_plus_redux_options');
-			if ( $options['show_firstname_field'] && in_array('firstname', $options['required_fields']) ) {
-				if ( empty($_POST['firstname']) || $_POST['firstname'] == '' ) {
-					$errors->add('empty_firstname', __('<strong>ERROR</strong>: Please enter your first name.', 'regplus'));
+			if ( $options['show_first_name_field'] && in_array('first_name', $options['required_fields']) ) {
+				if ( empty($_POST['first_name']) || $_POST['first_name'] == '' ) {
+					$errors->add('empty_first_name', __('<strong>ERROR</strong>: Please enter your first name.', 'regplus'));
 				}
 			}
-			if ( $options['show_lastname_field'] && in_array('lastname', $options['required_fields']) ) {
-				if ( empty($_POST['lastname']) || $_POST['lastname'] == '' ) {
-					$errors->add('empty_lastname', __('<strong>ERROR</strong>: Please enter your last name.', 'regplus'));
+			if ( $options['show_last_name_field'] && in_array('last_name', $options['required_fields']) ) {
+				if ( empty($_POST['last_name']) || $_POST['last_name'] == '' ) {
+					$errors->add('empty_last_name', __('<strong>ERROR</strong>: Please enter your last name.', 'regplus'));
 				}
 			}
 			if ( $options['show_website_field'] && in_array('website', $options['required_fields']) ) {
@@ -1517,14 +1517,14 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 		function AlterSignupForm() {
 			$options = get_option('register_plus_redux_options');
 			$tabindex = 21;
-			if ( $options['show_firstname_field'] ) {
-				if ( isset($_GET['firstname']) ) $_POST['firstname'] = $_GET['firstname'];
-				echo '<p><label>', _e('First Name', 'regplus'), '<br /><input type="text" name="firstname" id="firstname" class="input" value="', $_POST['firstname'], '" size="25" tabindex="', $tabindex, '" /></label></p>';
+			if ( $options['show_first_name_field'] ) {
+				if ( isset($_GET['first_name']) ) $_POST['first_name'] = $_GET['first_name'];
+				echo '<p><label>', _e('First Name', 'regplus'), '<br /><input type="text" name="first_name" id="first_name" class="input" value="', $_POST['first_name'], '" size="25" tabindex="', $tabindex, '" /></label></p>';
 				$tabindex++;
 			}
-			if ( $options['show_lastname_field'] ) {
-				if ( isset($_GET['lastname']) ) $_POST['lastname'] = $_GET['lastname'];
-				echo '<p><label>', _e('Last Name', 'regplus'), '<br /><input type="text" name="lastname" id="lastname" class="input" value="', $_POST['lastname'], '" size="25" tabindex="', $tabindex, '" /></label></p>';
+			if ( $options['show_last_name_field'] ) {
+				if ( isset($_GET['last_name']) ) $_POST['last_name'] = $_GET['last_name'];
+				echo '<p><label>', _e('Last Name', 'regplus'), '<br /><input type="text" name="last_name" id="last_name" class="input" value="', $_POST['last_name'], '" size="25" tabindex="', $tabindex, '" /></label></p>';
 				$tabindex++;
 			}
 			if ( $options['show_website_field'] ) {
@@ -1787,8 +1787,8 @@ if ( !function_exists('wp_new_user_notification') ) {
 		$ref = $ref[0];
 		$admin = site_url('wp-admin/unverified-users.php');
 
-		if ( $options['show_firstname_field'] && $_POST['firstname'] ) update_user_meta($user_id, 'first_name', $wpdb->prepare($_POST['firstname']));
-		if ( $options['show_lastname_field'] && $_POST['lastname'] ) update_user_meta($user_id, 'last_name', $wpdb->prepare($_POST['lastname']));
+		if ( $options['show_first_name_field'] && $_POST['first_name'] ) update_user_meta($user_id, 'first_name', $wpdb->prepare($_POST['first_name']));
+		if ( $options['show_last_name_field'] && $_POST['last_name'] ) update_user_meta($user_id, 'last_name', $wpdb->prepare($_POST['last_name']));
 		if ( $options['show_website_field'] && $_POST['user_url'] ) {
 			$url = esc_url_raw( $_POST['user_url'] );
 			$user->user_url = preg_match('/^(https?|ftps?|mailto|news|irc|gopher|nntp|feed|telnet):/is', $url) ? $url : 'http://'.$url;
@@ -1851,8 +1851,8 @@ if ( !function_exists('wp_new_user_notification') ) {
 			$message = str_replace('%user_host%', gethostbyaddr($_SERVER['REMOTE_ADDR']), $message);
 			$message = str_replace('%user_ref%', $_SERVER['HTTP_REFERER'], $message);
 			$message = str_replace('%user_agent%', $_SERVER['HTTP_USER_AGENT'], $message);
-			if ( $options['show_firstname_field'] ) $message = str_replace('%firstname%', $_POST['firstname'], $message);
-			if ( $options['show_lastname_field'] ) $message = str_replace('%lastname%', $_POST['lastname'], $message);
+			if ( $options['show_first_name_field'] ) $message = str_replace('%first_name%', $_POST['first_name'], $message);
+			if ( $options['show_last_name_field'] ) $message = str_replace('%last_name%', $_POST['last_name'], $message);
 			if ( $options['show_website_field'] ) $message = str_replace('%user_url%', $_POST['user_url'], $message);
 			if ( $options['show_aim_field'] ) $message = str_replace('%aim%', $_POST['aim'], $message);
 			if ( $options['show_yahoo_field'] ) $message = str_replace('%yahoo%', $_POST['yahoo'], $message);
@@ -1893,8 +1893,8 @@ if ( !function_exists('wp_new_user_notification') ) {
 			$message = str_replace('%user_host%', gethostbyaddr($_SERVER['REMOTE_ADDR']), $message);
 			$message = str_replace('%user_ref%', $_SERVER['HTTP_REFERER'], $message);
 			$message = str_replace('%user_agent%', $_SERVER['HTTP_USER_AGENT'], $message);
-			if ( $options['show_firstname_field'] ) $message = str_replace('%firstname%', $_POST['firstname'], $message);
-			if ( $options['show_lastname_field'] ) $message = str_replace('%lastname%', $_POST['lastname'], $message);
+			if ( $options['show_first_name_field'] ) $message = str_replace('%first_name%', $_POST['first_name'], $message);
+			if ( $options['show_last_name_field'] ) $message = str_replace('%last_name%', $_POST['last_name'], $message);
 			if ( $options['show_website_field'] ) $message = str_replace('%user_url%', $_POST['user_url'], $message);
 			if ( $options['show_aim_field'] ) $message = str_replace('%aim%', $_POST['aim'], $message);
 			if ( $options['show_yahoo_field'] ) $message = str_replace('%yahoo%', $_POST['yahoo'], $message);
