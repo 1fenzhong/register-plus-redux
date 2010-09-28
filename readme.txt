@@ -3,7 +3,7 @@ Contributors: skullbit, radiok
 Tags: registration, register, redux, register plus, register plus redux, password, invitation, code, invite, disclaimer, email, validation, privacy, policy, license, agreement, logo, moderation, user
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable tag: 3.6.8
+Stable tag: 3.6.9
 
 Fork of Register Plus
 
@@ -35,7 +35,7 @@ Also includes fixes for known Register Plus bugs which has been abandoned.
 
 == Installation ==
 
-1. Upload the `register-plus-redux` directory to the `/wp-content/plugins/` directory
+1. Upload the 'register-plus-redux' directory to the '/wp-content/plugins/' directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Manage settings from Register Plus Redux page
 
@@ -85,9 +85,17 @@ TODO: Would like to be able to upload the file a little bit nicer, almost like a
 == Changelog ==
 
 = 3.6.9 =
-September 25, 2010 by radiok
+September 28, 2010 by radiok
 
+* Rewrote nearly every echo statement to be enclosed in double quotes
 * Rewrote function to purge unverified users exceeding grace period
+* Rewrote code for password strength indicator
+* Changed default user and admin messages to match WordPress defaults
+* Renamed some of the replacement keys to match their true nature or name
+* Renamed several variables
+* Changed wp_update_user to $wpdb->query for updating user_login
+* Removed function to create rando string, use wp_generate_password instead
+* Reogranized wp_new_user_notification more logically
 
 = 3.6.8 =
 September 25, 2010 by radiok
