@@ -185,7 +185,8 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 								.attr('name', 'custom_field_type[]')
 								.append('<option value="text">Text Field</option>')
 								.append('<option value="select">Select Field</option>')
-								.append('<option value="radio">Radio Field</option>')
+								.append('<option value="check">Checkbox Fields</option>')
+								.append('<option value="radio">Radio Fields</option>')
 								.append('<option value="textarea">Text Area</option>')
 								.append('<option value="date">Date Field</option>')
 								.append('<option value="hidden">Hidden Field</option>')
@@ -617,7 +618,8 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 										echo "\n		<select name='custom_field_type[$k]'>";
 										echo "\n			<option value='text'"; if ( $v['custom_field_type'] == 'text' ) echo " selected='selected'"; echo ">Text Field</option>";
 										echo "\n			<option value='select'"; if ( $v['custom_field_type'] == 'select' ) echo " selected='selected'"; echo ">Select Field</option>";
-										echo "\n			<option value='radio'"; if ( $v['custom_field_type'] == 'radio' ) echo " selected='selected'"; echo ">Radio Field</option>";
+										echo "\n			<option value='checkbox'"; if ( $v['custom_field_type'] == 'checkbox' ) echo " selected='selected'"; echo ">Checkbox Fields</option>";
+										echo "\n			<option value='radio'"; if ( $v['custom_field_type'] == 'radio' ) echo " selected='selected'"; echo ">Radio Fields</option>";
 										echo "\n			<option value='textarea'"; if ( $v['custom_field_type'] == 'textarea' ) echo " selected='selected'"; echo ">Text Area</option>";
 										echo "\n			<option value='date'"; if ( $v['custom_field_type'] == 'date' ) echo " selected='selected'"; echo ">Date Field</option>";
 										echo "\n			<option value='hidden'"; if ( $v['custom_field_type'] == 'hidden' ) echo " selected='selected'"; echo ">Hidden Field</option>";
@@ -1050,6 +1052,12 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 							else
 								$show_custom_text_fields = ', #'.$this->fnSanitizeFieldName($v['custom_field_name']);
 						}
+						if ( $v['custom_field_type'] == 'select' ) {
+							if ( !$show_custom_select_fields )
+								$show_custom_select_fields = '#'.$this->fnSanitizeFieldName($v['custom_field_name']);
+							else
+								$show_custom_select_fields = ', #'.$this->fnSanitizeFieldName($v['custom_field_name']);
+						}
 						if ( $v['custom_field_type'] == 'date' ) {
 							if ( !$show_custom_text_fields )
 								$show_custom_text_fields = '#'.$this->fnSanitizeFieldName($v['custom_field_name']);
@@ -1071,35 +1079,33 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 
 				if ( $options['show_fields'][0] ) $show_fields = '#'.implode(', #', $options['show_fields']);
 				if ( $options['required_fields'][0] ) $required_fields = '#'.implode(', #', $options['required_fields']);
-				if ( $options['user_set_password'] ) $password_fields = '#pass1, #pass2';
 
-				?>
-				<style type="text/css">
-				<?php if ( $show_fields ) echo "\n$show_fields { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }"; ?>
-				<?php if ( $show_custom_text_fields ) echo "\n$show_custom_text_fields { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }"; ?>
-				<?php if ( $password_fields ) echo "\n$password_fields{  font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }"; ?>
-				<?php if ( in_array('about', $options['show_fields']) ) echo "\n#about { font-size:24px; height: 60px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }"; ?>
-				<?php if ( $show_custom_textarea_fields ) echo "\n$show_custom_textarea_fields { font-size:24px; height: 60px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }"; ?>
-
-				.custom_select { width: 97%; padding: 3px; margin-right: 6px; }
-				small {	font-weight: normal; }
-
-				<?php if ( $options['show_disclaimer'] ) { echo "\n#disclaimer { display: block; width: 97%; padding: 3px; background-color:#fff; border:solid 1px #A7A6AA; font-weight:normal;"; if ( strlen($options['message_disclaimer']) > 525) echo "height: 200px; overflow:scroll;"; echo " }"; } ?>
-				<?php if ( $options['show_license'] ) { echo "\n#license { display: block; width: 97%; padding: 3px; background-color:#fff; border:solid 1px #A7A6AA; font-weight:normal;"; if ( strlen($options['message_license']) > 525) echo "height: 200px; overflow:scroll;"; echo " }"; } ?>
-				<?php if ( $options['show_privacy_policy'] ) { echo "\n#privacy_policy { display: block; width: 97%; padding: 3px; background-color:#fff; border:solid 1px #A7A6AA; font-weight:normal;"; if ( strlen($options['message_privacy_policy']) > 525) echo "height: 200px; overflow:scroll;"; echo " }"; } ?>
-
-				a.dp-choose-date { float: left; width: 16px; height: 16px; padding: 0; margin: 5px 3px 0; display: block; text-indent: -2000px; overflow: hidden; background: url('<?php echo plugins_url('datepicker/calendar.png', __FILE__); ?>') no-repeat; }
-				a.dp-choose-date.dp-disabled { background-position: 0 -20px; cursor: default; } /* makes the input field shorter once the date picker code * has run (to allow space for the calendar icon */
-				input.dp-applied { width: 140px; float: left; }
-				<?php
-
-				if ( $options['user_set_password'] ) echo "\n#reg_passmail { display: none; }";
-				if ( $options['show_password_meter'] ) echo "\n#pass-strength-result { width: 97%; padding: 3px; margin-top:0px; margin-right:6px; margin-bottom:8px; border: 1px solid; text-align: center; }";
-				echo "\n#user_login, #user_email {", $options['required_fields_style'], "}";
-				if ( $password_fields ) echo "\n$password_fields {", $options['required_fields_style'], "}";
-				if ( $required_fields ) echo "\n$required_fields {", $options['required_fields_style'], "}";
-				if ( $required_custom_fields ) echo "\n$required_custom_fields {", $options['required_fields_style'], "}";
-
+				echo "\n<style type=\"text/css\">";
+				echo "\nsmall { font-weight: normal; }";
+				if ( $show_fields ) echo "\n$show_fields { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
+				if ( in_array('about', $options['show_fields']) ) echo "\n#about { font-size:24px; height: 60px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
+				if ( $show_custom_text_fields ) echo "\n$show_custom_text_fields { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
+				if ( $show_custom_select_fields ) echo "\n$show_custom_select_fields { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
+				if ( $show_custom_textarea_fields ) echo "\n$show_custom_textarea_fields { font-size:24px; height: 60px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
+				if ( $options['show_disclaimer'] ) { echo "\n#disclaimer { display: block; width: 97%; padding: 3px; background-color:#fff; border:solid 1px #A7A6AA; font-weight:normal;"; if ( strlen($options['message_disclaimer']) > 525) echo "height: 200px; overflow:scroll;"; echo " }"; }
+				if ( $options['show_license'] ) { echo "\n#license { display: block; width: 97%; padding: 3px; background-color:#fff; border:solid 1px #A7A6AA; font-weight:normal;"; if ( strlen($options['message_license']) > 525) echo "height: 200px; overflow:scroll;"; echo " }"; }
+				if ( $options['show_privacy_policy'] ) { echo "\n#privacy_policy { display: block; width: 97%; padding: 3px; background-color:#fff; border:solid 1px #A7A6AA; font-weight:normal;"; if ( strlen($options['message_privacy_policy']) > 525) echo "height: 200px; overflow:scroll;"; echo " }"; }
+				if ( $load_jquery_datepicker) {
+					echo "\na.dp-choose-date { float: left; width: 16px; height: 16px; padding: 0; margin: 5px 3px 0; display: block; text-indent: -2000px; overflow: hidden; background: url('"; echo plugins_url('datepicker/calendar.png', __FILE__); echo "') no-repeat; }";
+					echo "\na.dp-choose-date.dp-disabled { background-position: 0 -20px; cursor: default; } /* makes the input field shorter once the date picker code * has run (to allow space for the calendar icon */";
+					echo "\ninput.dp-applied { width: 140px; float: left; }";
+				}
+				if ( $options['user_set_password'] ) {
+					echo "\n#reg_passmail { display: none; }";
+					echo "\n#pass1, #pass2 { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
+					if ( $options['show_password_meter'] ) echo "\n#pass-strength-result { width: 97%; padding: 3px; margin-top:0px; margin-right:6px; margin-bottom:8px; border: 1px solid; text-align: center; }";
+				}
+				if ( $options['enable_invitation_code'] ) echo "\n#invitation_code { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
+				echo "\n#user_login, #user_email { ", $options['required_fields_style'], "} ";
+				if ( $required_fields ) echo "\n$required_fields { ", $options['required_fields_style'], " }";
+				if ( $required_custom_fields ) echo "\n$required_custom_fields { ", $options['required_fields_style'], " }";
+				if ( $options['user_set_password'] ) echo "\n#pass1, #pass2 { ", $options['required_fields_style'], " }";
+				if ( $options['require_invitation_code'] ) echo "\n#invitation_code { ", $options['required_fields_style'], " }";
 				if ( $options['custom_registration_page_css'] ) echo "\n", $options['custom_registration_page_css'];
 				echo "\n</style>";
 				
@@ -1140,7 +1146,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					</script>
 					<?php
 				}
-				if ( $options['show_password_meter'] ) {
+				if ( $options['user_set_password'] && $options['show_password_meter'] ) {
 					wp_print_scripts('jquery');
 					?>
 					<script type='text/javascript'>
@@ -1355,22 +1361,18 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 							echo "\n<p><label>", $v['custom_field_name'], "<br /><input type='text' name='$key' id='$key' value='", $_POST[$key], "' size='25' tabindex='$tabindex' /></label></p>";
 							$tabindex++;
 							break;
-						case "date":
-							echo "\n<p><label>", $v['custom_field_name'], "<br /><input type='text' name='$key' id='$key' value='", $_POST[$key], "' size='25' tabindex='$tabindex' /></label></p>";
-							$tabindex++;
-							break;
 						case "select":
 							echo "\n<p><label>", $v['custom_field_name'], "<br />";
 							echo "\n	<select name='$key' id='$key' tabindex='$tabindex'>";
 							$tabindex++;
 							$custom_field_options = explode(',', $v['custom_field_options']);
-							$options = '';
+							$select_options = '';
 							foreach ( $custom_field_options as $custom_field_option ) {
-								$options .= '<option value="'.$custom_field_option.'"';
-								if ( $_POST[$key] == $custom_field_option ) $options .= 'selected="selected"';
-								$options .= '>'.$custom_field_option.'</option>';
+								$select_options .= '<option value="'.$custom_field_option.'"';
+								if ( $_POST[$key] == $custom_field_option ) $select_options .= 'selected="selected"';
+								$select_options .= '>'.$custom_field_option.'</option>';
 							}
-							echo "$options</select>";
+							echo "$select_options</select>";
 							echo "\n</label></p>";
 							break;
 						case "checkbox":
@@ -1403,6 +1405,10 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 							echo "\n<p><label>", $v['custom_field_name'], "<br /><textarea name='$key' id='$key' cols='25' rows='5' tabindex='$tabindex'>", $_POST[$key], "</textarea></label></p>";
 							$tabindex++;
 							break;
+						case "date":
+							echo "\n<p><label>", $v['custom_field_name'], "<br /><input type='text' name='$key' id='$key' value='", $_POST[$key], "' size='25' tabindex='$tabindex' /></label></p>";
+							$tabindex++;
+							break;
 						case "hidden":
 							echo "\n<input type='hidden' name='$key' id='$key' value='", $_POST[$key], "' tabindex='$tabindex' />";
 							$tabindex++;
@@ -1429,10 +1435,10 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				else
 					echo "\n<small>", _e('Have an invitation code? Enter it here. (This is not required)', 'regplus'), "</small>";
 			}
-			if ($options['show_disclaimer'] ) {
+			if ( $options['show_disclaimer'] ) {
 				echo "\n<p>";
 				echo "\n	<label>", stripslashes($options['message_disclaimer_title']), "<br />";
-				echo "\n	<span id='license'>", stripslashes($options['message_disclaimer']), "</span>";
+				echo "\n	<span id='disclaimer'>", stripslashes($options['message_disclaimer']), "</span>";
 				echo "\n	<input type='checkbox' name='accept_disclaimer' value='1'"; if ( $_POST['accept_disclaimer']) echo " checked='checked'"; echo " tabindex='$tabindex'/>", $options['message_disclaimer_agree'], "</label>";
 				$tabindex++;
 				echo "\n</p>";
@@ -1448,7 +1454,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			if ( $options['show_privacy_policy'] ) {
 				echo "\n<p>";
 				echo "\n	<label>", stripslashes($options['message_privacy_policy_title']), "<br />";
-				echo "\n	<span id='license'>", stripslashes($options['message_privacy_policy']), "</span>";
+				echo "\n	<span id='privacy_policy'>", stripslashes($options['message_privacy_policy']), "</span>";
 				echo "\n	<input type='checkbox' name='accept_privacy_policy' value='1'"; if ( $_POST['accept_privacy_policy']) echo " checked='checked'"; echo " tabindex='$tabindex'/>", $options['message_privacy_policy_agree'], "</label>";
 				$tabindex++;
 				echo "\n</p>";
@@ -1561,8 +1567,8 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 							case "text":
 								echo "		<td><input type='text' name='$key' id='$key' value='$value' class='regular-text' /></td>";
 								break;
-							case "hidden":
-								echo "		<td><input type='text' disabled='disabled' name='$key' id='$key' value='$value' /></td>";
+							case "date":
+								echo "		<td><input type='text' name='$key' id='$key' value='$value' class='regular-text' /></td>";
 								break;
 							case "select":
 								echo "		<td>";
@@ -1572,9 +1578,6 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 									echo "				<option value='$custom_field_option'"; if ( $value == $custom_field_option ) echo " selected='selected'"; echo ">$custom_field_option</option>";
 								echo "			</select>";
 								echo "		</td>";
-								break;
-							case "textarea":
-								echo "		<td><textarea name='$key' id='$key' rows='5' cols='30'>", stripslashes($value), "</textarea></td>";
 								break;
 							case "checkbox":
 								echo "		<td>";
@@ -1590,6 +1593,12 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 								foreach ( $custom_field_options as $custom_field_option )
 									echo "			<label><input type='radio' name='$key' value='$custom_field_option'"; if ( $value == $custom_field_option ) echo " checked='checked'"; echo ">&nbsp;$custom_field_option</label>";
 								echo "		</td>";
+								break;
+							case "textarea":
+								echo "		<td><textarea name='$key' id='$key' rows='5' cols='30'>", stripslashes($value), "</textarea></td>";
+								break;
+							case "hidden":
+								echo "		<td><input type='text' disabled='disabled' name='$key' id='$key' value='$value' /></td>";
 								break;
 						}
 						echo "	</tr>";

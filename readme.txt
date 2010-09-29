@@ -86,6 +86,15 @@ TODO: jQuery summarize user message status
 
 == Changelog ==
 
+= 3.6.10 =
+September 29, 2010 by radiok
+
+* Reduced CSS written to wp-login header
+* Fixed bug with checkbox type not be available for custom fields
+* Fixed bug with select type custom fields, was using already in use variable name, as reported by shrikantjoshi
+
+http://wordpress.org/support/topic/plugin-register-plus-redux-new-fields-problem
+
 = 3.6.9 =
 September 28, 2010 by radiok
 
