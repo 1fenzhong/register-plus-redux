@@ -1487,6 +1487,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		
 		function sendEmalVerificationMessage ( $user_id )
 		{
+			global $wpdb;
 			$user_info = get_userdata($user_id);
 			$options = get_option("register_plus_redux_options");
 			$email_verification_code = wp_generate_password(20, false);
