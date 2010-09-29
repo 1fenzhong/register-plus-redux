@@ -5,7 +5,7 @@ Plugin Name: Register Plus Redux
 Author URI: http://radiok.info/
 Plugin URI: http://radiok.info/blog/category/register-plus-redux/
 Description: Fork of Register Plus
-Version: 3.6.9
+Version: 3.6.10
 */
 
 $ops = get_option("register_plus_redux_options");
@@ -1461,6 +1461,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		{
 			$user_info = get_userdata($user_id);
 			$options = get_option("register_plus_redux_options");
+			$blogname = wp_specialchars_decode(get_option("blogname"), ENT_QUOTES);
 			if ( $options["custom_user_message"] ) {
 				$headers = "";
 				if ( $options["send_user_message_in_html"] ) {
@@ -1492,6 +1493,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			global $wpdb;
 			$user_info = get_userdata($user_id);
 			$options = get_option("register_plus_redux_options");
+			$blogname = wp_specialchars_decode(get_option("blogname"), ENT_QUOTES);
 			$email_verification_code = wp_generate_password(20, false);
 			update_user_meta($user_id, "email_verification_code", $wpdb->prepare($email_verification_code));
 			update_user_meta($user_id, "email_verification_sent", $wpdb->prepare(date("Ymd")));

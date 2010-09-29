@@ -3,7 +3,7 @@ Contributors: skullbit, radiok
 Tags: registration, register, redux, register plus, register plus redux, password, invitation, code, invite, disclaimer, email, validation, privacy, policy, license, agreement, logo, moderation, user
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable tag: 3.6.9
+Stable tag: 3.6.10
 
 Fork of Register Plus
 
@@ -94,7 +94,11 @@ September 29, 2010 by radiok
 * Fixed bug with checkbox type not be available for custom fields
 * Fixed bug with select type custom fields, was using already in use variable name, as reported by shrikantjoshi
 
-http://wordpress.org/support/topic/plugin-register-plus-redux-new-fields-problem
+  http://wordpress.org/support/topic/plugin-register-plus-redux-new-fields-problem
+
+* Fixed wp_delete_user as reported by saury316
+
+  http://wordpress.org/support/topic/plugin-register-plus-redux-error-at-user-deletion
 
 = 3.6.9 =
 September 28, 2010 by radiok
