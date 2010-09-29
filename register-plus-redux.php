@@ -3,7 +3,7 @@
 Author: radiok
 Plugin Name: Register Plus Redux
 Author URI: http://radiok.info/
-Plugin URI: http://radiok.info/register-plus-redux/
+Plugin URI: http://radiok.info/blog/category/register-plus-redux/
 Description: Fork of Register Plus
 Version: 3.6.9
 */
@@ -335,7 +335,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			?>
 			<div class="wrap">
 			<h2><?php _e('Register Plus Redux Settings', 'regplus') ?></h2>
-			<p><input type="button" class="button" value="<?php _e('Preview Registraton Page', 'regplus'); ?>" name="preview" onclick="window.open('<?php echo wp_login_url(), '?action=register'; ?>');" /></p>
+			<p><input type="button" class="button" value="<?php _e('Preview Registraton Page', 'regplus'); ?>" name="preview" onclick="window.open('<?php echo wp_login_url(), "?action=register"; ?>');" /></p>
 			<?php if ( $_POST['notice'] ) echo "\n<div id='message' class='updated fade'><p><strong>", $_POST['notice'], "</strong></p></div>"; ?>
 			<form enctype="multipart/form-data" method="post">
 				<?php wp_nonce_field('register-plus-redux-update-settings'); ?>
@@ -422,7 +422,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 									$invitation_codes = $options['invitation_code_bank'];
 									if ( !is_array($options['invitation_code_bank']) ) $options['invitation_code_bank'] = array();
 									foreach ($options['invitation_code_bank'] as $invitation_code )
-										echo "\n<div class='invitation_code'><input type='text' name='invitation_code_bank[]' value='", $invitation_code, "' />&nbsp;<img src='", plugins_url('removeBtn.gif', __FILE__), "' alt='", __('Remove Code', 'regplus'), "' title='", __('Remove Code', 'regplus'), "' onClick='return removeInvitationCode(this);' style='cursor: pointer;' /></div>";
+										echo "\n<div class='invitation_code'><input type='text' name='invitation_code_bank[]' value='$invitation_code' />&nbsp;<img src='", plugins_url('removeBtn.gif', __FILE__), "' alt='", __('Remove Code', 'regplus'), "' title='", __('Remove Code', 'regplus'), "' onClick='return removeInvitationCode(this);' style='cursor: pointer;' /></div>";
 								?>
 								</div>
 								<img src="<?php echo plugins_url('addBtn.gif', __FILE__); ?>" alt="<?php _e('Add Code', 'regplus') ?>" title="<?php _e('Add Code', 'regplus') ?>" onClick="return addInvitationCode();" style="cursor: pointer;" />&nbsp;<?php _e('Add a new invitation code', 'regplus') ?><br />
@@ -612,9 +612,9 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 									if ( !is_array($custom_fields) ) $custom_fields = array();
 									foreach ( $custom_fields as $k => $v ) {
 										echo "\n<tr valign='center' class='custom_field'>";
-										echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_name[", $k, "]' value='", $v['custom_field_name'], "' /></td>";
+										echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_name[$k]' value='", $v['custom_field_name'], "' /></td>";
 										echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'>";
-										echo "\n		<select name='custom_field_type[", $k, "]'>";
+										echo "\n		<select name='custom_field_type[$k]'>";
 										echo "\n			<option value='text'"; if ( $v['custom_field_type'] == 'text' ) echo " selected='selected'"; echo ">Text Field</option>";
 										echo "\n			<option value='select'"; if ( $v['custom_field_type'] == 'select' ) echo " selected='selected'"; echo ">Select Field</option>";
 										echo "\n			<option value='radio'"; if ( $v['custom_field_type'] == 'radio' ) echo " selected='selected'"; echo ">Radio Field</option>";
@@ -623,10 +623,10 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 										echo "\n			<option value='hidden'"; if ( $v['custom_field_type'] == 'hidden' ) echo " selected='selected'"; echo ">Hidden Field</option>";
 										echo "\n		</select>";
 										echo "\n	</td>";
-										echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_options[", $k, "]' value='", $v['custom_field_options'], "' /></td>";
-										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_profile[", $k, "]' value='1'"; if ( $v['show_on_profile'] ) echo " checked='checked'"; echo " /></td>";
-										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_registration[", $k, "]' value='1'"; if ( $v['show_on_registration'] ) echo " checked='checked'"; echo " /></td>";
-										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='required_on_registration[", $k, "]' value='1'"; if ( $v['required_on_registration'] ) echo " checked='checked'"; echo " /></td>";
+										echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_options[$k]' value='", $v['custom_field_options'], "' /></td>";
+										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_profile[$k]' value='1'"; if ( $v['show_on_profile'] ) echo " checked='checked'"; echo " /></td>";
+										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_registration[$k]' value='1'"; if ( $v['show_on_registration'] ) echo " checked='checked'"; echo " /></td>";
+										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='required_on_registration[$k]' value='1'"; if ( $v['required_on_registration'] ) echo " checked='checked'"; echo " /></td>";
 										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><img src='", plugins_url('removeBtn.gif', __FILE__), "' alt='", __('Remove Field', 'regplus'), "' title='", __('Remove Field', 'regplus'), "' onClick='return removeCustomField(this);' style='cursor: pointer;' /></td>";
 										echo "\n</tr>";
 									}
@@ -868,7 +868,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 
 		function UnverifiedUsersPage() {
 			global $wpdb;
-			if ( $_POST['notice'] ) echo "\n<div id='message' class='updated fade'><p><strong>", $_POST['notice'], ".</strong></p></div>";
+			if ( $_POST['notice'] ) echo "\n<div id='message' class='updated fade'><p><strong>", $_POST['notice'], "</strong></p></div>";
 			$unverified = $wpdb->get_results("SELECT * FROM $wpdb->users WHERE user_login LIKE '%unverified__%'");
 			$options = get_option('register_plus_redux_options');
 			?>
@@ -954,7 +954,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 
 		function VersionWarning() {
 			global $wp_version;
-			echo "\n<div id='register-plus-redux-warning' class='updated fade-ff0000'><p><strong>", __('Register Plus Redux is only compatible with WordPress 3.0 and up. You are currently using WordPress ', 'regplus'), $wp_version, "</strong></p></div>";
+			echo "\n<div id='register-plus-redux-warning' class='updated fade-ff0000'><p><strong>", __('Register Plus Redux is only compatible with WordPress 3.0 and up. You are currently using WordPress ', 'regplus'), "$wp_version</strong></p></div>";
 		}
 
 		function override_warning() {
@@ -1021,9 +1021,9 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				echo "#login h1 a {";
 				echo "background-image: url(", $options['custom_logo_url'], ");";
 				echo "background-position:center top;";
-				echo "width: ", $width, "px;";
+				echo "width: $width", "px;";
 				echo "min-width: 292px;";
-				echo "height: ", $height, "px;";
+				echo "height: $height", "px;";
 				echo "</style>";
 			}
 		}
@@ -1075,11 +1075,11 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 
 				?>
 				<style type="text/css">
-				<?php if ( $show_fields ) echo "\n", $show_fields, " { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }"; ?>
-				<?php if ( $show_custom_text_fields ) echo "\n", $show_custom_text_fields, " { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }"; ?>
-				<?php if ( $password_fields ) echo "\n", $password_fields, "{  font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }"; ?>
+				<?php if ( $show_fields ) echo "\n$show_fields { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }"; ?>
+				<?php if ( $show_custom_text_fields ) echo "\n$show_custom_text_fields { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }"; ?>
+				<?php if ( $password_fields ) echo "\n$password_fields{  font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }"; ?>
 				<?php if ( in_array('about', $options['show_fields']) ) echo "\n#about { font-size:24px; height: 60px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }"; ?>
-				<?php if ( $show_custom_textarea_fields ) echo "\n", $show_custom_textarea_fields, " { font-size:24px; height: 60px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }"; ?>
+				<?php if ( $show_custom_textarea_fields ) echo "\n$show_custom_textarea_fields { font-size:24px; height: 60px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }"; ?>
 
 				.custom_select { width: 97%; padding: 3px; margin-right: 6px; }
 				small {	font-weight: normal; }
@@ -1093,11 +1093,12 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				input.dp-applied { width: 140px; float: left; }
 				<?php
 
+				if ( $options['user_set_password'] ) echo "\n#reg_passmail { display: none; }";
 				if ( $options['show_password_meter'] ) echo "\n#pass-strength-result { width: 97%; padding: 3px; margin-top:0px; margin-right:6px; margin-bottom:8px; border: 1px solid; text-align: center; }";
 				echo "\n#user_login, #user_email {", $options['required_fields_style'], "}";
-				if ( $password_fields ) echo "\n", $password_fields, "{", $options['required_fields_style'], "}";
-				if ( $required_fields ) echo "\n", $required_fields, "{", $options['required_fields_style'], "}";
-				if ( $required_custom_fields ) echo "\n", $required_custom_fields, "{", $options['required_fields_style'], "}";
+				if ( $password_fields ) echo "\n$password_fields {", $options['required_fields_style'], "}";
+				if ( $required_fields ) echo "\n$required_fields {", $options['required_fields_style'], "}";
+				if ( $required_custom_fields ) echo "\n$required_custom_fields {", $options['required_fields_style'], "}";
 
 				if ( $options['custom_registration_page_css'] ) echo "\n", $options['custom_registration_page_css'];
 				echo "\n</style>";
@@ -1308,39 +1309,39 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			$tabindex = 21;
 			if ( in_array('first_name', $options['show_fields']) ) {
 				if ( isset($_GET['first_name']) ) $_POST['first_name'] = $_GET['first_name'];
-				echo "\n<p><label>", _e('First Name', 'regplus'), "<br /><input type='text' name='first_name' id='first_name' class='input' value='", $_POST['first_name'], "' size='25' tabindex='", $tabindex, "' /></label></p>";
+				echo "\n<p><label>", _e('First Name', 'regplus'), "<br /><input type='text' name='first_name' id='first_name' class='input' value='", $_POST['first_name'],"' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
 			}
 			if ( in_array('last_name', $options['show_fields']) ) {
 				if ( isset($_GET['last_name']) ) $_POST['last_name'] = $_GET['last_name'];
-				echo "\n<p><label>", _e('Last Name', 'regplus'), "<br /><input type='text' name='last_name' id='last_name' class='input' value='", $_POST['last_name'], "' size='25' tabindex='", $tabindex, "' /></label></p>";
+				echo "\n<p><label>", _e('Last Name', 'regplus'), "<br /><input type='text' name='last_name' id='last_name' class='input' value='", $_POST['last_name'], "' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
 			}
 			if ( in_array('user_url', $options['show_fields']) ) {
 				if ( isset($_GET['user_url']) ) $_POST['user_url'] = $_GET['user_url'];
-				echo "\n<p><label>", _e('Website', 'regplus'), "<br /><input type='text' name='user_url' id='user_url' class='input' value='", $_POST['user_url'], "' size='25' tabindex='", $tabindex, "' /></label></p>";
+				echo "\n<p><label>", _e('Website', 'regplus'), "<br /><input type='text' name='user_url' id='user_url' class='input' value='", $_POST['user_url'], "' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
 			}
 			if ( in_array('aim', $options['show_fields']) ) {
 				if ( isset($_GET['aim']) ) $_POST['aim'] = $_GET['aim'];
-				echo "\n<p><label>", _e('AIM', 'regplus'), "<br /><input type='text' name='aim' id='aim' class='input' value='", $_POST['aim'], "' size='25' tabindex='", $tabindex, "' /></label></p>";
+				echo "\n<p><label>", _e('AIM', 'regplus'), "<br /><input type='text' name='aim' id='aim' class='input' value='", $_POST['aim'], "' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
 			}
 			if ( in_array('yahoo', $options['show_fields']) ) {
 				if ( isset($_GET['yahoo']) ) $_POST['yahoo'] = $_GET['yahoo'];
-				echo "\n<p><label>", _e('Yahoo IM', 'regplus'), "<br /><input type='text' name='yahoo' id='yahoo' class='input' value='", $_POST['yahoo'], "' size='25' tabindex='", $tabindex, "' /></label></p>";
+				echo "\n<p><label>", _e('Yahoo IM', 'regplus'), "<br /><input type='text' name='yahoo' id='yahoo' class='input' value='", $_POST['yahoo'], "' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
 			}
 			if ( in_array('jabber', $options['show_fields']) ) {
 				if ( isset($_GET['jabber']) ) $_POST['jabber'] = $_GET['jabber'];
-				echo "\n<p><label>", _e('Jabber / Google Talk', 'regplus'), "<br /><input type='text' name='jabber' id='jabber' class='input' value='", $_POST['jabber'], "' size='25' tabindex='", $tabindex, "' /></label></p>";
+				echo "\n<p><label>", _e('Jabber / Google Talk', 'regplus'), "<br /><input type='text' name='jabber' id='jabber' class='input' value='", $_POST['jabber'], "' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
 			}
 			if ( in_array('about', $options['show_fields']) ) {
 				if ( isset($_GET['about']) ) $_POST['about'] = $_GET['about'];
 				echo "\n<p><label for='about'>", _e('About Yourself', 'regplus'), "</label><br />";
 				echo "\n<small>", _e('Share a little biographical information to fill out your profile. This may be shown publicly.', 'regplus'), "</small><br />";
-				echo "\n<textarea name='about' id='about' cols='25' rows='5' tabindex='", $tabindex, "'>", stripslashes($_POST['about']), "</textarea></p>";
+				echo "\n<textarea name='about' id='about' cols='25' rows='5' tabindex='$tabindex'>", stripslashes($_POST['about']), "</textarea></p>";
 				$tabindex++;
 			}
 			$custom_fields = get_option('register_plus_redux_custom_fields');
@@ -1351,16 +1352,16 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 					if ( isset($_GET[$key]) ) $_POST[$key] = $_GET[$key];
 					switch ( $v['custom_field_type'] ) {
 						case "text":
-							echo "\n<p><label>", $v['custom_field_name'], "<br /><input type='text' name='", $key, "' id='", $key, "' value='", $_POST[$key], "' size='25' tabindex='", $tabindex, "' /></label></p>";
+							echo "\n<p><label>", $v['custom_field_name'], "<br /><input type='text' name='$key' id='$key' value='", $_POST[$key], "' size='25' tabindex='$tabindex' /></label></p>";
 							$tabindex++;
 							break;
 						case "date":
-							echo "\n<p><label>", $v['custom_field_name'], "<br /><input type='text' name='", $key, "' id='", $key, "' value='", $_POST[$key], "' size='25' tabindex='", $tabindex, "' /></label><br /></p>";
+							echo "\n<p><label>", $v['custom_field_name'], "<br /><input type='text' name='$key' id='$key' value='", $_POST[$key], "' size='25' tabindex='$tabindex' /></label></p>";
 							$tabindex++;
 							break;
 						case "select":
 							echo "\n<p><label>", $v['custom_field_name'], "<br />";
-							echo "\n	<select name='", $key, "' id='", $key, "' tabindex='", $tabindex, "'>";
+							echo "\n	<select name='$key' id='$key' tabindex='$tabindex'>";
 							$tabindex++;
 							$custom_field_options = explode(',', $v['custom_field_options']);
 							$options = '';
@@ -1369,21 +1370,20 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 								if ( $_POST[$key] == $custom_field_option ) $options .= 'selected="selected"';
 								$options .= '>'.$custom_field_option.'</option>';
 							}
-							echo $select;
-							echo "\n	</select>";
+							echo "$options</select>";
 							echo "\n</label></p>";
 							break;
 						case "checkbox":
 							echo "\n<p><label>", $v['custom_field_name'], "</label><br />";
 							$custom_field_options = explode(',', $v['custom_field_options']);
-							$checkboxs = '';
+							$checkboxes = '';
 							foreach ( $custom_field_options as $custom_field_option ) {
-								$checkboxs .= '<label><input type="checkbox" class="custom_checkbox" name="'.$key.'[]" id="'.$key.'"';
+								$checkboxes .= '<label><input type="checkbox" class="custom_checkbox" name="'.$key.'[]" id="'.$key.'"';
 								//if ( in_array($custom_field_option, $_POST[$key])) $checkboxs .= 'checked="checked" ';
-								$checkboxs .= ' value="'.$custom_field_option.'" tabindex="'.$tabindex.'" /> '.$custom_field_option.'</label> ';
+								$checkboxes .= ' value="'.$custom_field_option.'" tabindex="'.$tabindex.'" /> '.$custom_field_option.'</label>';
 								$tabindex++;
 							}
-							echo $checkboxs;
+							echo $checkboxes;
 							echo "\n</p>";
 							break;
 						case "radio":
@@ -1393,27 +1393,27 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 							foreach ( $custom_field_options as $custom_field_option ) {
 								$radios .= '<label><input type="radio" class="custom_radio" name="'.$key.'" id="'.$key.'"';
 								//if ( in_array($custom_field_option, $_POST[$key])) $radios .= 'checked="checked" ';
-								$radios .= ' value="'.$custom_field_option.'" tabindex="'.$tabindex.'" /> '.$custom_field_option.'</label> ';
+								$radios .= ' value="'.$custom_field_option.'" tabindex="'.$tabindex.'" /> '.$custom_field_option.'</label><br />';
 								$tabindex++;
 							}
 							echo $radios;
 							echo "\n</p>";
 							break;
 						case "textarea":
-							echo "\n<p><label>", $v['custom_field_name'], "<br /><textarea name='", $key, "' id='", $key, "' cols='25' rows='5' tabindex='", $tabindex, "'>", $_POST[$key], "</textarea></label></p>";
+							echo "\n<p><label>", $v['custom_field_name'], "<br /><textarea name='$key' id='$key' cols='25' rows='5' tabindex='$tabindex'>", $_POST[$key], "</textarea></label></p>";
 							$tabindex++;
 							break;
 						case "hidden":
-							echo "\n<input type='hidden' name='", $key, "' id='", $key, "' value='", $_POST[$key], "' tabindex='", $tabindex, "' />";
+							echo "\n<input type='hidden' name='$key' id='$key' value='", $_POST[$key], "' tabindex='$tabindex' />";
 							$tabindex++;
 							break;
 					}
 				}
 			}
 			if ( $options['user_set_password'] ) {
-				echo "\n<p><label>", _e('Password', 'regplus'), "<br /><input type='password' autocomplete='off' name='pass1' id='pass1' value='", $_POST['password'], "' size='25' tabindex='", $tabindex, "' /></label></p>";
+				echo "\n<p><label>", _e('Password', 'regplus'), "<br /><input type='password' autocomplete='off' name='pass1' id='pass1' value='", $_POST['password'], "' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
-				echo "\n<p><label>", _e('Confirm Password', 'regplus'), "<br /><input type='password' autocomplete='off' name='pass2' id='pass2' value='", $_POST['password'], "' size='25' tabindex='", $tabindex, "' /></label></p>";
+				echo "\n<p><label>", _e('Confirm Password', 'regplus'), "<br /><input type='password' autocomplete='off' name='pass2' id='pass2' value='", $_POST['password'], "' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
 				if ( $options['show_password_meter']) { 
 					echo "\n<div id='pass-strength-result'>", $options['message_empty_password'], "</div>";
@@ -1422,7 +1422,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 			}
 			if ( $options['enable_invitation_code'] ) {
 				if ( isset($_GET['invitation_code']) ) $_POST['invitation_code'] = $_GET['invitation_code'];
-				echo "<p><label>", _e('Invitation Code', 'regplus'), "<br /><input type='text' name='invitation_code' id='invitation_code' class='input' value='", $_POST['invitation_code'], "' size='25' tabindex='", $tabindex, "' /></label></p>";
+				echo "<p><label>", _e('Invitation Code', 'regplus'), "<br /><input type='text' name='invitation_code' id='invitation_code' class='input' value='", $_POST['invitation_code'], "' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
 				if ($options['require_invitation_code'])
 					echo "\n<small>", _e('This website is currently closed to public registrations. You will need an invitation code to register.', 'regplus'), "</small>";
@@ -1433,7 +1433,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				echo "\n<p>";
 				echo "\n	<label>", stripslashes($options['message_disclaimer_title']), "<br />";
 				echo "\n	<span id='license'>", stripslashes($options['message_disclaimer']), "</span>";
-				echo "\n	<input type='checkbox' name='accept_disclaimer' value='1'"; if ( $_POST['accept_disclaimer']) echo " checked='checked'"; echo " tabindex='", $tabindex, "'/>", $options['message_disclaimer_agree'], "</label>";
+				echo "\n	<input type='checkbox' name='accept_disclaimer' value='1'"; if ( $_POST['accept_disclaimer']) echo " checked='checked'"; echo " tabindex='$tabindex'/>", $options['message_disclaimer_agree'], "</label>";
 				$tabindex++;
 				echo "\n</p>";
 			}
@@ -1441,7 +1441,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				echo "\n<p>";
 				echo "\n	<label>", stripslashes($options['message_license_title']), "<br />";
 				echo "\n	<span id='license'>", stripslashes($options['message_license']), "</span>";
-				echo "\n	<input type='checkbox' name='accept_license_agreement' value='1'"; if ( $_POST['accept_license_agreement']) echo " checked='checked'"; echo " tabindex='", $tabindex, "'/>", $options['message_license_agree'], "</label>";
+				echo "\n	<input type='checkbox' name='accept_license_agreement' value='1'"; if ( $_POST['accept_license_agreement']) echo " checked='checked'"; echo " tabindex='$tabindex'/>", $options['message_license_agree'], "</label>";
 				$tabindex++;
 				echo "\n</p>";
 			}
@@ -1449,7 +1449,7 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 				echo "\n<p>";
 				echo "\n	<label>", stripslashes($options['message_privacy_policy_title']), "<br />";
 				echo "\n	<span id='license'>", stripslashes($options['message_privacy_policy']), "</span>";
-				echo "\n	<input type='checkbox' name='accept_privacy_policy' value='1'"; if ( $_POST['accept_privacy_policy']) echo " checked='checked'"; echo " tabindex='", $tabindex, "'/>", $options['message_privacy_policy_agree'], "</label>";
+				echo "\n	<input type='checkbox' name='accept_privacy_policy' value='1'"; if ( $_POST['accept_privacy_policy']) echo " checked='checked'"; echo " tabindex='$tabindex'/>", $options['message_privacy_policy_agree'], "</label>";
 				$tabindex++;
 				echo "\n</p>";
 			}
@@ -1556,39 +1556,39 @@ if ( !class_exists('RegisterPlusReduxPlugin') ) {
 						$key = $this->fnSanitizeFieldName($v['custom_field_name']);
 						$value = get_user_meta($profileuser->ID, $key, true);
 						echo "	<tr>";
-						echo "		<th><label for='", $key, "'>", $v['custom_field_name'], "</label></th>";
+						echo "		<th><label for='$key'>", $v['custom_field_name'], "</label></th>";
 						switch ( $v['custom_field_type'] ) {
 							case "text":
-								echo "		<td><input type='text' name='", $key, "' id='", $key, "' value='", $value, "' class='regular-text' /></td>";
+								echo "		<td><input type='text' name='$key' id='$key' value='$value' class='regular-text' /></td>";
 								break;
 							case "hidden":
-								echo "		<td><input type='text' disabled='disabled' name='", $key, "' id='", $key, "' value='", $value, "' /></td>";
+								echo "		<td><input type='text' disabled='disabled' name='$key' id='$key' value='$value' /></td>";
 								break;
 							case "select":
 								echo "		<td>";
-								echo "			<select name='", $key, "' id='", $key, "'>";
+								echo "			<select name='$key' id='$key'>";
 								$custom_field_options = explode(',', $v['custom_field_options']);
 								foreach ( $custom_field_options as $custom_field_option )
-									echo "				<option value='", $custom_field_option, "'"; if ( $value == $custom_field_option ) echo " selected='selected'"; echo ">", $custom_field_option, "</option>";
+									echo "				<option value='$custom_field_option'"; if ( $value == $custom_field_option ) echo " selected='selected'"; echo ">$custom_field_option</option>";
 								echo "			</select>";
 								echo "		</td>";
 								break;
 							case "textarea":
-								echo "		<td><textarea name='", $key, "' id='", $key, "' rows='5' cols='30'>", stripslashes($value), "</textarea></td>";
+								echo "		<td><textarea name='$key' id='$key' rows='5' cols='30'>", stripslashes($value), "</textarea></td>";
 								break;
 							case "checkbox":
 								echo "		<td>";
 								$custom_field_options = explode(',', $v['custom_field_options']);
 								$values = explode(', ', $value);
 								foreach ( $custom_field_options as $custom_field_option )
-									echo "			<label><input type='checkbox' name='", $key, "[]' value='", $custom_field_option, "'"; if ( in_array($custom_field_option, $values) ) echo " checked='checked'"; echo " />&nbsp;", $custom_field_option, "</label>";
+									echo "			<label><input type='checkbox' name='$key", "[]' value='$custom_field_option'"; if ( in_array($custom_field_option, $values) ) echo " checked='checked'"; echo " />&nbsp;$custom_field_option</label>";
 								echo "		</td>";
 								break;
 							case "radio":
 								echo "		<td>";
 								$custom_field_options = explode(',', $v['custom_field_options']);
 								foreach ( $custom_field_options as $custom_field_option )
-									echo "			<label><input type='radio' name='", $key, "' value='", $custom_field_option, "'"; if ( $value == $custom_field_option ) echo " checked='checked'"; echo ">&nbsp;", $custom_field_option, "</label>";
+									echo "			<label><input type='radio' name='$key' value='$custom_field_option'"; if ( $value == $custom_field_option ) echo " checked='checked'"; echo ">&nbsp;$custom_field_option</label>";
 								echo "		</td>";
 								break;
 						}
