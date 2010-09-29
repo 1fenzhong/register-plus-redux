@@ -82,19 +82,21 @@ TODO: Nickname options
 
 TODO: Would like to be able to upload the file a little bit nicer, almost like a form within a form
 
+TODO: jQuery summarize user message status
+
 == Changelog ==
 
 = 3.6.9 =
 September 28, 2010 by radiok
 
-* Rewrote nearly every echo statement to be enclosed in double quotes
+* Rewrote nearly every echo statement to be enclosed in quotations
 * Rewrote function to purge unverified users exceeding grace period
 * Rewrote code for password strength indicator
 * Changed default user and admin messages to match WordPress defaults
 * Renamed some of the replacement keys to match their true nature or name
 * Renamed several variables
 * Changed wp_update_user to $wpdb->query for updating user_login
-* Removed function to create rando string, use wp_generate_password instead
+* Removed function to create random string, use wp_generate_password instead
 * Reogranized wp_new_user_notification more logically
 
 = 3.6.8 =
