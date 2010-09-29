@@ -22,11 +22,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				add_action("admin_menu", array($this, "AddPages") ); //Runs after the basic admin panel menu structure is in place.
 				if ( $_GET["page"] == "register-plus-redux" && $_POST["action"] == "update_settings")
 					add_action("init", array($this, "UpdateSettings") ); //Runs after WordPress has finished loading but before any headers are sent.
-				if ( $_POST["verifyit"] )
+				if ( $_GET["page"] == "unverified-users" && $_POST["verify_users"] )
 					add_action("init", array($this, "AdminValidate")); //Runs after WordPress has finished loading but before any headers are sent.
-				if ( $_POST["emailverifyit"] )
+				if ( $_GET["page"] == "unverified-users" && $_POST["send_verification_email"] )
 					add_action("init", array($this, "AdminEmailValidate")); //Runs after WordPress has finished loading but before any headers are sent.
-				if ( $_POST["vdeleteit"] )
+				if ( $_GET["page"] == "unverified-users" && $_POST["delete_users"] )
 					add_action("init", array($this, "AdminDeleteUnvalidated")); //Runs after WordPress has finished loading but before any headers are sent.
 			}
 			add_action("login_head", array($this, "LoginHead")); //Runs just before the end of the HTML head section of the login page. 
@@ -882,8 +882,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function UnverifiedUsersPage() {
-			global $wpdb;
 			if ( $_POST["notice"] ) echo "\n<div id='message' class='updated fade'><p><strong>", $_POST["notice"], "</strong></p></div>";
+			global $wpdb;
 			$unverified = $wpdb->get_results("SELECT * FROM $wpdb->users WHERE user_login LIKE '%unverified_%'");
 			$options = get_option("register_plus_redux_options");
 			?>
@@ -893,11 +893,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				<?php wp_nonce_field("register-plus-redux-unverified-users"); ?>
 				<div class="tablenav">
 					<div class="alignleft">
-						<input value="<?php _e("Verify Checked Users", "regplus"); ?>" name="verifyit" class="button-secondary" type="submit">&nbsp;
+						<input value="<?php _e("Verify Checked Users", "regplus"); ?>" name="verify_users" class="button-secondary" type="submit">&nbsp;
 						<?php if ( $options["verify_user_email"] ) { ?>
-						<input value="<?php _e("Resend Verification E-mail", "regplus"); ?>" name="emailverifyit" class="button-secondary" type="submit">
+						<input value="<?php _e("Resend Verification E-mail", "regplus"); ?>" name="send_verification_email" class="button-secondary" type="submit">
 						<?php } ?>
-						&nbsp;<input value="<?php _e("Delete", "regplus"); ?>" name="vdeleteit" class="button-secondary delete" type="submit">
+						&nbsp;<input value="<?php _e("Delete", "regplus"); ?>" name="delete_users" class="button-secondary delete" type="submit">
 					</div>
 					<br class="clear">
 				</div>
@@ -922,7 +922,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							elseif ( $options["verify_user_admin"] ) $user_login = get_user_meta($un->ID, "admin_verification_user_login", true);
 						?>
 						<tr id="user-1" class="<?php echo $alt; ?>">
-							<th scope="row" class="check-column"><input name="vusers[]" id="user_<?php echo $un->ID; ?>" class="administrator" value="<?php echo $un->ID; ?>" type="checkbox"></th>
+							<th scope="row" class="check-column"><input name="selected_users[]" id="user_<?php echo $un->ID; ?>" class="administrator" value="<?php echo $un->ID; ?>" type="checkbox"></th>
 							<td><strong><?php echo $un->user_login; ?></strong></td>
 							<td><strong><?php echo $user_login; ?></strong></td>
 							<td><a href="mailto:<?php echo $un->user_email; ?>" title="<?php _e("e-mail: ", "regplus"); echo $un->user_email; ?>"><?php echo $un->user_email; ?></a></td>
@@ -937,68 +937,56 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function AdminValidate() {
-			global $wpdb;
-			$options = get_option("register_plus_redux_options");
 			check_admin_referer("register-plus-redux-unverified-users");
-			$valid = $_POST["vusers"];
-			foreach ( $valid as $user_id ) {
-				if ( $user_id ) {
+			if ( is_array($_POST["selected_users"]) ) {
+				foreach ( $_POST["selected_users"] as $user_id ) {
+					global $wpdb;
+					$options = get_option("register_plus_redux_options");
 					if ( $options["verify_user_email"] ) {
 						$stored_user_login = get_user_meta($user_id, "email_verification_user_login", true);
-						$wpdb->query("UPDATE $wpdb->users SET user_login = '$stored_user_login' WHERE ID = '$user_id'");
+						$wpdb->query( $wpdb->prepare("UPDATE $wpdb->users SET user_login = '$stored_user_login' WHERE ID = '$user_id'") );
 						delete_user_meta($user_id, "email_verification_code");
 						delete_user_meta($user_id, "email_verification_sent");
 						delete_user_meta($user_id, "email_verification_user_login");
 					} elseif ( $options["verify_user_admin"] ) {
 						$stored_user_login = get_user_meta($user_id, "admin_verification_user_login", true);
-						$wpdb->query("UPDATE $wpdb->users SET user_login = '$stored_user_login' WHERE ID = '$user_id'");
+						$wpdb->query( $wpdb->prepare("UPDATE $wpdb->users SET user_login = '$stored_user_login' WHERE ID = '$user_id'") );
 						delete_user_meta($user_id, "admin_verification_user_login");
 					}
-					$user_info = get_userdata($user_id);
-					$options = get_option("register_plus_redux_options");
-					$message = __("Your account has now been activated by an administrator.", "regplus")."\r\n";
-					$message .= sprintf(__("Username: %s", "regplus"), $user_info->user_login)."\r\n";
-					$message .= wp_login_url()."\r\n"; 
-					add_filter("wp_mail_from", array($this, "filter_user_message_from_email"));
-					add_filter("wp_mail_from_name", array($this, "filter_user_message_from_name"));
-					wp_mail($user->user_email, sprintf(__("[%s] User Account Activated", "regplus"), get_option("blogname")), $message);
+					if ( !$options["user_set_password"] ) {
+						$plaintext_pass = wp_generate_password();
+						update_user_option( $user_id, "default_password_nag", true, true );
+						wp_set_password($plaintext_pass, $user_id);
+					}
+					$this->sendUserMessage( $user_id, $plaintext_pass );
 				}
+				$_POST["notice"] = __("Users Verified", "regplus");
+			} else {
+				$_POST["notice"] = __("<strong>Error:</strong> No users selected.", "regplus");
 			}
-			$_POST["notice"] = __("Users Verified", "regplus");
 		}
 
 		function AdminEmailValidate() {
-			global $wpdb;
 			check_admin_referer("register-plus-redux-unverified-users");
-			$valid = $_POST["vusers"];
-			if ( is_array($valid) ):
-				foreach ( $valid as $user_id ) {
-					$email_verification_code = get_user_meta($user_id, "email_verification_code", true);
-					$user_login = get_user_meta($user_id, "email_verification_user_login", true);
-					$user_info = get_userdata($user_id);
-					//$user_email = $user_info->user_email;
-					$message = sprintf(__("Username: %s", "regplus"), $user_login) . "\r\n";
-					//$message .= sprintf(__("Password: %s", "regplus"), $plaintext_pass) . "\r\n";
-					$message .= __("Verification URL: ", "regplus") . wp_login_url() . "?verification_code=" . $email_verification_code . "\r\n";
-					$message .= $notice;
-					add_filter("wp_mail_from", array($this, "filter_user_message_from_email"));
-					add_filter("wp_mail_from_name", array($this, "filter_user_message_from_name"));
-					wp_mail($user_info->user_email, sprintf(__("[%s] Verify Account Link", "regplus"), get_option("blogname")), $message);
-				}
-			$_POST["notice"] = __("Verification Emails have been re-sent", "regplus");
-			else:
-			$_POST["notice"] = __("<strong>Error:</strong> Please select a user to send emails to.", "regplus");
-			endif;
+			if ( is_array($_POST["selected_users"]) ) {
+				foreach ( $_POST["selected_users"] as $user_id )
+					$this->sendEmalVerificationMessage($user_id);
+				$_POST["notice"] = __("Verification Emails have been re-sent", "regplus");
+			} else {
+				$_POST["notice"] = __("<strong>Error:</strong> No users selected.", "regplus");
+			}
 		}
 
 		function AdminDeleteUnvalidated() {
-			$options = get_option("register_plus_redux_options");
 			check_admin_referer("register-plus-redux-unverified-users");
-			$delete = $_POST["vusers"];
-			foreach ( $delete as $user_id ) {
-				if ( $user_id ) wp_delete_user($user_id);
+			if ( is_array($_POST["selected_users"]) ) {
+				foreach ( $_POST["selected_users"] as $user_id ) {
+					if ( $user_id ) wp_delete_user($user_id);
+				}
+				$_POST["notice"] = __("Users Deleted", "regplus");
+			} else {
+				$_POST["notice"] = __("<strong>Error:</strong> No users selected.", "regplus");
 			}
-			$_POST["notice"] = __("Users Deleted", "regplus");
 		}
 
 		function LoginHead() {
@@ -1023,12 +1011,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 			if ( $_GET["checkemail"] == "registered" && ($options["verify_user_admin"] || $options["verify_user_email"]) ) {
 				//label, #user_login, #user_pass, .forgetmenot, #wp-submit, .message { display: none; }
-				?>
-				<style type="text/css">
-				p { display: none; }
-				#message, #backtoblog { display: block; }
-				</style>
-				<?php
+				echo "\n<style type=\"text/css\">";
+				echo "\np { display: none; }";
+				echo "\n#message, #backtoblog { display: block; }";
+				echo "\n</style>";
 			}
 			if ( $_GET["action"] == "register" ) {
 				$custom_fields = get_option("register_plus_redux_custom_fields");
@@ -1047,18 +1033,29 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							else
 								$show_custom_select_fields = ', #'.$this->fnSanitizeFieldName($v["custom_field_name"]);
 						}
-						if ( $v["custom_field_type"] == "date" ) {
-							if ( !$show_custom_text_fields )
-								$show_custom_text_fields = '#'.$this->fnSanitizeFieldName($v["custom_field_name"]);
+						if ( $v["custom_field_type"] == "checkbox" ) {
+							if ( !$show_custom_checkbox_fields )
+								$show_custom_checkbox_fields = '.'.$this->fnSanitizeFieldName($v["custom_field_name"]);
 							else
-								$show_custom_text_fields = ', #'.$this->fnSanitizeFieldName($v["custom_field_name"]);
-							$load_jquery_datepicker = true;
+								$show_custom_checkbox_fields = ', .'.$this->fnSanitizeFieldName($v["custom_field_name"]);
+						}
+						if ( $v["custom_field_type"] == "radio" ) {
+							if ( !$show_custom_radio_fields )
+								$show_custom_radio_fields = '.'.$this->fnSanitizeFieldName($v["custom_field_name"]);
+							else
+								$show_custom_radio_fields = ', .'.$this->fnSanitizeFieldName($v["custom_field_name"]);
 						}
 						if ( $v["custom_field_type"] == "textarea" ) {
-							if ( !$show_custom_text_fields )
+							if ( !$show_custom_textarea_fields )
 								$show_custom_textarea_fields = '#'.$this->fnSanitizeFieldName($v["custom_field_name"]);
 							else
 								$show_custom_textarea_fields = ', #'.$this->fnSanitizeFieldName($v["custom_field_name"]);
+						}
+						if ( $v["custom_field_type"] == "date" ) {
+							if ( !$show_custom_date_fields )
+								$show_custom_date_fields = '#'.$this->fnSanitizeFieldName($v["custom_field_name"]);
+							else
+								$show_custom_date_fields = ', #'.$this->fnSanitizeFieldName($v["custom_field_name"]);
 						}
 						if ( $v["required_on_registration"] ) {
 							$required_custom_fields .= '#'.$this->fnSanitizeFieldName($v["custom_field_name"]).', ';
@@ -1070,16 +1067,20 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( $options["required_fields"][0] ) $required_fields = "#".implode(", #", $options["required_fields"]);
 
 				echo "\n<style type=\"text/css\">";
-				echo "\nsmall { font-weight: normal; }";
+				echo "\nsmall { display:block; margin-bottom:8px; }";
 				if ( $show_fields ) echo "\n$show_fields { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
 				if ( in_array("about", $options["show_fields"]) ) echo "\n#about { font-size:24px; height: 60px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
 				if ( $show_custom_text_fields ) echo "\n$show_custom_text_fields { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
-				if ( $show_custom_select_fields ) echo "\n$show_custom_select_fields { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
+				if ( $show_custom_select_fields ) echo "\n$show_custom_select_fields { font-size:24px; width:100%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
+				if ( $show_custom_checkbox_fields ) echo "\n$show_custom_checkbox_fields { font-size:18px; }";
+				if ( $show_custom_radio_fields ) echo "\n$show_custom_radio_fields { font-size:18px; }";
 				if ( $show_custom_textarea_fields ) echo "\n$show_custom_textarea_fields { font-size:24px; height: 60px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
-				if ( $options["show_disclaimer"] ) { echo "\n#disclaimer { display: block; width: 97%; padding: 3px; background-color:#fff; border:solid 1px #A7A6AA; font-weight:normal;"; if ( strlen($options["message_disclaimer"]) > 525) echo "height: 200px; overflow:scroll;"; echo " }"; }
-				if ( $options["show_license"] ) { echo "\n#license { display: block; width: 97%; padding: 3px; background-color:#fff; border:solid 1px #A7A6AA; font-weight:normal;"; if ( strlen($options["message_license"]) > 525) echo "height: 200px; overflow:scroll;"; echo " }"; }
-				if ( $options["show_privacy_policy"] ) { echo "\n#privacy_policy { display: block; width: 97%; padding: 3px; background-color:#fff; border:solid 1px #A7A6AA; font-weight:normal;"; if ( strlen($options["message_privacy_policy"]) > 525) echo "height: 200px; overflow:scroll;"; echo " }"; }
-				if ( $load_jquery_datepicker) {
+				if ( $show_custom_date_fields ) echo "\n$show_custom_date_fields { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
+				if ( $options["show_disclaimer"] ) { echo "\n#disclaimer { font-size:12px; display: block; width: 97%; padding: 3px; margin-top:2px; margin-right:6px; margin-bottom:8px; background-color:#fff; border:solid 1px #A7A6AA; font-weight:normal;"; if ( strlen($options["message_disclaimer"]) > 525) echo "height: 200px; overflow:scroll;"; echo " }"; }
+				if ( $options["show_license"] ) { echo "\n#license { font-size:12px; display: block; width: 97%; padding: 3px; margin-top:2px; margin-right:6px; margin-bottom:8px; background-color:#fff; border:solid 1px #A7A6AA; font-weight:normal;"; if ( strlen($options["message_license"]) > 525) echo "height: 200px; overflow:scroll;"; echo " }"; }
+				if ( $options["show_privacy_policy"] ) { echo "\n#privacy_policy { font-size:12px; display: block; width: 97%; padding: 3px; margin-top:2px; margin-right:6px; margin-bottom:8px; background-color:#fff; border:solid 1px #A7A6AA; font-weight:normal;"; if ( strlen($options["message_privacy_policy"]) > 525) echo "height: 200px; overflow:scroll;"; echo " }"; }
+				if ( $options["show_disclaimer"] || $options["show_license"] || $options["show_privacy_policy"] ) echo "\n.accept_check { display:block; margin-bottom:8px; }";
+				if ( $show_custom_date_fields ) {
 					echo "\na.dp-choose-date { float: left; width: 16px; height: 16px; padding: 0; margin: 5px 3px 0; display: block; text-indent: -2000px; overflow: hidden; background: url('"; echo plugins_url("datepicker/calendar.png", __FILE__); echo "') no-repeat; }";
 					echo "\na.dp-choose-date.dp-disabled { background-position: 0 -20px; cursor: default; } /* makes the input field shorter once the date picker code * has run (to allow space for the calendar icon */";
 					echo "\ninput.dp-applied { width: 140px; float: left; }";
@@ -1087,9 +1088,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( $options["user_set_password"] ) {
 					echo "\n#reg_passmail { display: none; }";
 					echo "\n#pass1, #pass2 { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
-					if ( $options["show_password_meter"] ) echo "\n#pass-strength-result { width: 97%; padding: 3px; margin-top:0px; margin-right:6px; margin-bottom:8px; border: 1px solid; text-align: center; }";
+					if ( $options["show_password_meter"] ) echo "\n#pass-strength-result { width: 97%; padding: 3px; margin-top:0px; margin-right:6px; margin-bottom:4px; border: 1px solid; text-align: center; }";
 				}
-				if ( $options["enable_invitation_code"] ) echo "\n#invitation_code { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
+				if ( $options["enable_invitation_code"] ) echo "\n#invitation_code { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:4px; border:1px solid #e5e5e5; background:#fbfbfb; }";
 				echo "\n#user_login, #user_email { ", $options["required_fields_style"], "} ";
 				if ( $required_fields ) echo "\n$required_fields { ", $options["required_fields_style"], " }";
 				if ( $required_custom_fields ) echo "\n$required_custom_fields { ", $options["required_fields_style"], " }";
@@ -1098,7 +1099,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( $options["custom_registration_page_css"] ) echo "\n", $options["custom_registration_page_css"];
 				echo "\n</style>";
 
-				if ( $load_jquery_datepicker) {
+				if ( $show_custom_date_fields ) {
 					//wp_enqueue_script("jquery");
 					//wp_enqueue_script("jquery-ui-core");
 					//wp_enqueue_script(plugins_url("js/jquery.ui.datepicker.js", __FILE__));
@@ -1272,40 +1273,35 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo "\n<p><label>", $v["custom_field_name"], "<br />";
 							echo "\n	<select name='$key' id='$key' tabindex='$tabindex'>";
 							$tabindex++;
-							$select_options = "";
 							$custom_field_options = explode(",", $v["custom_field_options"]);
 							foreach ( $custom_field_options as $custom_field_option ) {
-								$select_options .= "<option value='$custom_field_option'";
-								if ( $_POST[$key] == $custom_field_option ) $select_options .= "selected='selected'";
-								$select_options .= ">$custom_field_option</option>";
+								echo "<option value='$custom_field_option'";
+								if ( $_POST[$key] == $custom_field_option ) echo " selected='selected'";
+								echo ">$custom_field_option</option>";
 							}
-							echo "$select_options</select>";
+							echo "</select>";
 							echo "\n</label></p>";
 							break;
 						case "checkbox":
-							echo "\n<p><label>", $v["custom_field_name"], "</label><br />";
-							$checkboxes = "";
+							echo "\n<p style='margin-bottom:16px;'><label>", $v["custom_field_name"], "</label><br />";
 							$custom_field_options = explode(",", $v["custom_field_options"]);
 							foreach ( $custom_field_options as $custom_field_option ) {
-								$checkboxes .= "\n<label><input type='checkbox' name='$key"."[]' id='$key'";
-								//if ( in_array($custom_field_option, $_POST[$key])) $checkboxs .= "checked='checked' ";
-								$checkboxes .= " value='$custom_field_option' tabindex='$tabindex' />&nbsp;$custom_field_option</label><br />";
+								echo "\n<input type='checkbox' name='$key"."[]' id='", $this->fnSanitizeFieldName($custom_field_option), "'";
+								//if ( in_array($custom_field_option, $_POST[$key])) echo " checked='checked' ";
+								echo " value='$custom_field_option' tabindex='$tabindex' /><label for='", $this->fnSanitizeFieldName($custom_field_option), "' class='", $this->fnSanitizeFieldName($v["custom_field_name"]), "'>&nbsp;$custom_field_option</label><br />";
 								$tabindex++;
 							}
-							echo $checkboxes;
 							echo "\n</p>";
 							break;
 						case "radio":
-							echo "\n<p><label>", $v["custom_field_name"], "</label><br />";
-							$radios = "";
+							echo "\n<p style='margin-bottom:16px;'><label>", $v["custom_field_name"], "</label><br />";
 							$custom_field_options = explode(",", $v["custom_field_options"]);
 							foreach ( $custom_field_options as $custom_field_option ) {
-								$radios .= "<label><input type='radio' name='$key' id='$key'";
-								//if ( in_array($custom_field_option, $_POST[$key])) $radios .= "checked='checked' ";
-								$radios .= " value='$custom_field_option' tabindex='$tabindex' />&nbsp;$custom_field_option</label><br />";
+								echo "\n<input type='radio' name='$key' id='", $this->fnSanitizeFieldName($custom_field_option), "'";
+								//if ( in_array($custom_field_option, $_POST[$key])) echo " checked='checked' ";
+								echo " value='$custom_field_option' tabindex='$tabindex' /><label for='", $this->fnSanitizeFieldName($custom_field_option), "' class='", $this->fnSanitizeFieldName($v["custom_field_name"]), "' >&nbsp;$custom_field_option</label><br />";
 								$tabindex++;
 							}
-							echo $radios;
 							echo "\n</p>";
 							break;
 						case "textarea":
@@ -1344,25 +1340,25 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 			if ( $options["show_disclaimer"] ) {
 				echo "\n<p>";
-				echo "\n	<label>", $options["message_disclaimer_title"], "<br />";
-				echo "\n	<span id='disclaimer'>", $options["message_disclaimer"], "</span>";
-				echo "\n	<input type='checkbox' name='accept_disclaimer' value='1'"; if ( $_POST["accept_disclaimer"] ) echo " checked='checked'"; echo " tabindex='$tabindex'/>", $options["message_disclaimer_agree"], "</label>";
+				echo "\n	<label>", $options["message_disclaimer_title"], "</label><br />";
+				echo "\n	<span name='disclaimer' id='disclaimer'>", $options["message_disclaimer"], "</span>";
+				echo "\n	<label class='accept_check'><input type='checkbox' name='accept_disclaimer' id='accept_disclaimer' value='1'"; if ( $_POST["accept_disclaimer"] ) echo " checked='checked'"; echo " tabindex='$tabindex'/>&nbsp;", $options["message_disclaimer_agree"], "</label>";
 				$tabindex++;
 				echo "\n</p>";
 			}
 			if ( $options["show_license"] ) {
 				echo "\n<p>";
-				echo "\n	<label>", $options["message_license_title"], "<br />";
-				echo "\n	<span id='license'>", $options["message_license"], "</span>";
-				echo "\n	<input type='checkbox' name='accept_license_agreement' value='1'"; if ( $_POST["accept_license_agreement"] ) echo " checked='checked'"; echo " tabindex='$tabindex'/>", $options["message_license_agree"], "</label>";
+				echo "\n	<label>", $options["message_license_title"], "</label><br />";
+				echo "\n	<span name='license' id='license'>", $options["message_license"], "</span>";
+				echo "\n	<label class='accept_check'><input type='checkbox' name='accept_license' id='accept_license' value='1'"; if ( $_POST["accept_license_agreement"] ) echo " checked='checked'"; echo " tabindex='$tabindex'/>&nbsp;", $options["message_license_agree"], "</label>";
 				$tabindex++;
 				echo "\n</p>";
 			}
 			if ( $options["show_privacy_policy"] ) {
 				echo "\n<p>";
-				echo "\n	<label>", $options["message_privacy_policy_title"], "<br />";
-				echo "\n	<span id='privacy_policy'>", $options["message_privacy_policy"], "</span>";
-				echo "\n	<input type='checkbox' name='accept_privacy_policy' value='1'"; if ( $_POST["accept_privacy_policy"] ) echo " checked='checked'"; echo " tabindex='$tabindex'/>", $options["message_privacy_policy_agree"], "</label>";
+				echo "\n	<label>", $options["message_privacy_policy_title"], "</label><br />";
+				echo "\n	<span name='privacy_policy' id='privacy_policy'>", $options["message_privacy_policy"], "</span>";
+				echo "\n	<label class='accept_check'><input type='checkbox' name='accept_privacy_policy' id='accept_privacy_policy' value='1'"; if ( $_POST["accept_privacy_policy"] ) echo " checked='checked'"; echo " tabindex='$tabindex'/>&nbsp;", $options["message_privacy_policy_agree"], "</label>";
 				$tabindex++;
 				echo "\n</p>";
 			}
@@ -1459,6 +1455,84 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			return $errors;
 		}
 
+		function sendUserMessage ( $user_id, $plaintext_pass )
+		{
+			$user_info = get_userdata($user_id);
+			$options = get_option("register_plus_redux_options");
+			if ( $options["custom_user_message"] ) {
+				$headers = "";
+				if ( $options["send_user_message_in_html"] ) {
+					$headers .= "MIME-Version: 1.0" . "\r\n";
+					$headers .= "Content-type: text/html; charset=iso-8859-1" . "\r\n";
+				}
+				//$headers .= "From: " . $options["user_message_from_email"] . "\r\n";
+				//$headers .= "Reply-To: " . $options["user_message_from_email"] . "\r\n";
+				$message = $this->replaceKeywords($options["user_message_body"], $user_info, $plaintext_pass);
+				if ( $options["send_user_message_in_html"] && $options["user_message_newline_as_br"] )
+					$message = nl2br($message);
+				if ( $options["user_message_from_email"] )
+					add_filter("wp_mail_from", array($registerPlusRedux, "filter_user_message_from_email"));
+				if ( $options["user_message_from_name"] )
+					add_filter("wp_mail_from_name", array($registerPlusRedux, "filter_user_message_from_name"));
+				wp_mail($user_info->user_email, $options["user_message_subject"], $message, $headers);
+			}
+			if ( !$options["custom_user_message"] ) {
+				$message = sprintf(__("Username: %s", "regplus"), $user_info->user_login)."\r\n";
+				if ( !$options["user_set_password"] )
+					$message .= sprintf(__("Password: %s", "regplus"), $plaintext_pass)."\r\n";
+				$message .= "\r\n".wp_login_url()."\r\n";
+				wp_mail($user_info->user_email, sprintf(__("[%s] Your login information", "regplus"), $blogname), $message);
+			}
+		}
+		
+		function sendEmalVerificationMessage ( $user_id )
+		{
+			$user_info = get_userdata($user_id);
+			$options = get_option("register_plus_redux_options");
+			$email_verification_code = wp_generate_password(20, false);
+			update_user_meta($user_id, "email_verification_code", $wpdb->prepare($email_verification_code));
+			update_user_meta($user_id, "email_verification_sent", $wpdb->prepare(date("Ymd")));
+			$message = __("Verification URL: ", "regplus").wp_login_url()."?verification_code=".$email_verification_code."\r\n";
+			$message .= __("Please use the above link to verify your email address and activate your account", "regplus")."\r\n";
+			if ( $options["user_message_from_email"] )
+				add_filter("wp_mail_from", array($registerPlusRedux, "filter_user_message_from_email"));
+			if ( $options["user_message_from_name"] )
+				add_filter("wp_mail_from_name", array($registerPlusRedux, "filter_user_message_from_name"));
+			wp_mail($user_info->user_email, sprintf(__("[%s] Verify your account", "regplus"), $blogname), $message);
+		}
+		
+		function replaceKeywords ( $message, $user_info, $plaintext_pass = "" ) {
+			$blogname = wp_specialchars_decode(get_option("blogname"), ENT_QUOTES);
+			$message = str_replace("%blogname%", $blogname, $message);
+			$message = str_replace("%site_url%", site_url(), $message);
+			if ( $plaintext_pass ) {
+				$message = str_replace("%user_pass%", $plaintext_pass, $message);
+			}
+			if ( $_SERVER ) {
+				$message = str_replace("%registered_from_ip%", $_SERVER["REMOTE_ADDR"], $message);
+				$message = str_replace("%registered_from_host%", gethostbyaddr($_SERVER["REMOTE_ADDR"]), $message);
+				$message = str_replace("%http_referer%", $_SERVER["HTTP_REFERER"], $message);
+				$message = str_replace("%http_user_agent%", $_SERVER["HTTP_USER_AGENT"], $message);
+			}
+			$message = str_replace("%user_login%", $user_info->user_login, $message);
+			$message = str_replace("%user_email%", $user_info->user_email, $message);
+			$message = str_replace("%first_name%", get_user_meta($user_info->ID, "first_name", true), $message);
+			$message = str_replace("%last_name%", get_user_meta($user_info->ID, "last_name", true), $message);
+			$message = str_replace("%user_url%", get_user_meta($user_info->ID, "user_url", true), $message);
+			$message = str_replace("%aim%", get_user_meta($user_info->ID, "aim", true), $message);
+			$message = str_replace("%yahoo%", get_user_meta($user_info->ID, "yahoo", true), $message);
+			$message = str_replace("%jabber%", get_user_meta($user_info->ID, "jabber", true), $message);
+			$message = str_replace("%about%", get_user_meta($user_info->ID, "about", true), $message);
+			$message = str_replace("%invitation_code%", get_user_meta($user_info->ID, "invitation_code", true), $message);
+			$custom_fields = get_option("register_plus_redux_custom_fields");
+			if ( !is_array($custom_fields) ) $custom_fields = array();
+			foreach ( $custom_fields as $k => $v ) {
+				$key = $registerPlusRedux->fnSanitizeFieldName($v["custom_field_name"]);
+				if ( $v["show_on_registration"] )
+					$message = str_replace("%$key%", get_user_meta($user_info->ID, $key, true), $message);
+			}
+		}
+		
 		function VerifyUser() {
 			$options = get_option("register_plus_redux_options");
 			if ( $options["verify_user_admin"] && isset($_GET["checkemail"]) ) {
@@ -1472,56 +1546,17 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				$user_id = $wpdb->get_var("SELECT user_id FROM $wpdb->usermeta WHERE meta_key='email_verification_code' AND meta_value='$email_verification_code'");
 				if ( $user_id ) {
 					$stored_user_login = get_user_meta($user_id, "email_verification_user_login", true);
-					$wpdb->query("UPDATE $wpdb->users SET user_login = '$stored_user_login' WHERE ID = '$user_id'");
+					$wpdb->query( $wpdb->prepare("UPDATE $wpdb->users SET user_login = '$stored_user_login' WHERE ID = '$user_id'") );
 					delete_user_meta($user_id, "email_verification_code");
 					delete_user_meta($user_id, "email_verification_sent");
 					delete_user_meta($user_id, "email_verification_user_login");
 					echo "<p>", sprintf(__("Thank you %s, your account has been verified, please login.", "regplus"), $stored_user_login), "</p>";
-					if ( $options["custom_user_message"] ) {
-						$headers = "";
-						if ( $options["send_user_message_in_html"] ) {
-							$headers .= "MIME-Version: 1.0" . "\r\n";
-							$headers .= "Content-type: text/html; charset=iso-8859-1" . "\r\n";
-						}
-						//$headers .= "From: " . $options["user_message_from_email"] . "\r\n";
-						//$headers .= "Reply-To: " . $options["user_message_from_email"] . "\r\n";
-						add_filter("wp_mail_from", array($registerPlusRedux, "filter_user_message_from_email"));
-						add_filter("wp_mail_from_name", array($registerPlusRedux, "filter_user_message_from_name"));
-						$message = $options["user_message_body"];
-						$message = str_replace("%user_pass%", $plaintext_pass, $message);
-						$message = str_replace("%user_login%", $user->user_login, $message);
-						$message = str_replace("%user_email%", $user->user_email, $message);
-						$message = str_replace("%blogname%", $blogname, $message);
-						$message = str_replace("%registered_from_ip%", $_SERVER["REMOTE_ADDR"], $message);
-						$message = str_replace("%registered_from_host%", gethostbyaddr($_SERVER["REMOTE_ADDR"]), $message);
-						$message = str_replace("%http_referer%", $_SERVER["HTTP_REFERER"], $message);
-						$message = str_replace("%http_user_agent%", $_SERVER["HTTP_USER_AGENT"], $message);
-						$message = str_replace("%site_url%", site_url(), $message);
-						$message = str_replace("%first_name%", $_POST["first_name"], $message);
-						$message = str_replace("%last_name%", $_POST["last_name"], $message);
-						$message = str_replace("%user_url%", $_POST["user_url"], $message);
-						$message = str_replace("%aim%", $_POST["aim"], $message);
-						$message = str_replace("%yahoo%", $_POST["yahoo"], $message);
-						$message = str_replace("%jabber%", $_POST["jabber"], $message);
-						$message = str_replace("%about%", $_POST["about"], $message);
-						$message = str_replace("%invitation_code%", $_POST["invitation_code"], $message);
-						if ( !is_array($custom_fields) ) $custom_fields = array();
-						foreach ( $custom_fields as $k => $v ) {
-							$key = $registerPlusRedux->fnSanitizeFieldName($v["custom_field_name"]);
-							if ( $v["show_on_registration"] )
-								$message = str_replace("%$key%", $_POST[$key], $message);
-						}
-						if ( $options["send_user_message_in_html"] && $options["user_message_newline_as_br"] )
-							$message = nl2br($message);
-						wp_mail($user->user_email, $options["user_message_subject"], $message, $headers);
+					if ( !$options["user_set_password"] ) {
+						$plaintext_pass = wp_generate_password();
+						update_user_option( $user_id, "default_password_nag", true, true );
+						wp_set_password($plaintext_pass, $user_id);
 					}
-					if ( !$options["custom_user_message"] ) {
-						$message = sprintf(__("Username: %s", "regplus"), $user->user_login)."\r\n";
-						if ( !$options["user_set_password"] )
-							$message .= sprintf(__("Password: %s", "regplus"), $plaintext_pass)."\r\n";
-						$message .= "\r\n".wp_login_url()."\r\n";
-						wp_mail($user->user_email, sprintf(__("[%s] Your login information", "regplus"), $blogname), $message);
-					}
+					$this->sendUserMessage( $user_id, $plaintext_pass );
 				}
 			}
 		}
@@ -1542,14 +1577,17 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								echo "\n		<td><input type='text' name='$key' id='$key' value='$value' class='regular-text' /></td>";
 								break;
 							case "date":
-								echo "\n		<td><input type='text' name='$key' id='$key' value='$value' class='regular-text' /></td>";
+								echo "\n		<td><input type='text' name='$key' id='$key' value='$value' /></td>";
 								break;
 							case "select":
 								echo "\n		<td>";
-								echo "\n			<select name='$key' id='$key'>";
+								echo "\n			<select name='$key' id='$key' style='width: 15em;'>";
 								$custom_field_options = explode(",", $v["custom_field_options"]);
-								foreach ( $custom_field_options as $custom_field_option )
-									echo "<option value='$custom_field_option'"; if ( $value == $custom_field_option ) echo " selected='selected'"; echo ">$custom_field_option</option>";
+								foreach ( $custom_field_options as $custom_field_option ) {
+									echo "<option value='$custom_field_option'";
+									if ( $value == $custom_field_option ) echo " selected='selected'";
+									echo " >$custom_field_option</option>";
+								}
 								echo "</select>";
 								echo "\n		</td>";
 								break;
@@ -1557,15 +1595,21 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								echo "\n		<td>";
 								$custom_field_options = explode(",", $v["custom_field_options"]);
 								$values = explode(", ", $value);
-								foreach ( $custom_field_options as $custom_field_option )
-									echo "\n			<label><input type='checkbox' name='$key", "[]' value='$custom_field_option'"; if ( in_array($custom_field_option, $values) ) echo " checked='checked'"; echo " />&nbsp;$custom_field_option</label><br />";
+								foreach ( $custom_field_options as $custom_field_option ) {
+									echo "\n			<label><input type='checkbox' name='$key", "[]' value='$custom_field_option'";
+									if ( in_array($custom_field_option, $values) ) echo " checked='checked'";
+									echo " />&nbsp;$custom_field_option</label><br />";
+								}
 								echo "\n		</td>";
 								break;
 							case "radio":
 								echo "\n		<td>";
 								$custom_field_options = explode(",", $v["custom_field_options"]);
-								foreach ( $custom_field_options as $custom_field_option )
-									echo "\n			<label><input type='radio' name='$key' value='$custom_field_option'"; if ( $value == $custom_field_option ) echo " checked='checked'"; echo ">&nbsp;$custom_field_option</label><br />";
+								foreach ( $custom_field_options as $custom_field_option ) {
+									echo "\n			<label><input type='radio' name='$key' value='$custom_field_option'";
+									if ( $value == $custom_field_option ) echo " checked='checked'";
+									echo " class='tog' >&nbsp;$custom_field_option</label><br />";
+								}
 								echo "\n		</td>";
 								break;
 							case "textarea":
@@ -1654,10 +1698,6 @@ if ( function_exists("wp_new_user_notification") )
 if ( !function_exists("wp_new_user_notification") ) {
 	function wp_new_user_notification($user_id, $plaintext_pass = "") {
 		global $wpdb, $registerPlusRedux;
-		$user = new WP_User($user_id);
-		$blogname = wp_specialchars_decode(get_option("blogname"), ENT_QUOTES);
-		$ref = explode("?", $_SERVER["HTTP_REFERER"]);
-
 		$options = get_option("register_plus_redux_options");
 		if ( in_array("first_name", $options["show_fields"]) && $_POST["first_name"] ) update_user_meta($user_id, "first_name", $wpdb->prepare($_POST["first_name"]));
 		if ( in_array("last_name", $options["show_fields"]) && $_POST["last_name"] ) update_user_meta($user_id, "last_name", $wpdb->prepare($_POST["last_name"]));
@@ -1690,24 +1730,22 @@ if ( !function_exists("wp_new_user_notification") ) {
 			wp_set_password($plaintext_pass, $user_id);
 		}
 		if ( $options["enable_invitation_code"] && $_POST["invitation_code"] ) update_user_meta($user_id, "invitation_code", $wpdb->prepare($_POST["invitation_code"]));
-
+		$user_info = get_userdata($user_id);
+		$ref = explode("?", $_SERVER["HTTP_REFERER"]);
 		if ( $ref[0] != site_url("wp-admin/unverified-users.php") && $options["verify_user_admin"] ) {
-			update_user_meta($user_id, "admin_verification_user_login", $wpdb->prepare($user->user_login));
-			$stored_user_login = $user->user_login;
+			update_user_meta($user_id, "admin_verification_user_login", $wpdb->prepare($user_info->user_login));
+			$stored_user_login = $user_info->user_login;
 			$temp_user_login = $wpdb->prepare("unverified_".wp_generate_password(7, false));
 			$wpdb->query("UPDATE $wpdb->users SET user_login = '$temp_user_login' WHERE ID = '$user_id'");
 		}
 
 		if ( $ref[0] != site_url("wp-admin/unverified-users.php") && $options["verify_user_email"] ) {
-			$email_verification_code = wp_generate_password(20, false);
-			update_user_meta($user_id, "email_verification_code", $wpdb->prepare($email_verification_code));
-			update_user_meta($user_id, "email_verification_sent", $wpdb->prepare(date("Ymd")));
-			update_user_meta($user_id, "email_verification_user_login", $wpdb->prepare($user->user_login));
-			$stored_user_login = $user->user_login;
+			update_user_meta($user_id, "email_verification_user_login", $wpdb->prepare($user_info->user_login));
+			$stored_user_login = $user_info->user_login;
 			$temp_user_login = $wpdb->prepare("unverified_".wp_generate_password(7, false));
 			$wpdb->query("UPDATE $wpdb->users SET user_login = '$temp_user_login' WHERE ID = '$user_id'");
+			$registerPlusRedux->sendEmalVerificationMessage( $user_id );
 		}
-
 		if ( $options["custom_admin_message"] && !$options["disable_admin_message"] ) {
 			if ( $options["send_admin_message_in_html"] ) {
 				$headers = "MIME-Version: 1.0\r\n";
@@ -1717,87 +1755,21 @@ if ( !function_exists("wp_new_user_notification") ) {
 			//$headers .= "Reply-To: " . $options["admin_message_from_email"] . "\r\n";
 			add_filter("wp_mail_from", array($registerPlusRedux, "filter_admin_message_from_email"));
 			add_filter("wp_mail_from_name", array($registerPlusRedux, "filter_admin_message_from_name"));
-			$message = $options["admin_message_body"];
-			$message = str_replace("%user_login%", $user->user_login, $message);
-			$message = str_replace("%user_email%", $user->user_email, $message);
-			$message = str_replace("%blogname%", $blogname, $message);
-			$message = str_replace("%registered_from_ip%", $_SERVER["REMOTE_ADDR"], $message);
-			$message = str_replace("%registered_from_host%", gethostbyaddr($_SERVER["REMOTE_ADDR"]), $message);
-			$message = str_replace("%http_referer%", $_SERVER["HTTP_REFERER"], $message);
-			$message = str_replace("%http_user_agent%", $_SERVER["HTTP_USER_AGENT"], $message);
-			$message = str_replace("%site_url%", site_url(), $message);
-			$message = str_replace("%first_name%", $_POST["first_name"], $message);
-			$message = str_replace("%last_name%", $_POST["last_name"], $message);
-			$message = str_replace("%user_url%", $_POST["user_url"], $message);
-			$message = str_replace("%aim%", $_POST["aim"], $message);
-			$message = str_replace("%yahoo%", $_POST["yahoo"], $message);
-			$message = str_replace("%jabber%", $_POST["jabber"], $message);
-			$message = str_replace("%about%", $_POST["about"], $message);
-			$message = str_replace("%invitation_code%", $_POST["invitation_code"], $message);
-			if ( !is_array($custom_fields) ) $custom_fields = array();
-			foreach ( $custom_fields as $k => $v ) {
-				$key = $registerPlusRedux->fnSanitizeFieldName($v["custom_field_name"]);
-				$message = str_replace("%$key%", $_POST[$key], $message);
-			}
+			$message = $registerPlusRedux->replaceKeywords($options["admin_message_body"], $user_info);
 			if ( $options["send_admin_message_in_html"] && $options["admin_message_newline_as_br"] )
 				$message = nl2br($message);
 			@wp_mail(get_option("admin_message"), $options["admin_message_subject"], $message, $headers);
 		}
 		if ( !$options["custom_admin_message"] && !$options["disable_admin_message"]) {
 			//Wordpress 3.0.1 default admin message
+			$blogname = wp_specialchars_decode(get_option("blogname"), ENT_QUOTES);
 			$message = sprintf(__("New user registered on your site %s:", "regplus"), $blogname) . "\r\n\r\n";
-			$message .= sprintf(__("Username: %s", "regplus"), $user->user_login) . "\r\n\r\n";
-			$message .= sprintf(__("E-mail: %s", "regplus"), $user->user_email) . "\r\n";
+			$message .= sprintf(__("Username: %s", "regplus"), $user_info->user_login) . "\r\n\r\n";
+			$message .= sprintf(__("E-mail: %s", "regplus"), $user_info->user_email) . "\r\n";
 			@wp_mail(get_option("admin_email"), sprintf(__("[%s] New User Registration"), $blogname), $message);
 		}
-		if ( $options["custom_user_message"] && !$options["verify_user_email"] && !$options["verify_user_admin"] ) {
-			$headers = "";
-			if ( $options["send_user_message_in_html"] ) {
-				$headers .= "MIME-Version: 1.0\r\n";
-				$headers .= "Content-type: text/html; charset=iso-8859-1\r\n";
-			}
-			//$headers .= "From: " . $options["user_message_from_email"] . "\r\n";
-			//$headers .= "Reply-To: " . $options["user_message_from_email"] . "\r\n";
-			add_filter("wp_mail_from", array($registerPlusRedux, "filter_user_message_from_email"));
-			add_filter("wp_mail_from_name", array($registerPlusRedux, "filter_user_message_from_name"));
-			$message = $options["user_message_body"];
-			$message = str_replace("%user_pass%", $plaintext_pass, $message);
-			$message = str_replace("%user_login%", $user->user_login, $message);
-			$message = str_replace("%user_email%", $user->user_email, $message);
-			$message = str_replace("%blogname%", $blogname, $message);
-			$message = str_replace("%registered_from_ip%", $_SERVER["REMOTE_ADDR"], $message);
-			$message = str_replace("%registered_from_host%", gethostbyaddr($_SERVER["REMOTE_ADDR"]), $message);
-			$message = str_replace("%http_referer%", $_SERVER["HTTP_REFERER"], $message);
-			$message = str_replace("%http_user_agent%", $_SERVER["HTTP_USER_AGENT"], $message);
-			$message = str_replace("%site_url%", site_url(), $message);
-			$message = str_replace("%first_name%", $_POST["first_name"], $message);
-			$message = str_replace("%last_name%", $_POST["last_name"], $message);
-			$message = str_replace("%user_url%", $_POST["user_url"], $message);
-			$message = str_replace("%aim%", $_POST["aim"], $message);
-			$message = str_replace("%yahoo%", $_POST["yahoo"], $message);
-			$message = str_replace("%jabber%", $_POST["jabber"], $message);
-			$message = str_replace("%about%", $_POST["about"], $message);
-			$message = str_replace("%invitation_code%", $_POST["invitation_code"], $message);
-			if ( !is_array($custom_fields) ) $custom_fields = array();
-			foreach ( $custom_fields as $k => $v ) {
-				$key = $registerPlusRedux->fnSanitizeFieldName($v["custom_field_name"]);
-				$message = str_replace("%$key%", $_POST[$key], $message);
-			}
-			if ( $options["send_user_message_in_html"] && $options["user_message_newline_as_br"] )
-				$message = nl2br($message);
-			wp_mail($user->user_email, $options["user_message_subject"], $message, $headers);
-		}
-		if ( !$options["custom_user_message"] && !$options["verify_user_email"] && !$options["verify_user_admin"] ) {
-			$message = sprintf(__("Username: %s", "regplus"), $user->user_login)."\r\n";
-			if ( !$options["user_set_password"] )
-				$message .= sprintf(__("Password: %s", "regplus"), $plaintext_pass)."\r\n";
-			$message .= "\r\n".wp_login_url()."\r\n";
-			wp_mail($user->user_email, sprintf(__("[%s] Your login information", "regplus"), $blogname), $message);
-		}
-		if ( $options["verify_user_email"] ) {
-			$message = __("Verification URL: ", "regplus").wp_login_url()."?verification_code=".$email_verification_code."\r\n";
-			$message .= __("Please use the above link to verify your email address and activate your account", "regplus")."\r\n";
-			wp_mail($user->user_email, sprintf(__("[%s] Verify your account", "regplus"), $blogname), $message);
+		if ( !$options["verify_user_email"] && !$options["verify_user_admin"] ) {
+			$registerPlusRedux->sendUserMessage ($user_id, $plaintext_pass);
 		}
 	}
 }

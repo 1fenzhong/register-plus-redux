@@ -90,6 +90,7 @@ TODO: jQuery summarize user message status
 September 29, 2010 by radiok
 
 * Reduced CSS written to wp-login header
+* Rewrote all CSS written to wp-login header, completely theme-able now
 * Fixed bug with checkbox type not be available for custom fields
 * Fixed bug with select type custom fields, was using already in use variable name, as reported by shrikantjoshi
 
