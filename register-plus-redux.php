@@ -138,6 +138,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( $unverified_users ) {
 				$options = get_option("register_plus_redux_options");
 				$expirationdate = date("Ymd", strtotime("-".$options["delete_unverified_users_after"]." days"));
+				require_once(ABSPATH.'/wp-admin/includes/user.php');
 				foreach ( $unverified_users as $unverified_user ) {
 					if ( $unverified_user->meta_value < $expirationdate ) {
 						wp_delete_user($unverified_user->user_id);
@@ -970,7 +971,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			check_admin_referer("register-plus-redux-unverified-users");
 			if ( is_array($_POST["selected_users"]) ) {
 				foreach ( $_POST["selected_users"] as $user_id )
-					$this->sendEmalVerificationMessage($user_id);
+					$this->sendEmailVerificationMessage($user_id);
 				$_POST["notice"] = __("Verification Emails have been re-sent", "regplus");
 			} else {
 				$_POST["notice"] = __("<strong>Error:</strong> No users selected.", "regplus");
@@ -980,6 +981,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		function AdminDeleteUnvalidated() {
 			check_admin_referer("register-plus-redux-unverified-users");
 			if ( is_array($_POST["selected_users"]) ) {
+				require_once(ABSPATH.'/wp-admin/includes/user.php');
 				foreach ( $_POST["selected_users"] as $user_id ) {
 					if ( $user_id ) wp_delete_user($user_id);
 				}
@@ -1471,9 +1473,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( $options["send_user_message_in_html"] && $options["user_message_newline_as_br"] )
 					$message = nl2br($message);
 				if ( $options["user_message_from_email"] )
-					add_filter("wp_mail_from", array($registerPlusRedux, "filter_user_message_from_email"));
+					add_filter("wp_mail_from", array($this, "filter_user_message_from_email"));
 				if ( $options["user_message_from_name"] )
-					add_filter("wp_mail_from_name", array($registerPlusRedux, "filter_user_message_from_name"));
+					add_filter("wp_mail_from_name", array($this, "filter_user_message_from_name"));
 				wp_mail($user_info->user_email, $options["user_message_subject"], $message, $headers);
 			}
 			if ( !$options["custom_user_message"] ) {
@@ -1485,7 +1487,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 		}
 		
-		function sendEmalVerificationMessage ( $user_id )
+		function sendEmailVerificationMessage ( $user_id )
 		{
 			global $wpdb;
 			$user_info = get_userdata($user_id);
@@ -1496,9 +1498,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$message = __("Verification URL: ", "regplus").wp_login_url()."?verification_code=".$email_verification_code."\r\n";
 			$message .= __("Please use the above link to verify your email address and activate your account", "regplus")."\r\n";
 			if ( $options["user_message_from_email"] )
-				add_filter("wp_mail_from", array($registerPlusRedux, "filter_user_message_from_email"));
+				add_filter("wp_mail_from", array($this, "filter_user_message_from_email"));
 			if ( $options["user_message_from_name"] )
-				add_filter("wp_mail_from_name", array($registerPlusRedux, "filter_user_message_from_name"));
+				add_filter("wp_mail_from_name", array($this, "filter_user_message_from_name"));
 			wp_mail($user_info->user_email, sprintf(__("[%s] Verify your account", "regplus"), $blogname), $message);
 		}
 		
@@ -1745,7 +1747,7 @@ if ( !function_exists("wp_new_user_notification") ) {
 			$stored_user_login = $user_info->user_login;
 			$temp_user_login = $wpdb->prepare("unverified_".wp_generate_password(7, false));
 			$wpdb->query("UPDATE $wpdb->users SET user_login = '$temp_user_login' WHERE ID = '$user_id'");
-			$registerPlusRedux->sendEmalVerificationMessage( $user_id );
+			$registerPlusRedux->sendEmailVerificationMessage($user_id);
 		}
 		if ( $options["custom_admin_message"] && !$options["disable_admin_message"] ) {
 			if ( $options["send_admin_message_in_html"] ) {
