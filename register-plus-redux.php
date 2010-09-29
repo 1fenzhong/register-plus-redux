@@ -523,7 +523,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									<tr>
 										<td colspan="2" style="padding-top: 0px; padding-bottom: 0px;" >
 											<label for"message_disclaimer"><?php _e("Disclaimer Content", "regplus"); ?></label><br />
-											<textarea name="message_disclaimer" cols="25" rows="10" style="width:80%; height:300px; display:block;"><?php echo stripslashes($options["message_disclaimer"]); ?></textarea>
+											<textarea name="message_disclaimer" cols="25" rows="10" style="width:80%; height:300px; display:block;"><?php echo $options["message_disclaimer"]; ?></textarea>
 										</td>
 									</tr>
 									<tr>
@@ -555,7 +555,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									<tr>
 										<td colspan="2" style="padding-top: 0px; padding-bottom: 0px;" >
 											<label for"message_license"><?php _e("License Agreement Content", "regplus"); ?></label><br />
-											<textarea name="message_license" cols="25" rows="10" style="width:80%; height:300px; display:block;"><?php echo stripslashes($options["message_license"]); ?></textarea>
+											<textarea name="message_license" cols="25" rows="10" style="width:80%; height:300px; display:block;"><?php echo $options["message_license"]; ?></textarea>
 										</td>
 									</tr>
 									<tr>
@@ -587,7 +587,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									<tr>
 										<td colspan="2" style="padding-top: 0px; padding-bottom: 0px;" >
 											<label for"message_privacy_policy"><?php _e("Privacy Policy Content", "regplus"); ?></label><br />
-											<textarea name="message_privacy_policy" cols="25" rows="10" style="width:80%; height:300px; display:block;"><?php echo stripslashes($options["message_privacy_policy"]); ?></textarea>
+											<textarea name="message_privacy_policy" cols="25" rows="10" style="width:80%; height:300px; display:block;"><?php echo $options["message_privacy_policy"]; ?></textarea>
 										</td>
 									</tr>
 									<tr>
@@ -1344,24 +1344,24 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 			if ( $options["show_disclaimer"] ) {
 				echo "\n<p>";
-				echo "\n	<label>", stripslashes($options["message_disclaimer_title"]), "<br />";
-				echo "\n	<span id='disclaimer'>", stripslashes($options["message_disclaimer"]), "</span>";
+				echo "\n	<label>", $options["message_disclaimer_title"], "<br />";
+				echo "\n	<span id='disclaimer'>", $options["message_disclaimer"], "</span>";
 				echo "\n	<input type='checkbox' name='accept_disclaimer' value='1'"; if ( $_POST["accept_disclaimer"] ) echo " checked='checked'"; echo " tabindex='$tabindex'/>", $options["message_disclaimer_agree"], "</label>";
 				$tabindex++;
 				echo "\n</p>";
 			}
 			if ( $options["show_license"] ) {
 				echo "\n<p>";
-				echo "\n	<label>", stripslashes($options["message_license_title"]), "<br />";
-				echo "\n	<span id='license'>", stripslashes($options["message_license"]), "</span>";
+				echo "\n	<label>", $options["message_license_title"], "<br />";
+				echo "\n	<span id='license'>", $options["message_license"], "</span>";
 				echo "\n	<input type='checkbox' name='accept_license_agreement' value='1'"; if ( $_POST["accept_license_agreement"] ) echo " checked='checked'"; echo " tabindex='$tabindex'/>", $options["message_license_agree"], "</label>";
 				$tabindex++;
 				echo "\n</p>";
 			}
 			if ( $options["show_privacy_policy"] ) {
 				echo "\n<p>";
-				echo "\n	<label>", stripslashes($options["message_privacy_policy_title"]), "<br />";
-				echo "\n	<span id='privacy_policy'>", stripslashes($options["message_privacy_policy"]), "</span>";
+				echo "\n	<label>", $options["message_privacy_policy_title"], "<br />";
+				echo "\n	<span id='privacy_policy'>", $options["message_privacy_policy"], "</span>";
 				echo "\n	<input type='checkbox' name='accept_privacy_policy' value='1'"; if ( $_POST["accept_privacy_policy"] ) echo " checked='checked'"; echo " tabindex='$tabindex'/>", $options["message_privacy_policy_agree"], "</label>";
 				$tabindex++;
 				echo "\n</p>";
@@ -1435,17 +1435,17 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 			if ( $options["show_disclaimer"] ) {
 				if ( !$_POST["accept_disclaimer"] ) {
-					$errors->add("show_disclaimer", __("<strong>ERROR</strong>: Please accept the ", "regplus") . stripslashes($options["message_disclaimer_title"]) . ".");
+					$errors->add("show_disclaimer", __("<strong>ERROR</strong>: Please accept the ", "regplus") . $options["message_disclaimer_title"] . ".");
 				}
 			}
 			if ( $options["show_license"] ) {
 				if ( !$_POST["accept_license_agreement"] ) {
-					$errors->add("show_license", __("<strong>ERROR</strong>: Please accept the ", "regplus") . stripslashes($options["message_license_title"]) . ".");
+					$errors->add("show_license", __("<strong>ERROR</strong>: Please accept the ", "regplus") . $options["message_license_title"] . ".");
 				}
 			}
 			if ( $options["show_privacy_policy"] ) {
 				if ( !$_POST["accept_privacy_policy"] ) {
-					$errors->add("show_privacy_policy", __("<strong>ERROR</strong>: Please accept the ", "regplus") . stripslashes($options["message_privacy_policy_title"]) . ".");
+					$errors->add("show_privacy_policy", __("<strong>ERROR</strong>: Please accept the ", "regplus") . $options["message_privacy_policy_title"] . ".");
 				}
 			}
 		}
