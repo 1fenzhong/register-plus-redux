@@ -6,6 +6,7 @@ Author URI: http://radiok.info/
 Plugin URI: http://radiok.info/blog/category/register-plus-redux/
 Description: Fork of Register Plus
 Version: 3.6.10
+Text Domain: register-plus-redux
 */
 
 $ops = get_option("register_plus_redux_options");
