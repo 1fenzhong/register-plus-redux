@@ -174,7 +174,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			?>
 			<script type="text/javascript">
 			function addInvitationCode() {
-				jQuery('<div class="invitation_code"><input type="text" name="invitation_code_bank[]" value="" />&nbsp;<img src="<?php echo plugins_url("removeBtn.gif", __FILE__); ?>" alt="<?php echo __("Remove Code", "regplus"); ?>" title="<?php echo __("Remove Code", "regplus"); ?>" onClick="return removeInvitationCode(this);" style="cursor: pointer;" /></div>').appendTo('#invitation_code_bank');
+				jQuery('<div class="invitation_code"><input type="text" name="invitation_code_bank[]" value="" />&nbsp;<img src="<?php echo plugins_url("removeBtn.gif", __FILE__); ?>" alt="<?php _e("Remove Code", "regplus"); ?>" title="<?php _e("Remove Code", "regplus"); ?>" onClick="return removeInvitationCode(this);" style="cursor: pointer;" /></div>').appendTo('#invitation_code_bank');
 			}
 
 			function removeInvitationCode(clickety) {
@@ -245,8 +245,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							.attr('style', 'padding-top: 0px; padding-bottom: 0px;')
 							.append(jQuery('<img>')
 								.attr('src', '<?php echo plugins_url("removeBtn.gif", __FILE__); ?>')
-								.attr('alt', '<?php echo __("Remove Field", "regplus"); ?>')
-								.attr('title', '<?php echo __("Remove Field", "regplus"); ?>')
+								.attr('alt', '<?php _e("Remove Field", "regplus"); ?>')
+								.attr('title', '<?php _e("Remove Field", "regplus"); ?>')
 								.attr('onClick', 'return removeCustomField(this);')
 								.attr('style', 'cursor: pointer;')
 							)
@@ -437,7 +437,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									$invitation_codes = $options["invitation_code_bank"];
 									if ( !is_array($options["invitation_code_bank"]) ) $options["invitation_code_bank"] = array();
 									foreach ($options["invitation_code_bank"] as $invitation_code )
-										echo "\n<div class='invitation_code'><input type='text' name='invitation_code_bank[]' value='$invitation_code' />&nbsp;<img src='", plugins_url("removeBtn.gif", __FILE__), "' alt='", __("Remove Code", "regplus"), "' title='", __("Remove Code", "regplus"), "' onClick='return removeInvitationCode(this);' style='cursor: pointer;' /></div>";
+										echo "\n<div class='invitation_code'><input type='text' name='invitation_code_bank[]' value='$invitation_code' />&nbsp;<img src='", plugins_url("removeBtn.gif", __FILE__), "' alt='", _e("Remove Code", "regplus"), "' title='", _e("Remove Code", "regplus"), "' onClick='return removeInvitationCode(this);' style='cursor: pointer;' /></div>";
 								?>
 								</div>
 								<img src="<?php echo plugins_url("addBtn.gif", __FILE__); ?>" alt="<?php _e("Add Code", "regplus") ?>" title="<?php _e("Add Code", "regplus") ?>" onClick="return addInvitationCode();" style="cursor: pointer;" />&nbsp;<?php _e("Add a new invitation code", "regplus") ?><br />
@@ -643,7 +643,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_profile[$k]' value='1'"; if ( $v["show_on_profile"] ) echo " checked='checked'"; echo " /></td>";
 										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_registration[$k]' value='1'"; if ( $v["show_on_registration"] ) echo " checked='checked'"; echo " /></td>";
 										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='required_on_registration[$k]' value='1'"; if ( $v["required_on_registration"] ) echo " checked='checked'"; echo " /></td>";
-										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><img src='", plugins_url("removeBtn.gif", __FILE__), "' alt='", __("Remove Field", "regplus"), "' title='", __("Remove Field", "regplus"), "' onClick='return removeCustomField(this);' style='cursor: pointer;' /></td>";
+										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><img src='", plugins_url("removeBtn.gif", __FILE__), "' alt='", _e("Remove Field", "regplus"), "' title='", _e("Remove Field", "regplus"), "' onClick='return removeCustomField(this);' style='cursor: pointer;' /></td>";
 										echo "\n</tr>";
 									}
 									?>
@@ -1114,12 +1114,12 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					<link href="<?php echo plugins_url("datepicker/datePicker.css", __FILE__); ?>" rel="stylesheet" type="text/css" />
 					<script type="text/javascript">
 					jQuery.dpText = {
-						TEXT_PREV_YEAR	:	'<?php _e("Previous year", "regplus"); ?>',
-						TEXT_PREV_MONTH	:	'<?php _e("Previous month", "regplus"); ?>',
-						TEXT_NEXT_YEAR	:	'<?php _e("Next year", "regplus"); ?>',
-						TEXT_NEXT_MONTH	:	'<?php _e("Next Month", "regplus"); ?>',
-						TEXT_CLOSE	:	'<?php _e("Close", "regplus"); ?>',
-						TEXT_CHOOSE_DATE:	'<?php _e("Choose Date", "regplus"); ?>'
+						TEXT_PREV_YEAR	: '<?php _e("Previous year", "regplus"); ?>',
+						TEXT_PREV_MONTH	: '<?php _e("Previous month", "regplus"); ?>',
+						TEXT_NEXT_YEAR	: '<?php _e("Next year", "regplus"); ?>',
+						TEXT_NEXT_MONTH	: '<?php _e("Next Month", "regplus"); ?>',
+						TEXT_CLOSE	: '<?php _e("Close", "regplus"); ?>',
+						TEXT_CHOOSE_DATE: '<?php _e("Choose Date", "regplus"); ?>'
 					}
 					Date.dayNames = ['<?php _e("Monday", "regplus"); ?>', '<?php _e("Tuesday", "regplus"); ?>', '<?php _e("Wednesday", "regplus"); ?>', '<?php _e("Thursday", "regplus"); ?>', '<?php _e("Friday", "regplus"); ?>', '<?php _e("Saturday", "regplus"); ?>', '<?php _e("Sunday", "regplus"); ?>'];
 					Date.abbrDayNames = ['<?php _e("Mon", "regplus"); ?>', '<?php _e("Tue", "regplus"); ?>', '<?php _e("Wed", "regplus"); ?>", '<?php _e("Thu", "regplus"); ?>', '<?php _e("Fri", "regplus"); ?>', '<?php _e("Sat", "regplus"); ?>', '<?php _e("Sun", "regplus"); ?>'];
@@ -1225,38 +1225,38 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$tabindex = 21;
 			if ( in_array("first_name", $options["show_fields"]) ) {
 				if ( isset($_GET["first_name"]) ) $_POST["first_name"] = $_GET["first_name"];
-				echo "\n<p><label>", _e("First Name", "regplus"), "<br /><input type='text' name='first_name' id='first_name' class='input' value='", $_POST["first_name"],"' size='25' tabindex='$tabindex' /></label></p>";
+				echo "\n<p><label>", __("First Name", "regplus"), "<br /><input type='text' name='first_name' id='first_name' class='input' value='", $_POST["first_name"],"' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
 			}
 			if ( in_array("last_name", $options["show_fields"]) ) {
 				if ( isset($_GET["last_name"]) ) $_POST["last_name"] = $_GET["last_name"];
-				echo "\n<p><label>", _e("Last Name", "regplus"), "<br /><input type='text' name='last_name' id='last_name' class='input' value='", $_POST["last_name"], "' size='25' tabindex='$tabindex' /></label></p>";
+				echo "\n<p><label>", __("Last Name", "regplus"), "<br /><input type='text' name='last_name' id='last_name' class='input' value='", $_POST["last_name"], "' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
 			}
 			if ( in_array("user_url", $options["show_fields"]) ) {
 				if ( isset($_GET["user_url"]) ) $_POST["user_url"] = $_GET["user_url"];
-				echo "\n<p><label>", _e("Website", "regplus"), "<br /><input type='text' name='user_url' id='user_url' class='input' value='", $_POST["user_url"], "' size='25' tabindex='$tabindex' /></label></p>";
+				echo "\n<p><label>", __("Website", "regplus"), "<br /><input type='text' name='user_url' id='user_url' class='input' value='", $_POST["user_url"], "' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
 			}
 			if ( in_array("aim", $options["show_fields"]) ) {
 				if ( isset($_GET["aim"]) ) $_POST["aim"] = $_GET["aim"];
-				echo "\n<p><label>", _e("AIM", "regplus"), "<br /><input type='text' name='aim' id='aim' class='input' value='", $_POST["aim"], "' size='25' tabindex='$tabindex' /></label></p>";
+				echo "\n<p><label>", __("AIM", "regplus"), "<br /><input type='text' name='aim' id='aim' class='input' value='", $_POST["aim"], "' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
 			}
 			if ( in_array("yahoo", $options["show_fields"]) ) {
 				if ( isset($_GET["yahoo"]) ) $_POST["yahoo"] = $_GET["yahoo"];
-				echo "\n<p><label>", _e("Yahoo IM", "regplus"), "<br /><input type='text' name='yahoo' id='yahoo' class='input' value='", $_POST["yahoo"], "' size='25' tabindex='$tabindex' /></label></p>";
+				echo "\n<p><label>", __("Yahoo IM", "regplus"), "<br /><input type='text' name='yahoo' id='yahoo' class='input' value='", $_POST["yahoo"], "' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
 			}
 			if ( in_array("jabber", $options["show_fields"]) ) {
 				if ( isset($_GET["jabber"]) ) $_POST["jabber"] = $_GET["jabber"];
-				echo "\n<p><label>", _e("Jabber / Google Talk", "regplus"), "<br /><input type='text' name='jabber' id='jabber' class='input' value='", $_POST["jabber"], "' size='25' tabindex='$tabindex' /></label></p>";
+				echo "\n<p><label>", __("Jabber / Google Talk", "regplus"), "<br /><input type='text' name='jabber' id='jabber' class='input' value='", $_POST["jabber"], "' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
 			}
 			if ( in_array("about", $options["show_fields"]) ) {
 				if ( isset($_GET["about"]) ) $_POST["about"] = $_GET["about"];
-				echo "\n<p><label for='about'>", _e("About Yourself", "regplus"), "</label><br />";
-				echo "\n<small>", _e("Share a little biographical information to fill out your profile. This may be shown publicly.", "regplus"), "</small><br />";
+				echo "\n<p><label for='about'>", __("About Yourself", "regplus"), "</label><br />";
+				echo "\n<small>", __("Share a little biographical information to fill out your profile. This may be shown publicly.", "regplus"), "</small><br />";
 				echo "\n<textarea name='about' id='about' cols='25' rows='5' tabindex='$tabindex'>", stripslashes($_POST["about"]), "</textarea></p>";
 				$tabindex++;
 			}
@@ -1322,23 +1322,23 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				}
 			}
 			if ( $options["user_set_password"] ) {
-				echo "\n<p><label>", _e("Password", "regplus"), "<br /><input type='password' autocomplete='off' name='pass1' id='pass1' value='", $_POST["password"], "' size='25' tabindex='$tabindex' /></label></p>";
+				echo "\n<p><label>", __("Password", "regplus"), "<br /><input type='password' autocomplete='off' name='pass1' id='pass1' value='", $_POST["password"], "' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
-				echo "\n<p><label>", _e("Confirm Password", "regplus"), "<br /><input type='password' autocomplete='off' name='pass2' id='pass2' value='", $_POST["password"], "' size='25' tabindex='$tabindex' /></label></p>";
+				echo "\n<p><label>", __("Confirm Password", "regplus"), "<br /><input type='password' autocomplete='off' name='pass2' id='pass2' value='", $_POST["password"], "' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
 				if ( $options["show_password_meter"]) {
 					echo "\n<div id='pass-strength-result'>", $options["message_empty_password"], "</div>";
-					echo "\n<small>", _e("Your password must be at least seven characters long. To make your password stronger, use upper and lower case letters, numbers, and the following symbols !@#$%^&amp;*()", "regplus"), "</small>";
+					echo "\n<small>", __("Your password must be at least seven characters long. To make your password stronger, use upper and lower case letters, numbers, and the following symbols !@#$%^&amp;*()", "regplus"), "</small>";
 				}
 			}
 			if ( $options["enable_invitation_code"] ) {
 				if ( isset($_GET["invitation_code"]) ) $_POST["invitation_code"] = $_GET["invitation_code"];
-				echo "<p><label>", _e("Invitation Code", "regplus"), "<br /><input type='text' name='invitation_code' id='invitation_code' class='input' value='", $_POST["invitation_code"], "' size='25' tabindex='$tabindex' /></label></p>";
+				echo "<p><label>", __("Invitation Code", "regplus"), "<br /><input type='text' name='invitation_code' id='invitation_code' class='input' value='", $_POST["invitation_code"], "' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
 				if ($options["require_invitation_code"])
-					echo "\n<small>", _e("This website is currently closed to public registrations. You will need an invitation code to register.", "regplus"), "</small>";
+					echo "\n<small>", __("This website is currently closed to public registrations. You will need an invitation code to register.", "regplus"), "</small>";
 				else
-					echo "\n<small>", _e("Have an invitation code? Enter it here. (This is not required)", "regplus"), "</small>";
+					echo "\n<small>", __("Have an invitation code? Enter it here. (This is not required)", "regplus"), "</small>";
 			}
 			if ( $options["show_disclaimer"] ) {
 				echo "\n<p>";
@@ -1409,7 +1409,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( $v["show_on_registration"] && $v["required_on_registration"] ) {
 					$key = $this->fnSanitizeFieldName($v["custom_field_name"]);
 					if ( empty($_POST[$key]) || $_POST[$key] == "" ) {
-						$errors->add("empty_$key", __("<strong>ERROR</strong>: Please complete ".$v["custom_field_name"].".", "regplus"));
+						$errors->add("empty_$key", sprintf(__("<strong>ERROR</strong>: Please complete %s.", "regplus"), $v["custom_field_name"]));
 					}
 				}
 			}
@@ -1433,17 +1433,17 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 			if ( $options["show_disclaimer"] ) {
 				if ( !$_POST["accept_disclaimer"] ) {
-					$errors->add("show_disclaimer", __("<strong>ERROR</strong>: Please accept the ", "regplus") . $options["message_disclaimer_title"] . ".");
+					$errors->add("show_disclaimer", sprintf(__("<strong>ERROR</strong>: Please accept the %s", "regplus"), $options["message_disclaimer_title"]) . ".");
 				}
 			}
 			if ( $options["show_license"] ) {
 				if ( !$_POST["accept_license_agreement"] ) {
-					$errors->add("show_license", __("<strong>ERROR</strong>: Please accept the ", "regplus") . $options["message_license_title"] . ".");
+					$errors->add("show_license", sprintf(__("<strong>ERROR</strong>: Please accept the %s", "regplus"), $options["message_license_title"]) . ".");
 				}
 			}
 			if ( $options["show_privacy_policy"] ) {
 				if ( !$_POST["accept_privacy_policy"] ) {
-					$errors->add("show_privacy_policy", __("<strong>ERROR</strong>: Please accept the ", "regplus") . $options["message_privacy_policy_title"] . ".");
+					$errors->add("show_privacy_policy", sprintf(__("<strong>ERROR</strong>: Please accept the %s", "regplus"), $options["message_privacy_policy_title"]) . ".");
 				}
 			}
 		}
