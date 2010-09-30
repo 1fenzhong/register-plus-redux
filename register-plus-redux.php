@@ -437,7 +437,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									$invitation_codes = $options["invitation_code_bank"];
 									if ( !is_array($options["invitation_code_bank"]) ) $options["invitation_code_bank"] = array();
 									foreach ($options["invitation_code_bank"] as $invitation_code )
-										echo "\n<div class='invitation_code'><input type='text' name='invitation_code_bank[]' value='$invitation_code' />&nbsp;<img src='", plugins_url("removeBtn.gif", __FILE__), "' alt='", _e("Remove Code", "regplus"), "' title='", _e("Remove Code", "regplus"), "' onClick='return removeInvitationCode(this);' style='cursor: pointer;' /></div>";
+										echo "\n<div class='invitation_code'><input type='text' name='invitation_code_bank[]' value='$invitation_code' />&nbsp;<img src='", plugins_url("removeBtn.gif", __FILE__), "' alt='", __("Remove Code", "regplus"), "' title='", __("Remove Code", "regplus"), "' onClick='return removeInvitationCode(this);' style='cursor: pointer;' /></div>";
 								?>
 								</div>
 								<img src="<?php echo plugins_url("addBtn.gif", __FILE__); ?>" alt="<?php _e("Add Code", "regplus") ?>" title="<?php _e("Add Code", "regplus") ?>" onClick="return addInvitationCode();" style="cursor: pointer;" />&nbsp;<?php _e("Add a new invitation code", "regplus") ?><br />
@@ -643,7 +643,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_profile[$k]' value='1'"; if ( $v["show_on_profile"] ) echo " checked='checked'"; echo " /></td>";
 										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_registration[$k]' value='1'"; if ( $v["show_on_registration"] ) echo " checked='checked'"; echo " /></td>";
 										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='required_on_registration[$k]' value='1'"; if ( $v["required_on_registration"] ) echo " checked='checked'"; echo " /></td>";
-										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><img src='", plugins_url("removeBtn.gif", __FILE__), "' alt='", _e("Remove Field", "regplus"), "' title='", _e("Remove Field", "regplus"), "' onClick='return removeCustomField(this);' style='cursor: pointer;' /></td>";
+										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><img src='", plugins_url("removeBtn.gif", __FILE__), "' alt='", __("Remove Field", "regplus"), "' title='", __("Remove Field", "regplus"), "' onClick='return removeCustomField(this);' style='cursor: pointer;' /></td>";
 										echo "\n</tr>";
 									}
 									?>
