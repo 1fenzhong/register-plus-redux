@@ -98,8 +98,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				"custom_user_message" => "0",
 				"user_message_from_email" => get_option("admin_email"),
 				"user_message_from_name" => get_option("blogname"),
-				"user_message_subject" => sprintf(__("[%s] Your username and password", "regplus"), get_option("blogname")),
-				"user_message_body" => "Username: %user_login%\r\nPassword: %user_password%\r\n\r\n%site_url%\r\n",
+				"user_message_subject" => "[".get_option("blogname")."] ".__("Your login information", "regplus"),
+				"user_message_body" => "Username: %user_login%\nPassword: %user_password%\n\n%site_url%\n",
 				"send_user_message_in_html" => "0",
 				"user_message_newline_as_br" => "0",
 				"user_message_login_link" => wp_login_url(),
@@ -108,8 +108,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				"custom_admin_message" => "0",
 				"admin_message_from_email" => get_option("admin_email"),
 				"admin_message_from_name" => get_option("blogname"),
-				"admin_message_subject" => sprintf(__("[%s] New User Register", "regplus"), get_option("blogname")),
-				"admin_message_body" => "New user registered on your site %blogname%\r\n\r\nUsername: %user_login%\r\n\r\nE-mail: %user_email%\r\n",
+				"admin_message_subject" => "[".get_option("blogname")."] ".__("New User Registered", "regplus"),
+				"admin_message_body" => "New user registered on your site %blogname%\n\nUsername: %user_login%\nE-mail: %user_email%\n",
 				"send_admin_message_in_html" => "0",
 				"admin_message_newline_as_br" => "0",
 
@@ -1465,11 +1465,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( $options["custom_user_message"] ) {
 				$headers = "";
 				if ( $options["send_user_message_in_html"] ) {
-					$headers .= "MIME-Version: 1.0" . "\r\n";
-					$headers .= "Content-type: text/html; charset=iso-8859-1" . "\r\n";
+					$headers .= "MIME-Version: 1.0\n";
+					$headers .= "Content-type: text/html; charset=iso-8859-1\n";
 				}
-				//$headers .= "From: " . $options["user_message_from_email"] . "\r\n";
-				//$headers .= "Reply-To: " . $options["user_message_from_email"] . "\r\n";
+				//$headers .= "From: " . $options["user_message_from_email"] . "\n";
+				//$headers .= "Reply-To: " . $options["user_message_from_email"] . "\n";
 				$message = $this->replaceKeywords($options["user_message_body"], $user_info, $plaintext_pass);
 				if ( $options["send_user_message_in_html"] && $options["user_message_newline_as_br"] )
 					$message = nl2br($message);
@@ -1480,11 +1480,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				wp_mail($user_info->user_email, $options["user_message_subject"], $message, $headers);
 			}
 			if ( !$options["custom_user_message"] ) {
-				$message = sprintf(__("Username: %s", "regplus"), $user_info->user_login)."\r\n";
+				$message .= __("Username:", "regplus") . " " . $user_info->user_login . "\n";
 				if ( !$options["user_set_password"] )
-					$message .= sprintf(__("Password: %s", "regplus"), $plaintext_pass)."\r\n";
-				$message .= "\r\n".wp_login_url()."\r\n";
-				wp_mail($user_info->user_email, sprintf(__("[%s] Your login information", "regplus"), $blogname), $message);
+					$message .= __("Password:", "regplus") . " " . $plaintext_pass . "\n";
+				$message .= "\n\n".wp_login_url()."\n";
+				wp_mail($user_info->user_email, "[".$blogname."] ".__("Your login information", "regplus"), $message);
 			}
 		}
 		
@@ -1497,13 +1497,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$email_verification_code = wp_generate_password(20, false);
 			update_user_meta($user_id, "email_verification_code", $wpdb->prepare($email_verification_code));
 			update_user_meta($user_id, "email_verification_sent", $wpdb->prepare(date("Ymd")));
-			$message = __("Verification URL: ", "regplus").wp_login_url()."?verification_code=".$email_verification_code."\r\n";
-			$message .= __("Please use the above link to verify your email address and activate your account", "regplus")."\r\n";
+			$message = __("Verification URL:", "regplus")." ".wp_login_url()."?verification_code=".$email_verification_code."\n";
+			$message .= __("Please use the above link to verify your email address and activate your account", "regplus")."\n";
 			if ( $options["user_message_from_email"] )
 				add_filter("wp_mail_from", array($this, "filter_user_message_from_email"));
 			if ( $options["user_message_from_name"] )
 				add_filter("wp_mail_from_name", array($this, "filter_user_message_from_name"));
-			wp_mail($user_info->user_email, sprintf(__("[%s] Verify your account", "regplus"), $blogname), $message);
+			wp_mail($user_info->user_email, "[".$blogname."] ".__("Verify your account", "regplus"), $message);
 		}
 		
 		function replaceKeywords ( $message, $user_info, $plaintext_pass = "" ) {
@@ -1753,11 +1753,11 @@ if ( !function_exists("wp_new_user_notification") ) {
 		}
 		if ( $options["custom_admin_message"] && !$options["disable_admin_message"] ) {
 			if ( $options["send_admin_message_in_html"] ) {
-				$headers = "MIME-Version: 1.0\r\n";
-				$headers .= "Content-type: text/html; charset=iso-8859-1\r\n";
+				$headers = "MIME-Version: 1.0\n";
+				$headers .= "Content-type: text/html; charset=iso-8859-1\n";
 			}
-			//$headers .= "From: " . $options["admin_message_from_email"] . "\r\n"
-			//$headers .= "Reply-To: " . $options["admin_message_from_email"] . "\r\n";
+			//$headers .= "From: " . $options["admin_message_from_email"] . "\n"
+			//$headers .= "Reply-To: " . $options["admin_message_from_email"] . "\n";
 			add_filter("wp_mail_from", array($registerPlusRedux, "filter_admin_message_from_email"));
 			add_filter("wp_mail_from_name", array($registerPlusRedux, "filter_admin_message_from_name"));
 			$message = $registerPlusRedux->replaceKeywords($options["admin_message_body"], $user_info);
@@ -1768,10 +1768,10 @@ if ( !function_exists("wp_new_user_notification") ) {
 		if ( !$options["custom_admin_message"] && !$options["disable_admin_message"]) {
 			//Wordpress 3.0.1 default admin message
 			$blogname = wp_specialchars_decode(get_option("blogname"), ENT_QUOTES);
-			$message = sprintf(__("New user registered on your site %s:", "regplus"), $blogname) . "\r\n\r\n";
-			$message .= sprintf(__("Username: %s", "regplus"), $user_info->user_login) . "\r\n\r\n";
-			$message .= sprintf(__("E-mail: %s", "regplus"), $user_info->user_email) . "\r\n";
-			@wp_mail(get_option("admin_email"), sprintf(__("[%s] New User Registration"), $blogname), $message);
+			$message .= __("New user registered on your site", "regplus")." ".$blogname."\n\n";
+			$message .= __("Username:", "regplus")." ".$user_info->user_login."\n";
+			$message .= __("E-mail:", "regplus")." ".$user_info->user_email."\n";
+			@wp_mail(get_option("admin_email"), "[".$blogname."] ".__("New User Registered", "regplus"), $message);
 		}
 		if ( !$options["verify_user_email"] && !$options["verify_user_admin"] ) {
 			$registerPlusRedux->sendUserMessage ($user_id, $plaintext_pass);
