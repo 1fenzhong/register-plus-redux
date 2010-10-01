@@ -960,7 +960,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						update_user_option( $user_id, "default_password_nag", true, true );
 						wp_set_password($plaintext_pass, $user_id);
 					}
-					$this->sendUserMessage( $user_id, $plaintext_pass );
+					$this->sendUserMessage($user_id, $plaintext_pass);
 				}
 				$_POST["notice"] = __("Users Verified", "register-plus-redux");
 			} else {
@@ -1467,9 +1467,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$options = get_option("register_plus_redux_options");
 			$blogname = wp_specialchars_decode(get_option("blogname"), ENT_QUOTES);
 			if ( $options["custom_user_message"] ) {
-				$headers = "";
 				if ( $options["send_user_message_in_html"] ) {
-					$headers .= "MIME-Version: 1.0\n";
+					$headers = "MIME-Version: 1.0\n";
 					$headers .= "Content-type: text/html; charset=iso-8859-1\n";
 				}
 				//$headers .= "From: " . $options["user_message_from_email"] . "\n";
@@ -1565,7 +1564,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						update_user_option( $user_id, "default_password_nag", true, true );
 						wp_set_password($plaintext_pass, $user_id);
 					}
-					$this->sendUserMessage( $user_id, $plaintext_pass );
+					$this->sendUserMessage($user_id, $plaintext_pass);
 				}
 			}
 		}
@@ -1763,8 +1762,10 @@ if ( !function_exists("wp_new_user_notification") ) {
 			}
 			//$headers .= "From: " . $options["admin_message_from_email"] . "\n"
 			//$headers .= "Reply-To: " . $options["admin_message_from_email"] . "\n";
-			add_filter("wp_mail_from", array($registerPlusRedux, "filter_admin_message_from_email"));
-			add_filter("wp_mail_from_name", array($registerPlusRedux, "filter_admin_message_from_name"));
+			if ( $options["admin_message_from_email"] )
+				add_filter("wp_mail_from", array($registerPlusRedux, "filter_admin_message_from_email"));
+			if ( $options["admin_message_from_name"] )
+				add_filter("wp_mail_from_name", array($registerPlusRedux, "filter_admin_message_from_name"));
 			$message = $registerPlusRedux->replaceKeywords($options["admin_message_body"], $user_info);
 			if ( $options["send_admin_message_in_html"] && $options["admin_message_newline_as_br"] )
 				$message = nl2br($message);
@@ -1779,7 +1780,7 @@ if ( !function_exists("wp_new_user_notification") ) {
 			@wp_mail(get_option("admin_email"), "[".$blogname."] ".__("New User Registered", "register-plus-redux"), $message);
 		}
 		if ( !$options["verify_user_email"] && !$options["verify_user_admin"] ) {
-			$registerPlusRedux->sendUserMessage ($user_id, $plaintext_pass);
+			$registerPlusRedux->sendUserMessage($user_id, $plaintext_pass);
 		}
 	}
 }
