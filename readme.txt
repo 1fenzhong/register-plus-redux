@@ -90,6 +90,7 @@ TODO: jQuery summarize user message status
 = 3.6.12 =
 October 1, 2010 by radiok
 
+* Rewrote User Administration
 * Added jQuery to disable invalid settings
 
 = 3.6.11 =
