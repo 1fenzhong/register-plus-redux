@@ -5,7 +5,7 @@ Plugin Name: Register Plus Redux
 Author URI: http://radiok.info/
 Plugin URI: http://radiok.info/blog/category/register-plus-redux/
 Description: Fork of Register Plus
-Version: 3.6.10
+Version: 3.6.11
 Text Domain: register-plus-redux
 */
 
@@ -1533,7 +1533,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$custom_fields = get_option("register_plus_redux_custom_fields");
 			if ( !is_array($custom_fields) ) $custom_fields = array();
 			foreach ( $custom_fields as $k => $v ) {
-				$key = $registerPlusRedux->fnSanitizeFieldName($v["custom_field_name"]);
+				$key = $this->fnSanitizeFieldName($v["custom_field_name"]);
 				if ( $v["show_on_registration"] )
 					$message = str_replace("%$key%", get_user_meta($user_info->ID, $key, true), $message);
 			}

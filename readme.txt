@@ -4,7 +4,7 @@ Donate link: http://radiok.info/donate/
 Tags: registration, register, plus, redux, password, invitation, code, email, verification, disclaimer, license, agreement, privacy, policy, logo, moderation, user
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable tag: 3.6.10
+Stable tag: 3.6.11
 
 Enhances the user registration process with complete customization and additional administration options.
 
@@ -87,6 +87,11 @@ TODO: Would like to be able to upload the file a little bit nicer, almost like a
 TODO: jQuery summarize user message status
 
 == Changelog ==
+= 3.6.11 =
+September 30, 2010 by radiok
+
+* Fixed bug with replaceKeywords as reported by Angelo Dicerni <http://radiok.info/blog/the-ethos-of-register-plus-redux/>
+* Started working on adding localization back in
 
 = 3.6.10 =
 September 29, 2010 by radiok
