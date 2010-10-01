@@ -90,6 +90,7 @@ TODO: jQuery summarize user message status
 = 3.6.11 =
 September 30, 2010 by radiok
 
+* Found errant show_about_field
 * Fixed bug with replaceKeywords as reported by Angelo Dicerni <http://radiok.info/blog/the-ethos-of-register-plus-redux/>
 * Started working on adding localization back in
 

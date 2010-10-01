@@ -497,7 +497,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									</tr>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("About Yourself", "register-plus-redux"); ?></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_about_field" value="about" <?php if ( in_array("about", $options["show_fields"]) ) echo "checked='checked'"; ?> /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="about" <?php if ( in_array("about", $options["show_fields"]) ) echo "checked='checked'"; ?> /></td>
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="about" <?php if ( in_array("about", $options["required_fields"]) ) echo "checked='checked'"; ?> /></td>
 									</tr>
 								</tbody>
@@ -1224,6 +1224,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		function AlterRegistrationForm() {
 			$options = get_option("register_plus_redux_options");
 			$tabindex = 21;
+			if ( !is_array($options["show_fields"]) ) $options["show_fields"] = array();
 			if ( in_array("first_name", $options["show_fields"]) ) {
 				if ( isset($_GET["first_name"]) ) $_POST["first_name"] = $_GET["first_name"];
 				echo "\n<p><label>", __("First Name", "register-plus-redux"), "<br /><input type='text' name='first_name' id='first_name' class='input' value='", $_POST["first_name"],"' size='25' tabindex='$tabindex' /></label></p>";
@@ -1369,6 +1370,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 		function CheckRegistration( $sanitized_user_login, $user_email, $errors ) {
 			$options = get_option("register_plus_redux_options");
+			if ( !is_array($options["show_fields"]) ) $options["show_fields"] = array();
+			if ( !is_array($options["required_fields"]) ) $options["required_fields"] = array();
 			if ( in_array("first_name", $options["show_fields"]) && in_array("first_name", $options["required_fields"]) ) {
 				if ( empty($_POST["first_name"]) || $_POST["first_name"] == "" ) {
 					$errors->add("empty_first_name", __("<strong>ERROR</strong>: Please enter your first name.", "register-plus-redux"));
@@ -1705,6 +1708,7 @@ if ( !function_exists("wp_new_user_notification") ) {
 	function wp_new_user_notification($user_id, $plaintext_pass = "") {
 		global $wpdb, $registerPlusRedux;
 		$options = get_option("register_plus_redux_options");
+		if ( !is_array($options["show_fields"]) ) $options["show_fields"] = array();
 		if ( in_array("first_name", $options["show_fields"]) && $_POST["first_name"] ) update_user_meta($user_id, "first_name", $wpdb->prepare($_POST["first_name"]));
 		if ( in_array("last_name", $options["show_fields"]) && $_POST["last_name"] ) update_user_meta($user_id, "last_name", $wpdb->prepare($_POST["last_name"]));
 		if ( in_array("user_url", $options["show_fields"]) && $_POST["user_url"] ) {
