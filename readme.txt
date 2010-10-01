@@ -87,6 +87,11 @@ TODO: Would like to be able to upload the file a little bit nicer, almost like a
 TODO: jQuery summarize user message status
 
 == Changelog ==
+= 3.6.12 =
+October 1, 2010 by radiok
+
+* Added jQuery to disable invalid settings
+
 = 3.6.11 =
 September 30, 2010 by radiok
 
