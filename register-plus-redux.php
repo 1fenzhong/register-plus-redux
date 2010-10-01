@@ -175,19 +175,26 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			?>
 			<script type="text/javascript">
 			function showHideSettings(clickety) {
-				if (jQuery(clickety).attr('checked') )
+				if ( jQuery(clickety).attr('checked') )
 					jQuery(clickety).parent().nextAll('div').first().show();
 				else
 					jQuery(clickety).parent().nextAll('div').first().hide();
 			}
 
 			function modifyNextInput(clickety) {
-				if (jQuery(clickety).attr('checked') )
+				if ( jQuery(clickety).attr('checked') )
 					jQuery(clickety).parent().next().find('input').removeAttr('disabled');
 				else {
 					jQuery(clickety).parent().next().find('input').removeAttr('checked');
 					jQuery(clickety).parent().next().find('input').attr('disabled', 'disabled');
 				}
+			}
+
+			function maybeModifyNextInput(clickety) {
+				if ( jQuery(clickety).val() == 'select' || jQuery(clickety).val() == 'checkbox' || jQuery(clickety).val() == 'radio' )
+					jQuery(clickety).parent().next().find('input').removeAttr('readonly');
+				else
+					jQuery(clickety).parent().next().find('input').attr('readonly', 'readonly');
 			}
 
 			function addInvitationCode() {
@@ -214,6 +221,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							.attr('style', 'padding-top: 0px; padding-bottom: 0px;')
 							.append(jQuery('<select>')
 								.attr('name', 'custom_field_type[]')
+								.attr('onclick', 'maybeModifyNextInput(this)')
 								.append('<option value="text">Text Field</option>')
 								.append('<option value="select">Select Field</option>')
 								.append('<option value="check">Checkbox Fields</option>')
@@ -228,6 +236,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							.append(jQuery('<input>')
 								.attr('type', 'text')
 								.attr('name', 'custom_field_options[]')
+								.attr('readonly', 'readonly')
 							)
 						)
 						.append(jQuery('<td>')
@@ -586,7 +595,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 										echo "\n<tr valign='center' class='custom_field'>";
 										echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_name[$k]' value='", $v["custom_field_name"], "' /></td>";
 										echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'>";
-										echo "\n		<select name='custom_field_type[$k]'>";
+										echo "\n		<select name='custom_field_type[$k]' onchange='maybeModifyNextInput(this);'>";
 										echo "\n			<option value='text'"; if ( $v["custom_field_type"] == "text" ) echo " selected='selected'"; echo ">Text Field</option>";
 										echo "\n			<option value='select'"; if ( $v["custom_field_type"] == "select" ) echo " selected='selected'"; echo ">Select Field</option>";
 										echo "\n			<option value='checkbox'"; if ( $v["custom_field_type"] == "checkbox" ) echo " selected='selected'"; echo ">Checkbox Fields</option>";
@@ -596,7 +605,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 										echo "\n			<option value='hidden'"; if ( $v["custom_field_type"] == "hidden" ) echo " selected='selected'"; echo ">Hidden Field</option>";
 										echo "\n		</select>";
 										echo "\n	</td>";
-										echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_options[$k]' value='", $v["custom_field_options"], "' /></td>";
+										echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_options[$k]' value='", $v["custom_field_options"], "'"; if ( $v["custom_field_type"] != "select" && $v["custom_field_type"] != "checkbox" && $v["custom_field_type"] != "radio" ) echo " readonly='readonly'"; echo " /></td>";
 										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_profile[$k]' value='1'"; if ( $v["show_on_profile"] ) echo " checked='checked'"; echo " /></td>";
 										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_registration[$k]' value='1'"; if ( $v["show_on_registration"] ) echo " checked='checked'"; echo " onclick='modifyNextInput(this);' /></td>";
 										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='required_on_registration[$k]' value='1'"; if ( $v["required_on_registration"] ) echo " checked='checked'"; if ( !$v["show_on_registration"] ) echo " disabled='disabled'"; echo " /></td>";
