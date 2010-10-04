@@ -1012,37 +1012,37 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							if ( !$show_custom_text_fields )
 								$show_custom_text_fields = '#'.$this->fnSanitizeFieldName($v["custom_field_name"]);
 							else
-								$show_custom_text_fields = ', #'.$this->fnSanitizeFieldName($v["custom_field_name"]);
+								$show_custom_text_fields .= ', #'.$this->fnSanitizeFieldName($v["custom_field_name"]);
 						}
 						if ( $v["custom_field_type"] == "select" ) {
 							if ( !$show_custom_select_fields )
 								$show_custom_select_fields = '#'.$this->fnSanitizeFieldName($v["custom_field_name"]);
 							else
-								$show_custom_select_fields = ', #'.$this->fnSanitizeFieldName($v["custom_field_name"]);
+								$show_custom_select_fields .= ', #'.$this->fnSanitizeFieldName($v["custom_field_name"]);
 						}
 						if ( $v["custom_field_type"] == "checkbox" ) {
 							if ( !$show_custom_checkbox_fields )
 								$show_custom_checkbox_fields = '.'.$this->fnSanitizeFieldName($v["custom_field_name"]);
 							else
-								$show_custom_checkbox_fields = ', .'.$this->fnSanitizeFieldName($v["custom_field_name"]);
+								$show_custom_checkbox_fields .= ', .'.$this->fnSanitizeFieldName($v["custom_field_name"]);
 						}
 						if ( $v["custom_field_type"] == "radio" ) {
 							if ( !$show_custom_radio_fields )
 								$show_custom_radio_fields = '.'.$this->fnSanitizeFieldName($v["custom_field_name"]);
 							else
-								$show_custom_radio_fields = ', .'.$this->fnSanitizeFieldName($v["custom_field_name"]);
+								$show_custom_radio_fields .= ', .'.$this->fnSanitizeFieldName($v["custom_field_name"]);
 						}
 						if ( $v["custom_field_type"] == "textarea" ) {
 							if ( !$show_custom_textarea_fields )
 								$show_custom_textarea_fields = '#'.$this->fnSanitizeFieldName($v["custom_field_name"]);
 							else
-								$show_custom_textarea_fields = ', #'.$this->fnSanitizeFieldName($v["custom_field_name"]);
+								$show_custom_textarea_fields .= ', #'.$this->fnSanitizeFieldName($v["custom_field_name"]);
 						}
 						if ( $v["custom_field_type"] == "date" ) {
 							if ( !$show_custom_date_fields )
 								$show_custom_date_fields = '#'.$this->fnSanitizeFieldName($v["custom_field_name"]);
 							else
-								$show_custom_date_fields = ', #'.$this->fnSanitizeFieldName($v["custom_field_name"]);
+								$show_custom_date_fields .= ', #'.$this->fnSanitizeFieldName($v["custom_field_name"]);
 						}
 						if ( $v["required_on_registration"] ) {
 							$required_custom_fields .= '#'.$this->fnSanitizeFieldName($v["custom_field_name"]).', ';

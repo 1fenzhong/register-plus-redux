@@ -92,6 +92,7 @@ October 1, 2010 by radiok
 
 * Rewrote User Administration
 * Added jQuery to disable invalid settings
+* Fixed bug with custom fields and CSS, was not appending to list of fields for CSS, as reported by saury316 <http://wordpress.org/support/topic/plugin-register-plus-redux-logo-and-other-issues>
 
 = 3.6.11 =
 September 30, 2010 by radiok
