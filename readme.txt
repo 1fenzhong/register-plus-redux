@@ -89,6 +89,7 @@ TODO: jQuery summarize user message status
 October 1, 2010 by radiok
 
 * Rewrote User Administration
+* Fixed DeleteExpiredUsers
 * Changed date/time format of email_verification_sent
 * Added check to not allow users to register with a username already in queue to be authorized
 * Added jQuery to disable invalid settings

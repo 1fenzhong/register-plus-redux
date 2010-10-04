@@ -34,7 +34,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			add_action("register_form", array($this, "AlterRegistrationForm")); //Runs just before the end of the new user registration form.
 			add_action("register_post", array($this, "CheckRegistration"), 10, 3); //Runs before a new user registration request is processed. 
 			add_filter("registration_errors", array($this, "OverrideRegistrationErrors"));
-			add_action("login_form", array($this, "VerifyUser")); //Runs just before the end of the HTML head section of the login page. 
+			add_action("login_form", array($this, "AlterLoginForm")); //Runs just before the end of the HTML head section of the login page. 
 			
 			//add_action("wpmu_activate_user", array($this, "UpdateSignup"), 10, 3);
 			//add_action("signup_extra_fields", array($this, "AlterSignupForm"));
@@ -150,23 +150,29 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					delete_user_meta($unverified_user->user_id, "email_verification_user_login");
 				}
 			}
-			$unverified_users = $wpdb->get_results("SELECT user_id FROM $wpdb->usermeta WHERE meta_key='stored_user_login'");
-			if ( $unverified_users ) {
-				$options = get_option("register_plus_redux_options");
-//				$expirationdate = date("Ymd", strtotime("-".$options["delete_unverified_users_after"]." days"));
-				$expirationdate = date("Ymd", strtotime("-2 days"));
-				require_once(ABSPATH.'/wp-admin/includes/user.php');
-				foreach ( $unverified_users as $unverified_user ) {
-					$user_info = get_userdata($unverified_user->user_id);
-					if ( date("Ymd", $user_info->user_registered) < $expirationdate ) {
-						if ( $user_info->email_verification_sent ) {
-							if ( date("Ymd", $user_info->email_verification_sent) < $expirationdate ) {
-								//echo "going to delete $user_info->stored_user_login\n";
-//								wp_delete_user($unverified_user->user_id);
+			$options = get_option("register_plus_redux_options");
+			if ( $options["delete_unverified_users_after"] ) {
+				$unverified_users = $wpdb->get_results("SELECT user_id FROM $wpdb->usermeta WHERE meta_key='stored_user_login'");
+				if ( $unverified_users ) {
+					$options = get_option("register_plus_redux_options");
+					$expirationdate = date("Ymd", strtotime("-".$options["delete_unverified_users_after"]." days"));
+					require_once(ABSPATH.'/wp-admin/includes/user.php');
+					foreach ( $unverified_users as $unverified_user ) {
+						$user_info = get_userdata($unverified_user->user_id);
+						if ( date("Ymd", strtotime($user_info->user_registered)) < $expirationdate ) {
+							if ( $user_info->email_verification_sent ) {
+								if ( date("Ymd", strtotime($user_info->email_verification_sent)) < $expirationdate ) {
+									if ( $user_info->email_verified ) {
+										if ( date("Ymd", strtotime($user_info->email_verified)) < $expirationdate ) {
+											wp_delete_user($unverified_user->user_id);
+										}
+									} else {
+										wp_delete_user($unverified_user->user_id);
+									}
+								}
+							} else {
+								wp_delete_user($unverified_user->user_id);
 							}
-						} else {
-							//echo "going to delete $user_info->stored_user_login\n";
-//							wp_delete_user($unverified_user->user_id);
 						}
 					}
 				}
@@ -314,7 +320,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			jQuery(document).ready(function() {
 				//showHideSettings('#password_settings');
 				//showHideSettings('#meter_settings');
-				//showHideSettings('#verify_user_email_settings');
 				//showHideSettings('#invitation_code_settings');
 				//showHideSettings('#disclaim_settings');
 				//showHideSettings('#license_agreement_settings');
@@ -323,7 +328,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				//showHideSettings('#custom_admin_message_settings');
 				<?php if ( !$options["user_set_password"] ) echo "\njQuery('#password_settings').hide();"; ?>
 				<?php if ( !$options["show_password_meter"] ) echo "\njQuery('#meter_settings').hide();"; ?>
-				<?php if ( !$options["verify_user_email"] ) echo "\njQuery('#verify_user_email_settings').hide();"; ?>
 				<?php if ( !$options["enable_invitation_code"] ) echo "\njQuery('#invitation_code_settings').hide();"; ?>
 				<?php if ( !$options["show_disclaimer"] ) echo "\njQuery('#disclaim_settings').hide();"; ?>
 				<?php if ( !$options["show_license"] ) echo "\njQuery('#license_agreement_settings').hide();"; ?>
@@ -404,17 +408,23 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					<tr valign="top">
 						<th scope="row"><?php _e("Email Verification", "register-plus-redux"); ?></th>
 						<td>
-							<label><input type="checkbox" name="verify_user_email" id="verify_user_email" value="1" <?php if ( $options["verify_user_email"]) echo "checked='checked'"; ?> onclick="showHideSettings(this);" />&nbsp;<?php _e("Prevent fake email address registrations.", "register-plus-redux"); ?></label><br />
-							<?php _e("New users will be sent an activation code via email.", "register-plus-redux"); ?>
-							<div id="verify_user_email_settings">
-								<label><strong><?php _e("Grace Period (days):", "register-plus-redux"); ?></strong>&nbsp;<input type="text" name="delete_unverified_users_after" id="delete_unverified_users_after" style="width:50px;" value="<?php echo $options["delete_unverified_users_after"]; ?>" /></label><br />
-								<?php _e("Unverified users will be automatically deleted after grace period expires.", "register-plus-redux"); ?>
-							</div>
+							<label><input type="checkbox" name="verify_user_email" id="verify_user_email" value="1" <?php if ( $options["verify_user_email"]) echo "checked='checked'"; ?> />&nbsp;<?php _e("Verify all new users email address.", "register-plus-redux"); ?></label><br />
+							<?php _e("New users will not be able to login until they click on the verification link sent to them via email, or an administrator authorizes them through the Unverified Users page.", "register-plus-redux"); ?>
 						</td>
 					</tr>
 					<tr valign="top">
 						<th scope="row"><?php _e("Admin Verification", "register-plus-redux"); ?></th>
-						<td><label><input type="checkbox" name="verify_user_admin" id="verify_user_admin" value="1" <?php if ( $options["verify_user_admin"]) echo "checked='checked'"; ?> />&nbsp;<?php _e("Moderate all user registrations to require admin approval. NOTE: Email Verification must be DISABLED to use this feature.", "register-plus-redux"); ?></label></td>
+						<td>
+							<label><input type="checkbox" name="verify_user_admin" id="verify_user_admin" value="1" <?php if ( $options["verify_user_admin"]) echo "checked='checked'"; ?> />&nbsp;<?php _e("Moderate all new user registrations.", "register-plus-redux"); ?></label><br />
+							<?php _e("New users will not be able to login until an administrator has authorized them through the Unverified Users page.", "register-plus-redux"); ?>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row"><?php _e("Grace Period", "register-plus-redux"); ?></th>
+						<td>
+							<label><input type="text" name="delete_unverified_users_after" id="delete_unverified_users_after" style="width:50px;" value="<?php echo $options["delete_unverified_users_after"]; ?>" />&nbsp;<?php _e("days", "register-plus-redux"); ?></label><br />
+							<?php _e("Unverified users will be automatically deleted after grace period expires.  Set to 0 to never delete unverified users.", "register-plus-redux"); ?>
+						</td>
 					</tr>
 					<tr valign="top">
 						<th scope="row"><?php _e("Invitation Code", "register-plus-redux"); ?></th>
@@ -905,6 +915,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							<th><?php _e("E-mail", "register-plus-redux"); ?></th>
 							<th><?php _e("Registered", "register-plus-redux"); ?></th>
 							<th><?php _e("Verification Sent", "register-plus-redux"); ?></th>
+							<th><?php _e("Verified", "register-plus-redux"); ?></th>
 						</tr>
 					</thead>
 					<tbody id="users" class="list:user user-list">
@@ -920,6 +931,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								<td><a href="mailto:<?php echo $user_info->user_email; ?>" title="<?php _e("E-mail: ", "register-plus-redux"); echo $user_info->user_email; ?>"><?php echo $user_info->user_email; ?></a></td>
 								<td><strong><?php echo $user_info->user_registered; ?></strong></td>
 								<td><strong><?php echo $user_info->email_verification_sent; ?></strong></td>
+								<td><strong><?php echo $user_info->email_verified; ?></strong></td>
 							</tr>
 						<?php } ?>
 					</tbody>
@@ -939,6 +951,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					$wpdb->query( $wpdb->prepare("UPDATE $wpdb->users SET user_login = '$stored_user_login' WHERE ID = '$user_id'") );
 					delete_user_meta($user_id, "email_verification_code");
 					delete_user_meta($user_id, "email_verification_sent");
+					delete_user_meta($user_id, "email_verified");
 					delete_user_meta($user_id, "stored_user_login");
 					if ( !$options["user_set_password"] ) {
 						$plaintext_pass = wp_generate_password();
@@ -947,7 +960,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					}
 					$this->sendUserMessage($user_id, $plaintext_pass);
 				}
-				$_POST["notice"] = __("Users Approved", "register-plus-redux");
+				$_POST["notice"] = __("Users approved", "register-plus-redux");
 			} else {
 				$_POST["notice"] = __("<strong>Error:</strong> No users selected.", "register-plus-redux");
 			}
@@ -958,7 +971,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( is_array($_POST["selected_users"]) ) {
 				foreach ( $_POST["selected_users"] as $user_id )
 					$this->sendEmailVerificationMessage($user_id);
-				$_POST["notice"] = __("Verification Emails have been re-sent", "register-plus-redux");
+				$_POST["notice"] = __("Verification emails have been sent", "register-plus-redux");
 			} else {
 				$_POST["notice"] = __("<strong>Error:</strong> No users selected.", "register-plus-redux");
 			}
@@ -970,7 +983,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				require_once(ABSPATH.'/wp-admin/includes/user.php');
 				foreach ( $_POST["selected_users"] as $user_id )
 					if ( $user_id ) wp_delete_user($user_id);
-				$_POST["notice"] = __("Users Deleted", "register-plus-redux");
+				$_POST["notice"] = __("Users deleted", "register-plus-redux");
 			} else {
 				$_POST["notice"] = __("<strong>Error:</strong> No users selected.", "register-plus-redux");
 			}
@@ -1528,30 +1541,35 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 		}
 		
-		function VerifyUser() {
+		function AlterLoginForm() {
 			$options = get_option("register_plus_redux_options");
-			if ( $options["verify_user_admin"] && isset($_GET["checkemail"]) ) {
+			if ( isset($_GET["checkemail"]) && $options["verify_user_email"] ) {
+				echo "<p id='message' style='text-align:center;'>", __("Please verify your account using the verification link sent to your email address.", "register-plus-redux"), "</p>";
+			} elseif ( isset($_GET["checkemail"]) && $options["verify_user_admin"] ) {
 				echo "<p id='message' style='text-align:center;'>", __("Your account will be reviewed by an administrator and you will be notified when it is activated.", "register-plus-redux"), "</p>";
-			} elseif ( $options["verify_user_email"] && isset($_GET["checkemail"]) ) {
-				echo "<p id='message' style='text-align:center;'>", __("Please activate your account using the verification link sent to your email address.", "register-plus-redux"), "</p>";
 			}
-			if ( $options["verify_user_email"] && isset($_GET["verification_code"]) ) {
+			if ( isset($_GET["verification_code"]) ) {
 				global $wpdb;
 				$email_verification_code = $_GET["verification_code"];
 				$user_id = $wpdb->get_var("SELECT user_id FROM $wpdb->usermeta WHERE meta_key='email_verification_code' AND meta_value='$email_verification_code'");
 				if ( $user_id ) {
-					$stored_user_login = get_user_meta($user_id, "stored_user_login", true);
-					$wpdb->query( $wpdb->prepare("UPDATE $wpdb->users SET user_login = '$stored_user_login' WHERE ID = '$user_id'") );
-					delete_user_meta($user_id, "email_verification_code");
-					delete_user_meta($user_id, "email_verification_sent");
-					delete_user_meta($user_id, "stored_user_login");
-					echo "<p>", sprintf(__("Thank you %s, your account has been verified, please login.", "register-plus-redux"), $stored_user_login), "</p>";
-					if ( !$options["user_set_password"] ) {
-						$plaintext_pass = wp_generate_password();
-						update_user_option( $user_id, "default_password_nag", true, true );
-						wp_set_password($plaintext_pass, $user_id);
+					if ( !$options["verify_user_admin"] ) {
+						$stored_user_login = get_user_meta($user_id, "stored_user_login", true);
+						$wpdb->query( $wpdb->prepare("UPDATE $wpdb->users SET user_login = '$stored_user_login' WHERE ID = '$user_id'") );
+						delete_user_meta($user_id, "email_verification_code");
+						delete_user_meta($user_id, "email_verification_sent");
+						delete_user_meta($user_id, "stored_user_login");
+						echo "<p>", sprintf(__("Thank you %s, your account has been verified, please login.", "register-plus-redux"), $stored_user_login), "</p>";
+						if ( !$options["user_set_password"] ) {
+							$plaintext_pass = wp_generate_password();
+							update_user_option( $user_id, "default_password_nag", true, true );
+							wp_set_password($plaintext_pass, $user_id);
+						}
+						$this->sendUserMessage($user_id, $plaintext_pass);
+					} elseif ( $options["verify_user_admin"] ) {
+						update_user_meta($user_id, "email_verified", gmdate("Y-m-d H:i:s"));
+						echo "<p id='message' style='text-align:center;'>", __("Your account will be reviewed by an administrator and you will be notified when it is activated.", "register-plus-redux"), "</p>";
 					}
-					$this->sendUserMessage($user_id, $plaintext_pass);
 				}
 			}
 		}
@@ -1669,16 +1687,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		function override_warning() {
 			if ( current_user_can(10) && $_GET["page"] == "register-plus-redux" )
 			echo "\n<div id='register-plus-redux-warning' class='updated fade-ff0000'><p><strong>", __("You have another plugin installed that is conflicting with Register Plus Redux. This other plugin is overriding the user notification emails. Please see <a href='http://skullbit.com/news/register-plus-conflicts/'>Register Plus Conflicts</a> for more information.", "register-plus-redux"), "</strong></p></div>";
-		}
-
-		function RegMsg( $errors ) {
-			$options = get_option("register_plus_redux_options");
-			session_start();
-			if ( $errors->errors["registered"] ) {
-				//unset($errors->errors["registered"]);
-			}
-			if ( isset($_GET["checkemail"]) && "registered" == $_GET["checkemail"] ) $errors->add("registeredit", __("Please check your e-mail and click the verification link to activate your account and complete your registration."), "message");
-			return $errors;
 		}
 
 	}
