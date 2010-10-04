@@ -158,9 +158,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				require_once(ABSPATH.'/wp-admin/includes/user.php');
 				foreach ( $unverified_users as $unverified_user ) {
 					$user_info = get_userdata($unverified_user->user_id);
-					if (date("Ymd", $user_info->user_registered) < $expirationdate) {
+					if ( date("Ymd", $user_info->user_registered) < $expirationdate ) {
 						if ( $user_info->email_verification_sent ) {
-							if ( $user_info->email_verification_sent < $expirationdate ) {
+							if ( date("Ymd", $user_info->email_verification_sent) < $expirationdate ) {
 								//echo "going to delete $user_info->stored_user_login\n";
 //								wp_delete_user($unverified_user->user_id);
 							}
@@ -1353,6 +1353,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function CheckRegistration( $sanitized_user_login, $user_email, $errors ) {
+			global $wpdb;
+			if ( $wpdb->get_var($wpdb->prepare("SELECT * FROM $wpdb->usermeta WHERE meta_value=%s", $sanitized_user_login)) ) {
+				$errors->add( 'username_exists', __( '<strong>ERROR</strong>: This username is already registered, please choose another one.' ) );
+			}
 			$options = get_option("register_plus_redux_options");
 			if ( !is_array($options["show_fields"]) ) $options["show_fields"] = array();
 			if ( !is_array($options["required_fields"]) ) $options["required_fields"] = array();
@@ -1477,13 +1481,12 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		
 		function sendEmailVerificationMessage ( $user_id )
 		{
-			global $wpdb;
 			$user_info = get_userdata($user_id);
 			$options = get_option("register_plus_redux_options");
 			$blogname = wp_specialchars_decode(get_option("blogname"), ENT_QUOTES);
 			$email_verification_code = wp_generate_password(20, false);
-			update_user_meta($user_id, "email_verification_code", $wpdb->prepare($email_verification_code));
-			update_user_meta($user_id, "email_verification_sent", $wpdb->prepare(date("Ymd")));
+			update_user_meta($user_id, "email_verification_code", $email_verification_code);
+			update_user_meta($user_id, "email_verification_sent", gmdate("Y-m-d H:i:s"));
 			$message = __("Verification URL:", "register-plus-redux")." ".wp_login_url()."?verification_code=".$email_verification_code."\n";
 			$message .= __("Please use the above link to verify your email address and activate your account", "register-plus-redux")."\n";
 			if ( $options["user_message_from_email"] )

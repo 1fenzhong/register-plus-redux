@@ -68,8 +68,6 @@ http://wordpress.org/support/topic/register-plus-is-adding-s-to-all-quote-marks-
 FEATURE REQUEST: Registration widget, need to look into whether someone else took care of that, and if so how RegPlusRe interacts with that.
 http://wordpress.org/support/topic/register-plus
 
-CONSIDERATION: There could exist multiple unverified users with the same username, when a new user signs up, need to check that username isn't in que already
-
 TODO: Migrate settings from Register Plus
 
 TODO: Add localization back in
@@ -91,6 +89,8 @@ TODO: jQuery summarize user message status
 October 1, 2010 by radiok
 
 * Rewrote User Administration
+* Changed date/time format of email_verification_sent
+* Added check to not allow users to register with a username already in queue to be authorized
 * Added jQuery to disable invalid settings
 * Fixed bug with custom fields and CSS, was not appending to list of fields for CSS, as reported by saury316 <http://wordpress.org/support/topic/plugin-register-plus-redux-logo-and-other-issues>
 
