@@ -1762,7 +1762,7 @@ if ( !function_exists("wp_new_user_notification") ) {
 			$message = $registerPlusRedux->replaceKeywords($options["admin_message_body"], $user_info);
 			if ( $options["send_admin_message_in_html"] && $options["admin_message_newline_as_br"] )
 				$message = nl2br($message);
-			@wp_mail(get_option("admin_message"), $options["admin_message_subject"], $message, $headers);
+			@wp_mail(get_option("admin_email"), $options["admin_message_subject"], $message, $headers);
 		}
 		if ( !$options["custom_admin_message"] && !$options["disable_admin_message"]) {
 			//Wordpress 3.0.1 default admin message
