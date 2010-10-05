@@ -65,10 +65,12 @@ TODO: Privacy Issue - When "Choose Password upon Registration" is active, the em
 TODO: More bugfixes per the following post
 http://wordpress.org/support/topic/register-plus-is-adding-s-to-all-quote-marks-in-registration-email
 
-FEATURE REQUEST: Registration widget, need to look into whether someone else took care of that, and if so how RegPlusRe interacts with that.
+FEATURE REQUEST: Registration widget, need to look into whether someone else took care of that, and if so how Redux interacts with that.
 http://wordpress.org/support/topic/register-plus
 
-TODO: Migrate settings from Register Plus
+TODO: Migrate settings from Register Plus?
+
+TODO: User-new.php is not modified with the added fields, does not notice if username is in queue
 
 TODO: Add localization back in
 
@@ -86,13 +88,14 @@ TODO: jQuery summarize user message status
 
 == Changelog ==
 = 3.6.12 =
-October 1, 2010 by radiok
+October 5, 2010 by radiok
 
 * Rewrote User Administration
 * Fixed DeleteExpiredUsers
 * Changed date/time format of email_verification_sent
 * Added check to not allow users to register with a username already in queue to be authorized
 * Added jQuery to disable invalid settings
+* Added some variable checks to prevent undefined index warnings, I added a ton, but I'd need even more to eliminate all notices, as reported by overclockwork <http://wordpress.org/support/topic/plugin-register-plus-redux-settings-cleared-when-saving>
 * Fixed bug with custom fields and CSS, was not appending to list of fields for CSS, as reported by saury316 <http://wordpress.org/support/topic/plugin-register-plus-redux-logo-and-other-issues>
 
 = 3.6.11 =
