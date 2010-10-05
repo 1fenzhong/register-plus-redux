@@ -206,7 +206,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					jQuery(clickety).parent().nextAll('div').first().hide();
 			}
 
-			function modifyNextInput(clickety) {
+			function modifyNextCellInput(clickety) {
 				if ( jQuery(clickety).attr('checked') )
 					jQuery(clickety).parent().next().find('input').removeAttr('disabled');
 				else {
@@ -215,7 +215,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				}
 			}
 
-			function maybeModifyNextInput(clickety) {
+			function maybeModifyNextCellInput(clickety) {
 				if ( jQuery(clickety).val() == 'select' || jQuery(clickety).val() == 'checkbox' || jQuery(clickety).val() == 'radio' )
 					jQuery(clickety).parent().next().find('input').removeAttr('readonly');
 				else
@@ -246,7 +246,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							.attr('style', 'padding-top: 0px; padding-bottom: 0px;')
 							.append(jQuery('<select>')
 								.attr('name', 'custom_field_type[]')
-								.attr('onclick', 'maybeModifyNextInput(this)')
+								.attr('onclick', 'maybeModifyNextCellInput(this)')
 								.append('<option value="text">Text Field</option>')
 								.append('<option value="select">Select Field</option>')
 								.append('<option value="check">Checkbox Fields</option>')
@@ -280,7 +280,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								.attr('type', 'checkbox')
 								.attr('name', 'show_on_registration[]')
 								.attr('value', '1')
-								.attr('onclick', 'modifyNextInput(this)')
+								.attr('onclick', 'modifyNextCellInput(this)')
 							)
 						)
 						.append(jQuery('<td>')
@@ -352,7 +352,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							<label><input type="checkbox" name="user_set_password" id="user_set_password" value="1" <?php if ( !empty($options["user_set_password"]) ) echo "checked='checked'"; ?> onclick="showHideSettings(this);" />&nbsp;<?php _e("Allow New Registrations to set their own Password", "register-plus-redux"); ?></label><br />
 							<div id="password_settings" style="margin-left:0px;">
 								<label><input type="checkbox" name="show_password_meter" id="show_password_meter" value="1" <?php if ( !empty($options["show_password_meter"]) ) echo "checked='checked'"; ?> onclick="showHideSettings(this);" />&nbsp;<?php _e("Enable Password Strength Meter","register-plus-redux"); ?></label>
-								<div id="meter_settings" style="margin-left:10px;">
+								<div id="meter_settings" style="margin-left: 8px;">
 									<table>
 										<tr>
 											<td style="padding-top: 0px; padding-bottom: 0px;"><label for="message_empty_password"><?php _e("Empty", "register-plus-redux"); ?></label></td>
@@ -386,7 +386,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					<tr valign="top">
 						<th scope="row"><?php _e("Custom Logo URL", "register-plus-redux"); ?></th>
 						<td>
-							<input type="text" name="custom_logo_url" id="custom_logo_url" value="<?php echo $options["custom_logo_url"]; ?>" style="width: 50%;" /><br />
+							<input type="text" name="custom_logo_url" id="custom_logo_url" value="<?php echo $options["custom_logo_url"]; ?>" style="width: 60%;" /><br />
 							<?php _e("Upload a new logo:", "register-plus-redux"); ?>&nbsp;<input type="file" name="upload_custom_logo" id="upload_custom_logo" value="1" /><br />
 							<?php _e("You must Save Changes to upload logo.", "register-plus-redux"); ?><br />
 							<?php _e("Recommended logo should not exceed 358px width.", "register-plus-redux"); ?>
@@ -461,37 +461,37 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									<?php if ( !is_array($options["required_fields"]) ) $options["required_fields"] = array(); ?>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("First Name", "register-plus-redux"); ?></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="first_name" <?php if ( in_array("first_name", $options["show_fields"]) ) echo "checked='checked'"; ?> onclick='modifyNextInput(this);' /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="first_name" <?php if ( in_array("first_name", $options["show_fields"]) ) echo "checked='checked'"; ?> onclick='modifyNextCellInput(this);' /></td>
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="first_name" <?php if ( in_array("first_name", $options["required_fields"]) ) echo "checked='checked'"; ?> <?php if ( !in_array("first_name", $options["show_fields"]) ) echo "disabled='disabled'"; ?> /></td>
 									</tr>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Last Name", "register-plus-redux"); ?></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="last_name" <?php if ( in_array("last_name", $options["show_fields"]) ) echo "checked='checked'"; ?> onclick='modifyNextInput(this);' /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="last_name" <?php if ( in_array("last_name", $options["show_fields"]) ) echo "checked='checked'"; ?> onclick='modifyNextCellInput(this);' /></td>
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="last_name" <?php if ( in_array("last_name", $options["required_fields"]) ) echo "checked='checked'"; ?> <?php if ( !in_array("last_name", $options["show_fields"]) ) echo "disabled='disabled'"; ?> /></td>
 									</tr>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Website", "register-plus-redux"); ?></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="user_url" <?php if ( in_array("user_url", $options["show_fields"]) ) echo "checked='checked'"; ?> onclick='modifyNextInput(this);' /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="user_url" <?php if ( in_array("user_url", $options["show_fields"]) ) echo "checked='checked'"; ?> onclick='modifyNextCellInput(this);' /></td>
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="user_url" <?php if ( in_array("user_url", $options["required_fields"]) ) echo "checked='checked'"; ?> <?php if ( !in_array("user_url", $options["show_fields"]) ) echo "disabled='disabled'"; ?> /></td>
 									</tr>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("AIM", "register-plus-redux"); ?></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="aim" <?php if ( in_array("aim", $options["show_fields"]) ) echo "checked='checked'"; ?> onclick='modifyNextInput(this);' /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="aim" <?php if ( in_array("aim", $options["show_fields"]) ) echo "checked='checked'"; ?> onclick='modifyNextCellInput(this);' /></td>
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="aim" <?php if ( in_array("aim", $options["required_fields"]) ) echo "checked='checked'"; ?> <?php if ( !in_array("aim", $options["show_fields"]) ) echo "disabled='disabled'"; ?> /></td>
 									</tr>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Yahoo IM", "register-plus-redux"); ?></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="yahoo" <?php if ( in_array("yahoo", $options["show_fields"]) ) echo "checked='checked'"; ?> onclick='modifyNextInput(this);' /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="yahoo" <?php if ( in_array("yahoo", $options["show_fields"]) ) echo "checked='checked'"; ?> onclick='modifyNextCellInput(this);' /></td>
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="yahoo" <?php if ( in_array("yahoo", $options["required_fields"]) ) echo "checked='checked'"; ?> <?php if ( !in_array("yahoo", $options["show_fields"]) ) echo "disabled='disabled'"; ?> /></td>
 									</tr>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Jabber / Google Talk", "register-plus-redux"); ?></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="jabber" <?php if ( in_array("jabber", $options["show_fields"]) ) echo "checked='checked'"; ?> onclick='modifyNextInput(this);' /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="jabber" <?php if ( in_array("jabber", $options["show_fields"]) ) echo "checked='checked'"; ?> onclick='modifyNextCellInput(this);' /></td>
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="jabber" <?php if ( in_array("jabber", $options["required_fields"]) ) echo "checked='checked'"; ?> <?php if ( !in_array("jabber", $options["show_fields"]) ) echo "disabled='disabled'"; ?> /></td>
 									</tr>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("About Yourself", "register-plus-redux"); ?></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="about" <?php if ( in_array("about", $options["show_fields"]) ) echo "checked='checked'"; ?> onclick='modifyNextInput(this);' /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="about" <?php if ( in_array("about", $options["show_fields"]) ) echo "checked='checked'"; ?> onclick='modifyNextCellInput(this);' /></td>
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="about" <?php if ( in_array("about", $options["required_fields"]) ) echo "checked='checked'"; ?> <?php if ( !in_array("about", $options["show_fields"]) ) echo "disabled='disabled'"; ?> /></td>
 									</tr>
 								</tbody>
@@ -500,34 +500,34 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					</tr>
 					<tr valign="top">
 						<th scope="row"><?php _e("Required Field Style Rules", "register-plus-redux"); ?></th>
-						<td><input type="text" name="required_fields_style" value="<?php echo $options["required_fields_style"]; ?>" style="width: 50%;" /></td>
+						<td><input type="text" name="required_fields_style" value="<?php echo $options["required_fields_style"]; ?>" style="width: 60%;" /></td>
 					</tr>
 					<tr valign="top">
 						<th scope="row"><?php _e("Disclaimer", "register-plus-redux"); ?></th>
 						<td>
 							<label><input type="checkbox" name="show_disclaimer" id="show_disclaimer" value="1" <?php if ( !empty($options["show_disclaimer"]) ) echo "checked='checked'"; ?> onclick="showHideSettings(this);" />&nbsp;<?php _e("Enable Disclaimer", "register-plus-redux"); ?></label>
-							<div id="disclaim_settings" style="margin-left:10px;">
-								<table width="80%">
+							<div id="disclaim_settings" style="margin-left: 8px;">
+								<table width="60%">
 									<tr>
-										<td style="padding-top: 0px; padding-bottom: 0px; width: 20%;" >
-											<label for"message_disclaimer_title"><?php _e("Disclaimer Title", "register-plus-redux"); ?></label>
+										<td style="padding-top: 0px; padding-bottom: 0px; width: 40%;">
+											<label for="message_disclaimer_title"><?php _e("Disclaimer Title", "register-plus-redux"); ?></label>
 										</td>
 										<td style="padding-top: 0px; padding-bottom: 0px;">
-											<input type="text" name="message_disclaimer_title" value="<?php echo $options["message_disclaimer_title"]; ?>" style="width: 30%;" />							
+											<input type="text" name="message_disclaimer_title" value="<?php echo $options["message_disclaimer_title"]; ?>" style="width: 100%;" />							
 										</td>
 									</tr>
 									<tr>
-										<td colspan="2" style="padding-top: 0px; padding-bottom: 0px;" >
-											<label for"message_disclaimer"><?php _e("Disclaimer Content", "register-plus-redux"); ?></label><br />
-											<textarea name="message_disclaimer" cols="25" rows="10" style="width:80%; height:300px; display:block;"><?php echo $options["message_disclaimer"]; ?></textarea>
+										<td colspan="2" style="padding-top: 0px; padding-bottom: 0px;">
+											<label for="message_disclaimer"><?php _e("Disclaimer Content", "register-plus-redux"); ?></label><br />
+											<textarea name="message_disclaimer" cols="25" rows="10" style="width: 100%; height: 300px; display: block;"><?php echo $options["message_disclaimer"]; ?></textarea>
 										</td>
 									</tr>
 									<tr>
-										<td style="padding-top: 0px; padding-bottom: 0px; width: 20%;" >
-											<label for"message_disclaimer_agree"><?php _e("Agreement Text", "register-plus-redux"); ?></label>
+										<td style="padding-top: 0px; padding-bottom: 0px;">
+											<label for="message_disclaimer_agree"><?php _e("Agreement Text", "register-plus-redux"); ?></label>
 										</td>
 										<td style="padding-top: 0px; padding-bottom: 0px;">
-											<input type="text" name="message_disclaimer_agree" value="<?php echo $options["message_disclaimer_agree"]; ?>" style="width: 30%;" />
+											<input type="text" name="message_disclaimer_agree" value="<?php echo $options["message_disclaimer_agree"]; ?>" style="width: 100%;" />
 										</td>
 									</tr>
 								</table>
@@ -538,28 +538,28 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						<th scope="row"><?php _e("License Agreement", "register-plus-redux"); ?></th>
 						<td>
 							<label><input type="checkbox" name="show_license" id="show_license" value="1" <?php if ( !empty($options["show_license"]) ) echo "checked='checked'"; ?> onclick="showHideSettings(this);" />&nbsp;<?php _e("Enable License Agreement", "register-plus-redux"); ?></label>
-							<div id="license_agreement_settings" style="margin-left:10px;">
-								<table width="80%">
+							<div id="license_agreement_settings" style="margin-left: 8px;">
+								<table width="60%">
 									<tr>
-										<td style="padding-top: 0px; padding-bottom: 0px; width: 20%;" >
-											<label for"message_license_title"><?php _e("License Agreement Title", "register-plus-redux"); ?></label>
+										<td style="padding-top: 0px; padding-bottom: 0px; width: 40%;">
+											<label for="message_license_title"><?php _e("License Agreement Title", "register-plus-redux"); ?></label>
 										</td>
 										<td style="padding-top: 0px; padding-bottom: 0px;">
-											<input type="text" name="message_license_title" value="<?php echo $options["message_license_title"]; ?>" style="width: 30%;" />
+											<input type="text" name="message_license_title" value="<?php echo $options["message_license_title"]; ?>" style="width: 100%;" />
 										</td>
 									</tr>
 									<tr>
-										<td colspan="2" style="padding-top: 0px; padding-bottom: 0px;" >
-											<label for"message_license"><?php _e("License Agreement Content", "register-plus-redux"); ?></label><br />
-											<textarea name="message_license" cols="25" rows="10" style="width:80%; height:300px; display:block;"><?php echo $options["message_license"]; ?></textarea>
+										<td colspan="2" style="padding-top: 0px; padding-bottom: 0px;">
+											<label for="message_license"><?php _e("License Agreement Content", "register-plus-redux"); ?></label><br />
+											<textarea name="message_license" cols="25" rows="10" style="width: 100%; height: 300px; display: block;"><?php echo $options["message_license"]; ?></textarea>
 										</td>
 									</tr>
 									<tr>
-										<td style="padding-top: 0px; padding-bottom: 0px; width: 20%;" >
-											<label for"message_license_agree"><?php _e("Agreement Text", "register-plus-redux"); ?></label>
+										<td style="padding-top: 0px; padding-bottom: 0px;">
+											<label for="message_license_agree"><?php _e("Agreement Text", "register-plus-redux"); ?></label>
 										</td>
 										<td style="padding-top: 0px; padding-bottom: 0px;">
-											<input type="text" name="message_license_agree" value="<?php echo $options["message_license_agree"]; ?>" style="width: 30%;" />
+											<input type="text" name="message_license_agree" value="<?php echo $options["message_license_agree"]; ?>" style="width: 100%;" />
 										</td>
 									</tr>
 								</table>
@@ -570,28 +570,28 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						<th scope="row"><?php _e("Privacy Policy", "register-plus-redux"); ?></th>
 						<td>
 							<label><input type="checkbox" name="show_privacy_policy" id="show_privacy_policy" value="1" <?php if ( !empty($options["show_privacy_policy"]) ) echo "checked='checked'"; ?> onclick="showHideSettings(this);" />&nbsp;<?php _e("Enable Privacy Policy", "register-plus-redux"); ?></label>
-							<div id="privacy_policy_settings" style="margin-left:10px;">
-								<table width="80%">
+							<div id="privacy_policy_settings" style="margin-left: 8px;">
+								<table width="60%">
 									<tr>
-										<td style="padding-top: 0px; padding-bottom: 0px; width: 20%;" >
-											<label for"message_privacy_policy_title"><?php _e("Privacy Policy Title", "register-plus-redux"); ?></label>
+										<td style="padding-top: 0px; padding-bottom: 0px; width: 40%;">
+											<label for="message_privacy_policy_title"><?php _e("Privacy Policy Title", "register-plus-redux"); ?></label>
 										</td>
 										<td style="padding-top: 0px; padding-bottom: 0px;">
-											<input type="text" name="message_privacy_policy_title" value="<?php echo $options["message_privacy_policy_title"]; ?>" style="width: 30%;" />
+											<input type="text" name="message_privacy_policy_title" value="<?php echo $options["message_privacy_policy_title"]; ?>" style="width: 100%;" />
 										</td>
 									</tr>
 									<tr>
-										<td colspan="2" style="padding-top: 0px; padding-bottom: 0px;" >
-											<label for"message_privacy_policy"><?php _e("Privacy Policy Content", "register-plus-redux"); ?></label><br />
-											<textarea name="message_privacy_policy" cols="25" rows="10" style="width:80%; height:300px; display:block;"><?php echo $options["message_privacy_policy"]; ?></textarea>
+										<td colspan="2" style="padding-top: 0px; padding-bottom: 0px;">
+											<label for="message_privacy_policy"><?php _e("Privacy Policy Content", "register-plus-redux"); ?></label><br />
+											<textarea name="message_privacy_policy" cols="25" rows="10" style="width: 100%; height: 300px; display: block;"><?php echo $options["message_privacy_policy"]; ?></textarea>
 										</td>
 									</tr>
 									<tr>
-										<td style="padding-top: 0px; padding-bottom: 0px; width: 20%;" >
-											<label for"message_privacy_policy_agree"><?php _e("Agreement Text", "register-plus-redux"); ?></label>
+										<td style="padding-top: 0px; padding-bottom: 0px;">
+											<label for="message_privacy_policy_agree"><?php _e("Agreement Text", "register-plus-redux"); ?></label>
 										</td>
 										<td style="padding-top: 0px; padding-bottom: 0px;">
-											<input type="text" name="message_privacy_policy_agree" value="<?php echo $options["message_privacy_policy_agree"]; ?>" style="width: 30%;" />
+											<input type="text" name="message_privacy_policy_agree" value="<?php echo $options["message_privacy_policy_agree"]; ?>" style="width: 100%;" />
 										</td>
 									</tr>
 								</table>
@@ -624,7 +624,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 										echo "\n<tr valign='center' class='custom_field'>";
 										echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_name[$k]' value='", $v["custom_field_name"], "' /></td>";
 										echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'>";
-										echo "\n		<select name='custom_field_type[$k]' onchange='maybeModifyNextInput(this);'>";
+										echo "\n		<select name='custom_field_type[$k]' onchange='maybeModifyNextCellInput(this);'>";
 										echo "\n			<option value='text'"; if ( $v["custom_field_type"] == "text" ) echo " selected='selected'"; echo ">Text Field</option>";
 										echo "\n			<option value='select'"; if ( $v["custom_field_type"] == "select" ) echo " selected='selected'"; echo ">Select Field</option>";
 										echo "\n			<option value='checkbox'"; if ( $v["custom_field_type"] == "checkbox" ) echo " selected='selected'"; echo ">Checkbox Fields</option>";
@@ -636,7 +636,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 										echo "\n	</td>";
 										echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_options[$k]' value='", $v["custom_field_options"], "'"; if ( $v["custom_field_type"] != "select" && $v["custom_field_type"] != "checkbox" && $v["custom_field_type"] != "radio" ) echo " readonly='readonly'"; echo " /></td>";
 										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_profile[$k]' value='1'"; if ( !empty($v["show_on_profile"]) ) echo " checked='checked'"; echo " /></td>";
-										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_registration[$k]' value='1'"; if ( !empty($v["show_on_registration"]) ) echo " checked='checked'"; echo " onclick='modifyNextInput(this);' /></td>";
+										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_registration[$k]' value='1'"; if ( !empty($v["show_on_registration"]) ) echo " checked='checked'"; echo " onclick='modifyNextCellInput(this);' /></td>";
 										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='required_on_registration[$k]' value='1'"; if ( !empty($v["required_on_registration"]) ) echo " checked='checked'"; if ( empty($v["show_on_registration"]) ) echo " disabled='disabled'"; echo " /></td>";
 										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><img src='", plugins_url("removeBtn.gif", __FILE__), "' alt='", __("Remove Field", "register-plus-redux"), "' title='", __("Remove Field", "register-plus-redux"), "' onclick='removeCustomField(this);' style='cursor: pointer;' /></td>";
 										echo "\n</tr>";
@@ -700,32 +700,35 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						<th scope="row"><label><?php _e("Custom User Email Notification", "register-plus-redux"); ?></label></th>
 						<td>
 							<label><input type="checkbox" name="custom_user_message" id="custom_user_message" value="1" <?php if ( !empty($options["custom_user_message"]) ) echo "checked='checked'"; ?> onclick="showHideSettings(this);" />&nbsp;<?php _e("Enable", "register-plus-redux"); ?></label>
-							<div id="custom_user_message_settings" style="margin-left:10px;">
-								<table width="80%">
-									<tr valign="top">
-										<th scope="row"><label for="user_message_from_email"><?php _e("From Email", "register-plus-redux"); ?></label></th>
-										<td><input type="text" name="user_message_from_email" id="user_message_from_email" style="width:250px;" value="<?php echo $options["user_message_from_email"]; ?>" /></td>
+							<div id="custom_user_message_settings" style="margin-left: 8px;">
+								<table width="60%">
+									<tr>
+										<td style="padding-top: 0px; padding-bottom: 0px; width: 20%;"><label for="user_message_from_email"><?php _e("From Email", "register-plus-redux"); ?></label></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="user_message_from_email" id="user_message_from_email" style="width: 100%;" value="<?php echo $options["user_message_from_email"]; ?>" /></td>
 									</tr>
-									<tr valign="top">
-										<th scope="row"><label for="user_message_from_name"><?php _e("From Name", "register-plus-redux"); ?></label></th>
-										<td><input type="text" name="user_message_from_name" id="user_message_from_name" style="width:250px;" value="<?php echo $options["user_message_from_name"]; ?>" /></td>
+									<tr>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><label for="user_message_from_name"><?php _e("From Name", "register-plus-redux"); ?></label></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="user_message_from_name" id="user_message_from_name" style="width: 100%;" value="<?php echo $options["user_message_from_name"]; ?>" /></td>
 									</tr>
-									<tr valign="top">
-										<th scope="row"><label for="user_message_subject"><?php _e("Subject", "register-plus-redux"); ?></label></th>
-										<td><input type="text" name="user_message_subject" id="user_message_subject" style="width:350px;" value="<?php echo $options["user_message_subject"]; ?>" /></td>
+									<tr>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><label for="user_message_subject"><?php _e("Subject", "register-plus-redux"); ?></label></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="user_message_subject" id="user_message_subject" style="width: 100%;" value="<?php echo $options["user_message_subject"]; ?>" /></td>
 									</tr>
-									<tr valign="top">
-										<th scope="row"><label for="user_message_body"><?php _e("User Message", "register-plus-redux"); ?></label></th>
-										<td>
-											<p><strong><?php _e("Replacement Keys", "register-plus-redux"); ?>:</strong> %user_login %user_password% %user_email% %blogname% %site_url%<?php echo $registration_fields; ?> %registered_from_ip% %registered_from_host% %http_referer% %http_user_agent%</p>
-											<textarea name="user_message_body" id="user_message_body" rows="10" cols="25" style="width:80%;height:300px;"><?php echo $options["user_message_body"]; ?></textarea><br />
-											<label><input type="checkbox" name="send_user_message_in_html" value="1" <?php if ( !empty($options["send_user_message_in_html"]) ) echo "checked='checked'"; ?> /><?php _e("Send as HTML", "register-plus-redux"); ?></label>
-											&nbsp;<label><input type="checkbox" name="user_message_newline_as_br" value="1" <?php if ( !empty($options["user_message_newline_as_br"]) ) echo "checked='checked'"; ?> /><?php _e("Convert new lines to &lt;br/> tags (HTML only)", "register-plus-redux"); ?></label>
+									<tr>
+										<td colspan="2" style="padding-top: 0px; padding-bottom: 0px;">
+											<label for="user_message_body"><?php _e("User Message", "register-plus-redux"); ?></label><br />
+											<textarea name="user_message_body" id="user_message_body" rows="10" cols="25" style="width: 100%; height: 300px;"><?php echo $options["user_message_body"]; ?></textarea><br />
+											<strong><?php _e("Replacement Keys", "register-plus-redux"); ?>:</strong> %user_login% %user_password% %user_email% %blogname% %site_url% <?php echo $registration_fields; ?> %registered_from_ip% %registered_from_host% %http_referer% %http_user_agent%<br />
+											<label><input type="checkbox" name="send_user_message_in_html" value="1" <?php if ( !empty($options["send_user_message_in_html"]) ) echo "checked='checked'"; ?> />&nbsp;<?php _e("Send as HTML", "register-plus-redux"); ?></label><br />
+											<label><input type="checkbox" name="user_message_newline_as_br" value="1" <?php if ( !empty($options["user_message_newline_as_br"]) ) echo "checked='checked'"; ?> />&nbsp;<?php _e("Convert new lines to &lt;br /&gt; tags (HTML only)", "register-plus-redux"); ?></label>
 										</td>
 									</tr>
-									<tr valign="top" class="disabled">
-										<th scope="row"><label for="user_message_login_link"><?php _e("Login URL", "register-plus-redux"); ?></label></th>
-										<td><input type="text" name="user_message_login_link" id="user_message_login_link" style="width:250px;" value="<?php echo $options["user_message_login_link"]; ?>" /><small><?php _e("This will redirect the users login after registration.", "register-plus-redux"); ?></small></td>
+									<tr class="disabled">
+										<td style="padding-top: 0px; padding-bottom: 0px;"><label for="user_message_login_link"><?php _e("Login URL", "register-plus-redux"); ?></label></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;">
+											<input type="text" name="user_message_login_link" id="user_message_login_link" style="width:250px;" value="<?php echo $options["user_message_login_link"]; ?>" /><br />
+											<?php _e("This will redirect the users login after registration.", "register-plus-redux"); ?>
+										</td>
 									</tr>
 								</table>
 							</div>
@@ -742,27 +745,27 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						<th scope="row"><label><?php _e("Custom Admin Email Notification", "register-plus-redux"); ?></label></th>
 						<td>
 							<label><input type="checkbox" name="custom_admin_message" id="custom_admin_message" value="1" <?php if ( !empty($options["custom_admin_message"]) ) echo "checked='checked'"; ?> onclick="showHideSettings(this);" />&nbsp;<?php _e("Enable", "register-plus-redux"); ?></label>
-							<div id="custom_admin_message_settings" style="margin-left:10px;">
-								<table width="80%">
-									<tr valign="top">
-										<th scope="row"><label for="admin_message_from_email"><?php _e("From Email", "register-plus-redux"); ?></label></th>
-										<td><input type="text" name="admin_message_from_email" id="admin_message_from_email" style="width:250px;" value="<?php echo $options["admin_message_from_email"]; ?>" /></td>
+							<div id="custom_admin_message_settings" style="margin-left: 8px;">
+								<table width="60%">
+									<tr>
+										<td style="padding-top: 0px; padding-bottom: 0px; width: 20%;"><label for="admin_message_from_email"><?php _e("From Email", "register-plus-redux"); ?></label></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="admin_message_from_email" id="admin_message_from_email" style="width: 100%;" value="<?php echo $options["admin_message_from_email"]; ?>" /></td>
 									</tr>
-									<tr valign="top">
-										<th scope="row"><label for="admin_message_from_name"><?php _e("From Name", "register-plus-redux"); ?></label></th>
-										<td><input type="text" name="admin_message_from_name" id="admin_message_from_name" style="width:250px;" value="<?php echo $options["admin_message_from_name"]; ?>" /></td>
+									<tr>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><label for="admin_message_from_name"><?php _e("From Name", "register-plus-redux"); ?></label></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="admin_message_from_name" id="admin_message_from_name" style="width: 100%;" value="<?php echo $options["admin_message_from_name"]; ?>" /></td>
 									</tr>
-									<tr valign="top">
-										<th scope="row"><label for="admin_message_subject"><?php _e("Subject", "register-plus-redux"); ?></label></th>
-										<td><input type="text" name="admin_message_subject" id="admin_message_subject" style="width:350px;" value="<?php echo $options["admin_message_subject"]; ?>" /></td>
+									<tr>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><label for="admin_message_subject"><?php _e("Subject", "register-plus-redux"); ?></label></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="admin_message_subject" id="admin_message_subject" style="width: 100%;" value="<?php echo $options["admin_message_subject"]; ?>" /></td>
 									</tr>
-									<tr valign="top">
-										<th scope="row"><label for="admin_message_body"><?php _e("Admin Message", "register-plus-redux"); ?></label></th>
-										<td>
-											<p><strong><?php _e("Replacement Keys", "register-plus-redux"); ?>:</strong> %user_login% %user_email% %blogname% %site_url%<?php echo $registration_fields; ?> %registered_from_ip% %registered_from_host% %http_referer% %http_user_agent%</p>
-											<textarea name="admin_message_body" id="admin_message_body" rows="10" cols="25" style="width:80%;height:300px;"><?php echo $options["admin_message_body"]; ?></textarea><br />
-											<label><input type="checkbox" name="send_admin_message_in_html" value="1" <?php if ( !empty($options["send_admin_message_in_html"]) ) echo "checked='checked'"; ?> /><?php _e("Send as HTML", "register-plus-redux"); ?></label>
-											&nbsp;<label><input type="checkbox" name="admin_message_newline_as_br" value="1" <?php if ( !empty($options["admin_message_newline_as_br"]) ) echo "checked='checked'"; ?> /><?php _e("Convert new lines to &lt;br/> tags (HTML only)", "register-plus-redux"); ?></label>
+									<tr>
+										<td colspan="2" style="padding-top: 0px; padding-bottom: 0px;">
+											<label for="admin_message_body"><?php _e("Admin Message", "register-plus-redux"); ?></label><br />
+											<textarea name="admin_message_body" id="admin_message_body" rows="10" cols="25" style="width: 100%; height: 300px;"><?php echo $options["admin_message_body"]; ?></textarea><br />
+											<strong><?php _e("Replacement Keys", "register-plus-redux"); ?>:</strong> %user_login% %user_email% %blogname% %site_url% <?php echo $registration_fields; ?> %registered_from_ip% %registered_from_host% %http_referer% %http_user_agent%<br />
+											<label><input type="checkbox" name="send_admin_message_in_html" value="1" <?php if ( !empty($options["send_admin_message_in_html"]) ) echo "checked='checked'"; ?> />&nbsp;<?php _e("Send as HTML", "register-plus-redux"); ?></label><br />
+											<label><input type="checkbox" name="admin_message_newline_as_br" value="1" <?php if ( !empty($options["admin_message_newline_as_br"]) ) echo "checked='checked'"; ?> />&nbsp;<?php _e("Convert new lines to &lt;br /&gt; tags (HTML only)", "register-plus-redux"); ?></label>
 										</td>
 									</tr>
 								</table>
@@ -1313,7 +1316,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							foreach ( $custom_field_options as $custom_field_option ) {
 								echo "\n<input type='radio' name='$key' id='", $this->fnSanitizeFieldName($custom_field_option), "'";
 								if ( $_POST[$key] == $custom_field_option ) echo " checked='checked'";
-								echo " value='$custom_field_option' tabindex='$tabindex' /><label for='", $this->fnSanitizeFieldName($custom_field_option), "' class='", $this->fnSanitizeFieldName($v["custom_field_name"]), "' >&nbsp;$custom_field_option</label><br />";
+								echo " value='$custom_field_option' tabindex='$tabindex' /><label for='", $this->fnSanitizeFieldName($custom_field_option), "' class='", $this->fnSanitizeFieldName($v["custom_field_name"]), "'>&nbsp;$custom_field_option</label><br />";
 								$tabindex++;
 							}
 							echo "\n</p>";
@@ -1616,7 +1619,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								foreach ( $custom_field_options as $custom_field_option ) {
 									echo "<option value='$custom_field_option'";
 									if ( $value == $custom_field_option ) echo " selected='selected'";
-									echo " >$custom_field_option</option>";
+									echo ">$custom_field_option</option>";
 								}
 								echo "</select>";
 								echo "\n		</td>";
@@ -1638,7 +1641,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								foreach ( $custom_field_options as $custom_field_option ) {
 									echo "\n			<label><input type='radio' name='$key' value='$custom_field_option'";
 									if ( $value == $custom_field_option ) echo " checked='checked'";
-									echo " class='tog' >&nbsp;$custom_field_option</label><br />";
+									echo " class='tog'>&nbsp;$custom_field_option</label><br />";
 								}
 								echo "\n		</td>";
 								break;
