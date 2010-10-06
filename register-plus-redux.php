@@ -223,7 +223,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 
 			function addInvitationCode() {
-				jQuery('<div class="invitation_code"><input type="text" name="invitation_code_bank[]" value="" />&nbsp;<img src="<?php echo plugins_url("removeBtn.gif", __FILE__); ?>" alt="<?php esc_attr_e("Remove Code", "register-plus-redux"); ?>" title="<?php esc_attr_e("Remove Code", "register-plus-redux"); ?>" onclick="removeInvitationCode(this);" style="cursor: pointer;" /></div>').appendTo('#invitation_code_bank');
+				jQuery('<div class="invitation_code"><input type="text" name="invitation_code_bank[]" value="" />&nbsp;<img src="<?php echo plugins_url("images\minus.gif", __FILE__); ?>" alt="<?php esc_attr_e("Remove Code", "register-plus-redux"); ?>" title="<?php esc_attr_e("Remove Code", "register-plus-redux"); ?>" onclick="removeInvitationCode(this);" style="cursor: pointer;" /></div>').appendTo('#invitation_code_bank');
 			}
 
 			function removeInvitationCode(clickety) {
@@ -297,7 +297,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							.attr('align', 'center')
 							.attr('style', 'padding-top: 0px; padding-bottom: 0px;')
 							.append(jQuery('<img>')
-								.attr('src', '<?php echo plugins_url("removeBtn.gif", __FILE__); ?>')
+								.attr('src', '<?php echo plugins_url("images\minus.gif", __FILE__); ?>')
 								.attr('alt', '<?php esc_attr_e("Remove Field", "register-plus-redux"); ?>')
 								.attr('title', '<?php esc_attr_e("Remove Field", "register-plus-redux"); ?>')
 								.attr('onclick', 'removeCustomField(this);')
@@ -432,10 +432,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									$invitation_codes = $options["invitation_code_bank"];
 									if ( !is_array($options["invitation_code_bank"]) ) $options["invitation_code_bank"] = array();
 									foreach ( $options["invitation_code_bank"] as $invitation_code )
-										echo "\n<div class='invitation_code'><input type='text' name='invitation_code_bank[]' value='$invitation_code' />&nbsp;<img src='", plugins_url("removeBtn.gif", __FILE__), "' alt='", __("Remove Code", "register-plus-redux"), "' title='", __("Remove Code", "register-plus-redux"), "' onclick='removeInvitationCode(this);' style='cursor: pointer;' /></div>";
+										echo "\n<div class='invitation_code'><input type='text' name='invitation_code_bank[]' value='$invitation_code' />&nbsp;<img src='", plugins_url("images\minus.gif", __FILE__), "' alt='", __("Remove Code", "register-plus-redux"), "' title='", __("Remove Code", "register-plus-redux"), "' onclick='removeInvitationCode(this);' style='cursor: pointer;' /></div>";
 								?>
 								</div>
-								<img src="<?php echo plugins_url("addBtn.gif", __FILE__); ?>" alt="<?php esc_attr_e("Add Code", "register-plus-redux") ?>" title="<?php esc_attr_e("Add Code", "register-plus-redux") ?>" onclick="addInvitationCode();" style="cursor: pointer;" />&nbsp;<?php _e("Add a new invitation code", "register-plus-redux") ?><br />
+								<img src="<?php echo plugins_url("images\plus.gif", __FILE__); ?>" alt="<?php esc_attr_e("Add Code", "register-plus-redux") ?>" title="<?php esc_attr_e("Add Code", "register-plus-redux") ?>" onclick="addInvitationCode();" style="cursor: pointer;" />&nbsp;<?php _e("Add a new invitation code", "register-plus-redux") ?><br />
 							</div>
 						</td>
 					</tr>
@@ -638,13 +638,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_profile[$k]' value='1'"; if ( !empty($v["show_on_profile"]) ) echo " checked='checked'"; echo " /></td>";
 										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_registration[$k]' value='1'"; if ( !empty($v["show_on_registration"]) ) echo " checked='checked'"; echo " onclick='modifyNextCellInput(this);' /></td>";
 										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='required_on_registration[$k]' value='1'"; if ( !empty($v["required_on_registration"]) ) echo " checked='checked'"; if ( empty($v["show_on_registration"]) ) echo " disabled='disabled'"; echo " /></td>";
-										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><img src='", plugins_url("removeBtn.gif", __FILE__), "' alt='", __("Remove Field", "register-plus-redux"), "' title='", __("Remove Field", "register-plus-redux"), "' onclick='removeCustomField(this);' style='cursor: pointer;' /></td>";
+										echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><img src='", plugins_url("images\minus.gif", __FILE__), "' alt='", __("Remove Field", "register-plus-redux"), "' title='", __("Remove Field", "register-plus-redux"), "' onclick='removeCustomField(this);' style='cursor: pointer;' /></td>";
 										echo "\n</tr>";
 									}
 									?>
 								</tbody>
 							</table>
-							<img src="<?php echo plugins_url("addBtn.gif", __FILE__); ?>" alt="<?php esc_attr_e("Add Field", "register-plus-redux") ?>" title="<?php esc_attr_e("Add Field", "register-plus-redux") ?>" onclick="addCustomField();" style="cursor: pointer;" />&nbsp;<?php _e("Add a new custom field.", "register-plus-redux") ?>
+							<img src="<?php echo plugins_url("images\plus.gif", __FILE__); ?>" alt="<?php esc_attr_e("Add Field", "register-plus-redux") ?>" title="<?php esc_attr_e("Add Field", "register-plus-redux") ?>" onclick="addCustomField();" style="cursor: pointer;" />&nbsp;<?php _e("Add a new custom field.", "register-plus-redux") ?>
 						</td>
 					</tr>
 					<tr valign="top">
