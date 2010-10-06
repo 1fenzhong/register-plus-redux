@@ -54,7 +54,7 @@ Register Plus offered two different CAPTCHA methods, a simple random CAPTCHA and
 
 == Screenshots ==
 
-1. Registration Page
+1. A Modified Registration Page
 2. Register Plus Settings
 3. Invitation Tracking Dashboard Widget
 4. Unverified User Management
