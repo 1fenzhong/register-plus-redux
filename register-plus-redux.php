@@ -5,7 +5,7 @@ Plugin Name: Register Plus Redux
 Author URI: http://radiok.info/
 Plugin URI: http://radiok.info/blog/category/register-plus-redux/
 Description: Enhances the user registration process with complete customization and additional administration options.
-Version: 3.6.12
+Version: 3.6.13
 Text Domain: register-plus-redux
 */
 
@@ -775,7 +775,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				</table>
 				<br />
 				<h3><?php _e("Custom CSS for Register & Login Pages", "register-plus-redux"); ?></h3>
-				<p><?php _e("CSS Rule Example:", "register-plus-redux"); ?><code>#user_login{ font-size: 20px; width: 97%; padding: 3px; margin-right: 6px; }</code></p>
+				<p><?php _e("CSS Rule Example:", "register-plus-redux"); ?>&nbsp;<code>#user_login { font-size: 20px; width: 97%; padding: 3px; margin-right: 6px; }</code></p>
 				<table class="form-table">
 					<tr valign="top">
 						<th scope="row"><label for="custom_registration_page_css"><?php _e("Custom Register CSS", "register-plus-redux"); ?></label></th>
@@ -1488,23 +1488,19 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$options = get_option("register_plus_redux_options");
 			$blogname = wp_specialchars_decode(get_option("blogname"), ENT_QUOTES);
 			if ( !empty($options["custom_user_message"]) ) {
-				if ( !empty($options["send_user_message_in_html"]) ) {
-					$headers = "MIME-Version: 1.0\n";
-					$headers .= "Content-type: text/html; charset=iso-8859-1\n";
-				}
-				//$headers .= "From: " . $options["user_message_from_email"] . "\n";
-				//$headers .= "Reply-To: " . $options["user_message_from_email"] . "\n";
 				$message = $this->replaceKeywords($options["user_message_body"], $user_info, $plaintext_pass);
 				if ( !empty($options["send_user_message_in_html"]) && !empty($options["user_message_newline_as_br"]) )
 					$message = nl2br($message);
 				if ( !empty($options["user_message_from_email"]) )
-					add_filter("wp_mail_from", array($this, "filter_user_message_from_email"));
+					add_filter("wp_mail_from", array($this, "filter_user_message_from"));
 				if ( !empty($options["user_message_from_name"]) )
 					add_filter("wp_mail_from_name", array($this, "filter_user_message_from_name"));
-				wp_mail($user_info->user_email, $options["user_message_subject"], $message, $headers);
+				if ( !empty($options["send_user_message_in_html"]) )
+					add_filter("wp_mail_content_type", array($this, "filter_message_content_type_html"));
+				wp_mail($user_info->user_email, $options["user_message_subject"], $message);
 			}
 			if ( empty($options["custom_user_message"]) ) {
-				$message .= __("Username:", "register-plus-redux") . " " . $user_info->user_login . "\n";
+				$message = __("Username:", "register-plus-redux") . " " . $user_info->user_login . "\n";
 				if ( empty($options["user_set_password"]) )
 					$message .= __("Password:", "register-plus-redux") . " " . $plaintext_pass . "\n";
 				$message .= "\n\n".wp_login_url()."\n";
@@ -1522,10 +1518,14 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			update_user_meta($user_id, "email_verification_sent", gmdate("Y-m-d H:i:s"));
 			$message = __("Verification URL:", "register-plus-redux")." ".wp_login_url()."?verification_code=".$email_verification_code."\n";
 			$message .= __("Please use the above link to verify your email address and activate your account", "register-plus-redux")."\n";
+			if ( !empty($options["send_user_message_in_html"]) && !empty($options["user_message_newline_as_br"]) )
+				$message = nl2br($message);
 			if ( !empty($options["user_message_from_email"]) )
-				add_filter("wp_mail_from", array($this, "filter_user_message_from_email"));
+				add_filter("wp_mail_from", array($this, "filter_user_message_from"));
 			if ( !empty($options["user_message_from_name"]) )
 				add_filter("wp_mail_from_name", array($this, "filter_user_message_from_name"));
+			if ( !empty($options["send_user_message_in_html"]) )
+				add_filter("wp_mail_content_type", array($this, "filter_message_content_type_html"));
 			wp_mail($user_info->user_email, "[".$blogname."] ".__("Verify your account", "register-plus-redux"), $message);
 		}
 		
@@ -1534,7 +1534,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$message = str_replace("%blogname%", $blogname, $message);
 			$message = str_replace("%site_url%", site_url(), $message);
 			if ( !empty($plaintext_pass) ) {
-				$message = str_replace("%user_pass%", $plaintext_pass, $message);
+				$message = str_replace("%user_password%", $plaintext_pass, $message);
 			}
 			if ( !empty($_SERVER) ) {
 				$message = str_replace("%registered_from_ip%", $_SERVER["REMOTE_ADDR"], $message);
@@ -1559,6 +1559,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !empty($v["show_on_registration"]) )
 					$message = str_replace("%$key%", get_user_meta($user_info->ID, $key, true), $message);
 			}
+			return $message;
 		}
 		
 		function AlterLoginForm() {
@@ -1672,7 +1673,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 		}
 
-		function filter_admin_message_from_email() {
+		function filter_admin_message_from() {
 			$options = get_option("register_plus_redux_options");
 			return $options["admin_message_from_email"];
 		}
@@ -1682,7 +1683,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			return $options["admin_message_from_name"];
 		}
 
-		function filter_user_message_from_email() {
+		function filter_user_message_from() {
 			$options = get_option("register_plus_redux_options");
 			return $options["user_message_from_email"];
 		}
@@ -1692,6 +1693,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			return $options["user_message_from_name"];
 		}
 
+		function filter_message_content_type_html() {
+			return "text/html";
+		}
+		
 		function fnSanitizeFieldName( $key ) {
 			$key = str_replace(" ", "_", $key);
 			$key = strtolower($key);
@@ -1773,20 +1778,16 @@ if ( !function_exists("wp_new_user_notification") ) {
 			$registerPlusRedux->sendUserMessage($user_id, $plaintext_pass);
 		}
 		if ( !empty($options["custom_admin_message"]) && empty($options["disable_admin_message"]) ) {
-			if ( !empty($options["send_admin_message_in_html"]) ) {
-				$headers = "MIME-Version: 1.0\n";
-				$headers .= "Content-type: text/html; charset=iso-8859-1\n";
-			}
-			//$headers .= "From: " . $options["admin_message_from_email"] . "\n"
-			//$headers .= "Reply-To: " . $options["admin_message_from_email"] . "\n";
-			if ( !empty($options["admin_message_from_email"]) )
-				add_filter("wp_mail_from", array($registerPlusRedux, "filter_admin_message_from_email"));
-			if ( !empty($options["admin_message_from_name"]) )
-				add_filter("wp_mail_from_name", array($registerPlusRedux, "filter_admin_message_from_name"));
 			$message = $registerPlusRedux->replaceKeywords($options["admin_message_body"], $user_info);
 			if ( !empty($options["send_admin_message_in_html"]) && !empty($options["admin_message_newline_as_br"]) )
 				$message = nl2br($message);
-			@wp_mail(get_option("admin_email"), $options["admin_message_subject"], $message, $headers);
+			if ( !empty($options["admin_message_from_email"]) )
+				add_filter("wp_mail_from", array($registerPlusRedux, "filter_admin_message_from"));
+			if ( !empty($options["admin_message_from_name"]) )
+				add_filter("wp_mail_from_name", array($registerPlusRedux, "filter_admin_message_from_name"));
+			if ( !empty($options["send_admin_message_in_html"]) )
+				add_filter("wp_mail_content_type", array($registerPlusRedux, "filter_message_content_type_html"));
+			wp_mail(get_option("admin_email"), $options["admin_message_subject"], $message);
 		}
 		if ( empty($options["custom_admin_message"]) && empty($options["disable_admin_message"]) ) {
 			//Wordpress 3.0.1 default admin message
@@ -1794,7 +1795,7 @@ if ( !function_exists("wp_new_user_notification") ) {
 			$message = __("New user registered on your site", "register-plus-redux")." ".$blogname."\n\n";
 			$message .= __("Username:", "register-plus-redux")." ".$user_info->user_login."\n";
 			$message .= __("E-mail:", "register-plus-redux")." ".$user_info->user_email."\n";
-			@wp_mail(get_option("admin_email"), "[".$blogname."] ".__("New User Registered", "register-plus-redux"), $message);
+			wp_mail(get_option("admin_email"), "[".$blogname."] ".__("New User Registered", "register-plus-redux"), $message);
 		}
 	}
 }

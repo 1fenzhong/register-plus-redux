@@ -4,7 +4,7 @@ Donate link: http://radiok.info/donate/
 Tags: registration, register, plus, redux, password, invitation, code, email, verification, disclaimer, license, agreement, privacy, policy, logo, moderation, user
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable tag: 3.6.12
+Stable tag: 3.6.13
 
 Enhances the user registration process with complete customization and additional administration options.
 
@@ -68,6 +68,8 @@ http://wordpress.org/support/topic/register-plus-is-adding-s-to-all-quote-marks-
 FEATURE REQUEST: Registration widget, need to look into whether someone else took care of that, and if so how Redux interacts with that.
 http://wordpress.org/support/topic/register-plus
 
+FEATURE REQUEST: BuddyPress compatability
+
 TODO: Migrate settings from Register Plus?
 
 TODO: User-new.php is not modified with the added fields, does not notice if username is in queue
@@ -86,7 +88,15 @@ TODO: Would like to be able to upload the file a little bit nicer, almost like a
 
 TODO: jQuery summarize user message status
 
+TODO: If plaintext password is unknown, user message with that keyword goes out a little wonky, this happens when user set password is enabled and some sort of user verification is also enabled.
+
 == Changelog ==
+= 3.6.13 =
+October 6, 2010 by radiok
+
+* Fixed issue with custom user messages going out blank, as reported by xxx <>
+* Fixed issue with admin messages not going out, as reported by xxx <>
+
 = 3.6.12 =
 October 5, 2010 by radiok
 
