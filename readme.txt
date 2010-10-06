@@ -62,11 +62,17 @@ Register Plus offered two different CAPTCHA methods, a simple random CAPTCHA and
 == Worklog ==
 TODO: Privacy Issue - When "Choose Password upon Registration" is active, the email that is sent to the user contains their password. It should be blocked out, omitted, or say "Password: [chosen upon registration]". as reported by iq9
 
-TODO: More bugfixes per the following post
-http://wordpress.org/support/topic/register-plus-is-adding-s-to-all-quote-marks-in-registration-email
+TODO: More bugfixes per the following post <http://wordpress.org/support/topic/register-plus-is-adding-s-to-all-quote-marks-in-registration-email>
 
-FEATURE REQUEST: Registration widget, need to look into whether someone else took care of that, and if so how Redux interacts with that.
-http://wordpress.org/support/topic/register-plus
+FEATURE REQUEST: Registration widget, need to look into whether someone else took care of that, and if so how Redux interacts with that <http://wordpress.org/support/topic/register-plus>
+
+FEATURE REQUEST: Invitation code link to
+
+FEATURE REQUEST: Display invitation code used on profile page <http://wordpress.org/support/topic/plugin-pie-register-invitation-code-in-user-profile-page>
+
+FEATURE REQUEST: Allow reorder of custom fields <http://wordpress.org/support/topic/plugin-pie-register-adding-new-fields-different-order>
+
+FEATURE REQUEST: After registering, redirect to previous page <http://wordpress.org/support/topic/pie-register-and-redirect-to>
 
 FEATURE REQUEST: BuddyPress compatability
 
