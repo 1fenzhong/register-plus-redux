@@ -94,8 +94,8 @@ TODO: If plaintext password is unknown, user message with that keyword goes out 
 = 3.6.13 =
 October 6, 2010 by radiok
 
-* Fixed issue with custom user messages going out blank, as reported by xxx <>
-* Fixed issue with admin messages not going out, as reported by xxx <>
+* Fixed issue with custom user messages going out blank, as reported by kspec1212 <http://wordpress.org/support/topic/plugin-register-plus-redux-no-text-in-the-user-notification-email>
+* Fixed issue with admin messages not going out, as reported by saury316 <http://wordpress.org/support/topic/plugin-register-plus-redux-admin-verification-issues>
 
 = 3.6.12 =
 October 5, 2010 by radiok
