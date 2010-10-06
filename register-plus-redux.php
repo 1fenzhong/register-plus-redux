@@ -249,7 +249,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								.attr('onclick', 'maybeModifyNextCellInput(this)')
 								.append('<option value="text">Text Field</option>')
 								.append('<option value="select">Select Field</option>')
-								.append('<option value="check">Checkbox Fields</option>')
+								.append('<option value="checkbox">Checkbox Fields</option>')
 								.append('<option value="radio">Radio Fields</option>')
 								.append('<option value="textarea">Text Area</option>')
 								.append('<option value="date">Date Field</option>')
