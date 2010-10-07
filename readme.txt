@@ -76,6 +76,12 @@ FEATURE REQUEST: After registering, redirect to previous page <http://wordpress.
 
 FEATURE REQUEST: BuddyPress compatability
 
+FEATURE REQUEST: URL custom field type <http://radiok.info/blog/administration-redux/>
+
+FEATURE REQUEST: Double check email address <http://wordpress.org/support/topic/plugin-register-plus-redux-double-check-email-address>
+
+TODO: Look over password strenght meter <http://radiok.info/blog/administration-redux/>
+
 TODO: Migrate settings from Register Plus?
 
 TODO: User-new.php is not modified with the added fields, does not notice if username is in queue
