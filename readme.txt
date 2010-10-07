@@ -94,9 +94,17 @@ TODO: Would like to be able to upload the file a little bit nicer, almost like a
 
 TODO: jQuery summarize user message status
 
-TODO: If plaintext password is unknown, user message with that keyword goes out a little wonky, this happens when user set password is enabled and some sort of user verification is also enabled.
+TODO: Slashes in custom messages, something is wrong with apostrophes and escaping <http://wordpress.org/support/topic/plugin-register-plus-redux-email-conflicts-with-another-plugin>
 
 == Changelog ==
+= 3.6.13 =
+October 7, 2010 by radiok
+
+* Fixed issue with %user_password%, as reported by erbuc, and the.gamer <http://wordpress.org/support/topic/plugin-register-plus-redux-no-text-in-the-user-notification-email>
+* Made verification message customizable, as suggested by Shikant Joshi <http://radiok.info/blog/administration-redux/>
+* Added several options regarding when and when not to send messages, as discussed with Shikant Joshi <http://radiok.info/blog/administration-redux/>
++ Added option to add astericks to required fields, as suggested by pixelprophet <http://wordpress.org/support/topic/plugin-register-plus-redux-email-conflicts-with-another-plugin>
+
 = 3.6.13 =
 October 6, 2010 by radiok
 
