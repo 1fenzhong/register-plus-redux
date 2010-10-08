@@ -100,6 +100,11 @@ TODO: jQuery summarize user message status
 TODO: Restore defaults buttons
 
 == Changelog ==
+= 3.6.15 =
+October 8, 2010 by radiok
+
+* Fixed a little bug in custom admin messages having no from name or from email address.
+
 = 3.6.14 =
 October 8, 2010 by radiok
 
