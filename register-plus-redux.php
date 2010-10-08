@@ -31,7 +31,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			
 			//add_action("wpmu_activate_user", array($this, "UpdateSignup"), 10, 3);
 			//add_action("signup_extra_fields", array($this, "AlterSignupForm"));
-			//add_filter("wpmu_validate_user_signup", array($this, "CheckSignup"));
 
 			add_action("show_user_profile", array($this, "ShowCustomFields")); //Runs near the end of the user profile editing screen.
 			add_action("edit_user_profile", array($this, "ShowCustomFields")); //Runs near the end of the user profile editing screen in the admin menus. 
@@ -1628,8 +1627,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 		}
 
-		function sendUserMessage ( $user_id, $plaintext_pass )
-		{
+		function sendUserMessage ( $user_id, $plaintext_pass ) {
 			$user_info = get_userdata($user_id);
 			$options = get_option("register_plus_redux_options");
 			$subject = stripslashes($this->defaultOptions("user_message_subject"));
@@ -1651,8 +1649,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			wp_mail($user_info->user_email, $subject, $message);
 		}
 
-		function sendVerificationMessage ( $user_id )
-		{
+		function sendVerificationMessage ( $user_id ) {
 			$user_info = get_userdata($user_id);
 			$options = get_option("register_plus_redux_options");
 			$verification_code = wp_generate_password(20, false);
@@ -1677,8 +1674,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			wp_mail($user_info->user_email, $subject, $message);
 		}
 
-		function sendAdminMessage ( $user_id )
-		{
+		function sendAdminMessage ( $user_id ) {
 			$user_info = get_userdata($user_id);
 			$options = get_option("register_plus_redux_options");
 			$subject = stripslashes($this->defaultOptions("admin_message_subject"));
