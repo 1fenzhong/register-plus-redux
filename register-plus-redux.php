@@ -5,7 +5,7 @@ Plugin Name: Register Plus Redux
 Author URI: http://radiok.info/
 Plugin URI: http://radiok.info/blog/category/register-plus-redux/
 Description: Enhances the user registration process with complete customization and additional administration options.
-Version: 3.6.14
+Version: 3.6.15
 Text Domain: register-plus-redux
 */
 
@@ -1690,11 +1690,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !empty($options["send_admin_message_in_html"]) && !empty($options["admin_message_newline_as_br"]) )
 					$message = nl2br($message);
 				if ( !empty($options["admin_message_from_email"]) )
-					add_filter("wp_mail_from", array($registerPlusRedux, "filter_admin_message_from"));
+					add_filter("wp_mail_from", array($this, "filter_admin_message_from"));
 				if ( !empty($options["admin_message_from_name"]) )
-					add_filter("wp_mail_from_name", array($registerPlusRedux, "filter_admin_message_from_name"));
+					add_filter("wp_mail_from_name", array($this, "filter_admin_message_from_name"));
 				if ( !empty($options["send_admin_message_in_html"]) )
-					add_filter("wp_mail_content_type", array($registerPlusRedux, "filter_message_content_type_html"));
+					add_filter("wp_mail_content_type", array($this, "filter_message_content_type_html"));
 			}
 			$message = $this->replaceKeywords($message, $user_info);
 			wp_mail(get_option("admin_email"), $subject, $message);
