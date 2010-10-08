@@ -101,13 +101,14 @@ TODO: jQuery summarize user message status
 TODO: Slashes in custom messages, something is wrong with apostrophes and escaping <http://wordpress.org/support/topic/plugin-register-plus-redux-email-conflicts-with-another-plugin>
 
 == Changelog ==
-= 3.6.13 =
-October 7, 2010 by radiok
+= 3.6.14 =
+October 8, 2010 by radiok
 
 * Fixed issue with %user_password%, as reported by erbuc, and the.gamer <http://wordpress.org/support/topic/plugin-register-plus-redux-no-text-in-the-user-notification-email>
 * Made verification message customizable, as suggested by Shikant Joshi <http://radiok.info/blog/administration-redux/>
 * Added several options regarding when and when not to send messages, as discussed with Shikant Joshi <http://radiok.info/blog/administration-redux/>
-+ Added option to add astericks to required fields, as suggested by pixelprophet <http://wordpress.org/support/topic/plugin-register-plus-redux-email-conflicts-with-another-plugin>
+* Added option to add astericks to required fields, as suggested by pixelprophet <http://wordpress.org/support/topic/plugin-register-plus-redux-email-conflicts-with-another-plugin>
+* Fixed issues with slashes in fields due to the way data is stored in MySQL, added stripslashes to applicable text fields, as reported by pixelprophet <http://wordpress.org/support/topic/plugin-register-plus-redux-email-conflicts-with-another-plugin>
 
 = 3.6.13 =
 October 6, 2010 by radiok
