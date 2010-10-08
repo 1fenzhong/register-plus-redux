@@ -1627,6 +1627,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$options = get_option("register_plus_redux_options");
 			$message = $this->defaultOptions("user_message_body");
 			$subject = $this->defaultOptions("user_message_subject");
+			add_filter("wp_mail_content_type", array($this, "filter_message_content_type_text"));
 			if ( !empty($options["custom_user_message"]) ) {
 				$message = $options["user_message_body"];
 				$subject = $options["user_message_subject"];
@@ -1652,6 +1653,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			update_user_meta($user_id, "email_verification_sent", gmdate("Y-m-d H:i:s"));
 			$message = $this->defaultOptions("verification_message_body");
 			$subject = $this->defaultOptions("verification_message_subject");
+			add_filter("wp_mail_content_type", array($this, "filter_message_content_type_text"));
 			if ( !empty($options["custom_verification_message"]) ) {
 				$message = $options["verification_message_body"];
 				$subject = $options["verification_message_subject"];
@@ -1674,6 +1676,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$options = get_option("register_plus_redux_options");
 			$message = $this->defaultOptions("admin_message_body");
 			$subject = $this->defaultOptions("admin_message_subject");
+			add_filter("wp_mail_content_type", array($this, "filter_message_content_type_text"));
 			if ( !empty($options["custom_admin_message"]) ) {
 				$message = $options["admin_message_body"];
 				$subject = $options["admin_message_subject"];
@@ -1837,37 +1840,41 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 		}
 
-		function filter_admin_message_from() {
+		function filter_admin_message_from( $from_email ) {
 			$options = get_option("register_plus_redux_options");
 			return $options["admin_message_from_email"];
 		}
 
-		function filter_admin_message_from_name() {
+		function filter_admin_message_from_name( $from_name ) {
 			$options = get_option("register_plus_redux_options");
 			return $options["admin_message_from_name"];
 		}
 
-		function filter_user_message_from() {
+		function filter_user_message_from( $from_email ) {
 			$options = get_option("register_plus_redux_options");
 			return $options["user_message_from_email"];
 		}
 
-		function filter_user_message_from_name() {
+		function filter_user_message_from_name( $from_name ) {
 			$options = get_option("register_plus_redux_options");
 			return $options["user_message_from_name"];
 		}
 
-		function filter_verification_message_from() {
+		function filter_verification_message_from( $from_email ) {
 			$options = get_option("register_plus_redux_options");
 			return $options["verification_message_from_email"];
 		}
 
-		function filter_verification_message_from_name() {
+		function filter_verification_message_from_name( $from_name ) {
 			$options = get_option("register_plus_redux_options");
 			return $options["verification_message_from_name"];
 		}
 
-		function filter_message_content_type_html() {
+		function filter_message_content_type_text( $content_type ) {
+			return "text/plain";
+		}
+		
+		function filter_message_content_type_html( $content_type ) {
 			return "text/html";
 		}
 		
