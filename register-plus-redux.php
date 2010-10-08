@@ -974,7 +974,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( isset($_POST["custom_login_page_css"]) ) $options["custom_login_page_css"] = $_POST["custom_login_page_css"];
 
 			update_option("register_plus_redux_options", $options);
-			//update_option("register_plus_redux_custom_fields", $custom_fields);
+			update_option("register_plus_redux_custom_fields", $custom_fields);
 			$_POST["notice"] = __("Settings Saved", "register-plus-redux");
 		}
 
