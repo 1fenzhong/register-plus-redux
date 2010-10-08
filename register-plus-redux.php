@@ -50,7 +50,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 		function defaultOptions( $key = "" )
 		{
-			$blogname = wp_specialchars_decode(get_option("blogname"), ENT_QUOTES);
+			$blogname = stripslashes(wp_specialchars_decode(get_option("blogname"), ENT_QUOTES));
 			$default = array(
 				"user_set_password" => "0",
 				"show_password_meter" => "0",
@@ -1265,12 +1265,12 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					<script type="text/javascript">
 						/* <![CDATA[ */
 							pwsL10n={
-								empty: "<?php echo $options["message_empty_password"]; ?>",
-								short: "<?php echo $options["message_short_password"]; ?>",
-								bad: "<?php echo $options["message_bad_password"]; ?>",
-								good: "<?php echo $options["message_good_password"]; ?>",
-								strong: "<?php echo $options["message_strong_password"]; ?>",
-								mismatch: "<?php echo $options["message_mismatch_password"]; ?>"
+								empty: "<?php echo stripslashes($options["message_empty_password"]); ?>",
+								short: "<?php echo stripslashes($options["message_short_password"]); ?>",
+								bad: "<?php echo stripslashes($options["message_bad_password"]); ?>",
+								good: "<?php echo stripslashes($options["message_good_password"]); ?>",
+								strong: "<?php echo stripslashes($options["message_strong_password"]); ?>",
+								mismatch: "<?php echo stripslashes($options["message_mismatch_password"]); ?>"
 							}
 						/* ]]> */
 						function check_pass_strength() {
@@ -1480,7 +1480,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo __("Confirm Password", "register-plus-redux"), "<br /><input type='password' autocomplete='off' name='pass2' id='pass2' value='", $_POST["password"], "' size='25' tabindex='$tabindex' /></label></p>";
 				$tabindex++;
 				if ( !empty($options["show_password_meter"]) ) {
-					echo "\n<div id='pass-strength-result'>", $options["message_empty_password"], "</div>";
+					echo "\n<div id='pass-strength-result'>", stripslashes($options["message_empty_password"]), "</div>";
 					echo "\n<small>", __("Your password must be at least seven characters long. To make your password stronger, use upper and lower case letters, numbers, and the following symbols !@#$%^&amp;*()", "register-plus-redux"), "</small>";
 				}
 			}
@@ -1498,27 +1498,27 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( !empty($options["show_disclaimer"]) ) {
 				if ( isset($_GET["accept_disclaimer"]) ) $_POST["accept_disclaimer"] = $_GET["accept_disclaimer"];
 				echo "\n<p>";
-				echo "\n	<label>", $options["message_disclaimer_title"], "</label><br />";
-				echo "\n	<span name='disclaimer' id='disclaimer'>", $options["message_disclaimer"], "</span>";
-				echo "\n	<label class='accept_check'><input type='checkbox' name='accept_disclaimer' id='accept_disclaimer' value='1'"; if ( !empty($_POST["accept_disclaimer"]) ) echo " checked='checked'"; echo " tabindex='$tabindex'/>&nbsp;", $options["message_disclaimer_agree"], "</label>";
+				echo "\n	<label>", stripslashes($options["message_disclaimer_title"]), "</label><br />";
+				echo "\n	<span name='disclaimer' id='disclaimer'>", stripslashes($options["message_disclaimer"]), "</span>";
+				echo "\n	<label class='accept_check'><input type='checkbox' name='accept_disclaimer' id='accept_disclaimer' value='1'"; if ( !empty($_POST["accept_disclaimer"]) ) echo " checked='checked'"; echo " tabindex='$tabindex'/>&nbsp;", stripslashes($options["message_disclaimer_agree"]), "</label>";
 				$tabindex++;
 				echo "\n</p>";
 			}
 			if ( !empty($options["show_license"]) ) {
 				if ( isset($_GET["accept_license"]) ) $_POST["accept_license"] = $_GET["accept_license"];
 				echo "\n<p>";
-				echo "\n	<label>", $options["message_license_title"], "</label><br />";
-				echo "\n	<span name='license' id='license'>", $options["message_license"], "</span>";
-				echo "\n	<label class='accept_check'><input type='checkbox' name='accept_license' id='accept_license' value='1'"; if ( !empty($_POST["accept_license_agreement"]) ) echo " checked='checked'"; echo " tabindex='$tabindex'/>&nbsp;", $options["message_license_agree"], "</label>";
+				echo "\n	<label>", stripslashes($options["message_license_title"]), "</label><br />";
+				echo "\n	<span name='license' id='license'>", stripslashes($options["message_license"]), "</span>";
+				echo "\n	<label class='accept_check'><input type='checkbox' name='accept_license' id='accept_license' value='1'"; if ( !empty($_POST["accept_license_agreement"]) ) echo " checked='checked'"; echo " tabindex='$tabindex'/>&nbsp;", stripslashes($options["message_license_agree"]), "</label>";
 				$tabindex++;
 				echo "\n</p>";
 			}
 			if ( !empty($options["show_privacy_policy"]) ) {
 				if ( isset($_GET["accept_privacy_policy"]) ) $_POST["accept_privacy_policy"] = $_GET["accept_privacy_policy"];
 				echo "\n<p>";
-				echo "\n	<label>", $options["message_privacy_policy_title"], "</label><br />";
-				echo "\n	<span name='privacy_policy' id='privacy_policy'>", $options["message_privacy_policy"], "</span>";
-				echo "\n	<label class='accept_check'><input type='checkbox' name='accept_privacy_policy' id='accept_privacy_policy' value='1'"; if ( !empty($_POST["accept_privacy_policy"]) ) echo " checked='checked'"; echo " tabindex='$tabindex'/>&nbsp;", $options["message_privacy_policy_agree"], "</label>";
+				echo "\n	<label>", stripslashes($options["message_privacy_policy_title"]), "</label><br />";
+				echo "\n	<span name='privacy_policy' id='privacy_policy'>", stripslashes($options["message_privacy_policy"]), "</span>";
+				echo "\n	<label class='accept_check'><input type='checkbox' name='accept_privacy_policy' id='accept_privacy_policy' value='1'"; if ( !empty($_POST["accept_privacy_policy"]) ) echo " checked='checked'"; echo " tabindex='$tabindex'/>&nbsp;", stripslashes($options["message_privacy_policy_agree"]), "</label>";
 				$tabindex++;
 				echo "\n</p>";
 			}
@@ -1597,17 +1597,17 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 			if ( !empty($options["show_disclaimer"]) ) {
 				if ( empty($_POST["accept_disclaimer"]) || !$_POST["accept_disclaimer"] ) {
-					$errors->add("show_disclaimer", sprintf(__("<strong>ERROR</strong>: Please accept the %s", "register-plus-redux"), $options["message_disclaimer_title"]) . ".");
+					$errors->add("show_disclaimer", sprintf(__("<strong>ERROR</strong>: Please accept the %s", "register-plus-redux"), stripslashes($options["message_disclaimer_title"])) . ".");
 				}
 			}
 			if ( !empty($options["show_license"]) ) {
 				if ( empty($_POST["accept_license_agreement"]) || !$_POST["accept_license_agreement"] ) {
-					$errors->add("show_license", sprintf(__("<strong>ERROR</strong>: Please accept the %s", "register-plus-redux"), $options["message_license_title"]) . ".");
+					$errors->add("show_license", sprintf(__("<strong>ERROR</strong>: Please accept the %s", "register-plus-redux"), stripslashes($options["message_license_title"])) . ".");
 				}
 			}
 			if ( !empty($options["show_privacy_policy"]) ) {
 				if ( empty($_POST["accept_privacy_policy"]) || !$_POST["accept_privacy_policy"] ) {
-					$errors->add("show_privacy_policy", sprintf(__("<strong>ERROR</strong>: Please accept the %s", "register-plus-redux"), $options["message_privacy_policy_title"]) . ".");
+					$errors->add("show_privacy_policy", sprintf(__("<strong>ERROR</strong>: Please accept the %s", "register-plus-redux"), stripslashes($options["message_privacy_policy_title"])) . ".");
 				}
 			}
 		}
@@ -1625,12 +1625,12 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		{
 			$user_info = get_userdata($user_id);
 			$options = get_option("register_plus_redux_options");
-			$message = $this->defaultOptions("user_message_body");
-			$subject = $this->defaultOptions("user_message_subject");
+			$subject = stripslashes($this->defaultOptions("user_message_subject"));
+			$message = stripslashes($this->defaultOptions("user_message_body"));
 			add_filter("wp_mail_content_type", array($this, "filter_message_content_type_text"));
 			if ( !empty($options["custom_user_message"]) ) {
-				$message = $options["user_message_body"];
-				$subject = $options["user_message_subject"];
+				$subject = stripslashes($options["user_message_subject"]);
+				$message = stripslashes($options["user_message_body"]);
 				if ( !empty($options["send_user_message_in_html"]) && !empty($options["user_message_newline_as_br"]) )
 					$message = nl2br($message);
 				if ( !empty($options["user_message_from_email"]) )
@@ -1651,12 +1651,12 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$verification_code = wp_generate_password(20, false);
 			update_user_meta($user_id, "email_verification_code", $verification_code);
 			update_user_meta($user_id, "email_verification_sent", gmdate("Y-m-d H:i:s"));
-			$message = $this->defaultOptions("verification_message_body");
-			$subject = $this->defaultOptions("verification_message_subject");
+			$subject = stripslashes($this->defaultOptions("verification_message_subject"));
+			$message = stripslashes($this->defaultOptions("verification_message_body"));
 			add_filter("wp_mail_content_type", array($this, "filter_message_content_type_text"));
 			if ( !empty($options["custom_verification_message"]) ) {
-				$message = $options["verification_message_body"];
-				$subject = $options["verification_message_subject"];
+				$subject = stripslashes($options["verification_message_subject"]);
+				$message = stripslashes($options["verification_message_body"]);
 				if ( !empty($options["send_verification_message_in_html"]) && !empty($options["verification_message_newline_as_br"]) )
 					$message = nl2br($message);
 				if ( !empty($options["verification_message_from_email"]) )
@@ -1674,12 +1674,12 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		{
 			$user_info = get_userdata($user_id);
 			$options = get_option("register_plus_redux_options");
-			$message = $this->defaultOptions("admin_message_body");
-			$subject = $this->defaultOptions("admin_message_subject");
+			$subject = stripslashes($this->defaultOptions("admin_message_subject"));
+			$message = stripslashes($this->defaultOptions("admin_message_body"));
 			add_filter("wp_mail_content_type", array($this, "filter_message_content_type_text"));
 			if ( !empty($options["custom_admin_message"]) ) {
-				$message = $options["admin_message_body"];
-				$subject = $options["admin_message_subject"];
+				$subject = stripslashes($options["admin_message_subject"]);
+				$message = stripslashes($options["admin_message_body"]);
 				if ( !empty($options["send_admin_message_in_html"]) && !empty($options["admin_message_newline_as_br"]) )
 					$message = nl2br($message);
 				if ( !empty($options["admin_message_from_email"]) )
@@ -1708,13 +1708,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 			$message = str_replace("%user_login%", $user_info->user_login, $message);
 			$message = str_replace("%user_email%", $user_info->user_email, $message);
-			$message = str_replace("%first_name%", get_user_meta($user_info->ID, "first_name", true), $message);
-			$message = str_replace("%last_name%", get_user_meta($user_info->ID, "last_name", true), $message);
+			$message = str_replace("%first_name%", stripslashes(get_user_meta($user_info->ID, "first_name", true)), $message);
+			$message = str_replace("%last_name%", stripslashes(get_user_meta($user_info->ID, "last_name", true)), $message);
 			$message = str_replace("%user_url%", get_user_meta($user_info->ID, "user_url", true), $message);
 			$message = str_replace("%aim%", get_user_meta($user_info->ID, "aim", true), $message);
 			$message = str_replace("%yahoo%", get_user_meta($user_info->ID, "yahoo", true), $message);
 			$message = str_replace("%jabber%", get_user_meta($user_info->ID, "jabber", true), $message);
-			$message = str_replace("%about%", get_user_meta($user_info->ID, "about", true), $message);
+			$message = str_replace("%about%", stripslashes(get_user_meta($user_info->ID, "about", true)), $message);
 			$message = str_replace("%invitation_code%", get_user_meta($user_info->ID, "invitation_code", true), $message);
 			$custom_fields = get_option("register_plus_redux_custom_fields");
 			if ( !is_array($custom_fields) ) $custom_fields = array();
@@ -1842,32 +1842,32 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 		function filter_admin_message_from( $from_email ) {
 			$options = get_option("register_plus_redux_options");
-			return $options["admin_message_from_email"];
+			return stripslashes($options["admin_message_from_email"]);
 		}
 
 		function filter_admin_message_from_name( $from_name ) {
 			$options = get_option("register_plus_redux_options");
-			return $options["admin_message_from_name"];
+			return stripslashes($options["admin_message_from_name"]);
 		}
 
 		function filter_user_message_from( $from_email ) {
 			$options = get_option("register_plus_redux_options");
-			return $options["user_message_from_email"];
+			return stripslashes($options["user_message_from_email"]);
 		}
 
 		function filter_user_message_from_name( $from_name ) {
 			$options = get_option("register_plus_redux_options");
-			return $options["user_message_from_name"];
+			return stripslashes($options["user_message_from_name"]);
 		}
 
 		function filter_verification_message_from( $from_email ) {
 			$options = get_option("register_plus_redux_options");
-			return $options["verification_message_from_email"];
+			return stripslashes($options["verification_message_from_email"]);
 		}
 
 		function filter_verification_message_from_name( $from_name ) {
 			$options = get_option("register_plus_redux_options");
-			return $options["verification_message_from_name"];
+			return stripslashes($options["verification_message_from_name"]);
 		}
 
 		function filter_message_content_type_text( $content_type ) {
