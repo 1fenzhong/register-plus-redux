@@ -52,6 +52,9 @@ Register Plus was abandoned by skullbit sometime after September, 2008 following
 = Didn't Register Plus have CAPTCHA? =
 Register Plus offered two different CAPTCHA methods, a simple random CAPTCHA and reCAPTCHA.  The simple one randomly created a 5-character sequence on a background image with two random lines drawn across the image, this CAPTCHA would be very easy for any OCR program to decipher as the characters were not modified in anyway and contrast was high.  reCAPTCHA is a great idea, but there is another plugin, [WP-reCAPTCHA](http://wordpress.org/extend/plugins/wp-recaptcha/) endorsed by the reCAPTCHA developers that can be used to add reCAPTCHA to the registration page.  I also endorse the use of that plugin for that purpose.
 
+= Didn't Register Plus have a feature to allow duplicate e-mail addresses? =
+Register Plus did have a feature that allowed multiple users to register with the same e-mail address.  I'm not sure when that stopped working for Register Plus, but I can assure you, that method doesn't work in WordPress 3.0 and will not work in any future revision.  Register Plus' method was pretty simple, if the email_exists error is thrown, unthrow it.  Well, that works, to a degree, but once WordPress actually builds the user it chokes up and unpleasant things happen, in my experience.  I'll leave this feature to brigher minds then my own to fix.
+
 == Screenshots ==
 
 1. A Modified Registration Page
@@ -73,8 +76,6 @@ FEATURE REQUEST: After registering, redirect to previous page <http://wordpress.
 FEATURE REQUEST: BuddyPress compatability
 
 FEATURE REQUEST: URL custom field type <http://radiok.info/blog/administration-redux/>
-
-FEATURE REQUEST: Double check email address <http://wordpress.org/support/topic/plugin-register-plus-redux-double-check-email-address>
 
 TODO: Look over password strenght meter <http://radiok.info/blog/administration-redux/>
 
@@ -107,6 +108,8 @@ October 8, 2010 by radiok
 * Added several options regarding when and when not to send messages, as discussed with Shikant Joshi <http://radiok.info/blog/administration-redux/>
 * Added option to add asterisks to required fields, as suggested by pixelprophet <http://wordpress.org/support/topic/plugin-register-plus-redux-email-conflicts-with-another-plugin>
 * Fixed issues with slashes in fields due to the way data is stored in MySQL, added stripslashes to applicable text fields, as reported by pixelprophet <http://wordpress.org/support/topic/plugin-register-plus-redux-email-conflicts-with-another-plugin>
+* Added option to double check email addresses, as requested by MacItaly <http://wordpress.org/support/topic/plugin-register-plus-redux-double-check-email-address>
+* Added %stored_user_login% keyword for messages, as discussed with richardmtl <http://wordpress.org/support/topic/plugin-register-plus-redux-call_user_func_array-error>
 
 = 3.6.13 =
 October 6, 2010 by radiok
