@@ -1115,7 +1115,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo "\nheight: $height", "px;";
 				echo "\n</style>";
 			}
-			if ( isset($_GET["checkemail"]) && $_GET["checkemail"] == "registered" && ($options["verify_user_admin"] || $options["verify_user_email"]) ) {
+			if ( isset($_GET["checkemail"]) && $_GET["checkemail"] == "registered" && (!empty($options["verify_user_admin"]) || !empty($options["verify_user_email"])) ) {
 				//label, #user_login, #user_pass, .forgetmenot, #wp-submit, .message { display: none; }
 				echo "\n<style type=\"text/css\">";
 				echo "\np { display: none; }";
@@ -1673,7 +1673,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !empty($options["send_verification_message_in_html"]) )
 					add_filter("wp_mail_content_type", array($this, "filter_message_content_type_html"));
 			}
-			$message = $this->replaceKeywords($message, $user_info, $plaintext_pass, $verification_code);
+			$message = $this->replaceKeywords($message, $user_info, "", $verification_code);
 			wp_mail($user_info->user_email, $subject, $message);
 		}
 
