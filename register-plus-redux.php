@@ -5,7 +5,7 @@ Plugin Name: Register Plus Redux
 Author URI: http://radiok.info/
 Plugin URI: http://radiok.info/blog/category/register-plus-redux/
 Description: Enhances the user registration process with complete customization and additional administration options.
-Version: 3.6.15
+Version: 3.6.16
 Text Domain: register-plus-redux
 */
 
@@ -1058,8 +1058,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					<thead>
 						<tr class="thead">
 							<th scope="col" id="cb" class="manage-column column-cb check-column" style=""><input type="checkbox" /></th>
-							<th><?php _e("Unverified Username", "register-plus-redux"); ?></th>
-							<th><?php _e("Requested Username", "register-plus-redux"); ?></th>
+							<th><?php _e("Username", "register-plus-redux"); ?></th>
+							<th><?php _e("Temp Username", "register-plus-redux"); ?></th>
 							<th scope="col" id="email" class="manage-column column-email" style=""><?php _e("E-mail", "register-plus-redux"); ?></th>
 							<th><?php _e("Registered", "register-plus-redux"); ?></th>
 							<th><?php _e("Verification Sent", "register-plus-redux"); ?></th>
@@ -1077,8 +1077,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 							<tr id="user-<?php echo $user_info->ID; ?>" <?php echo $style; ?>>
 								<th scope="row" class="check-column"><input name="users[]" id="user_<?php echo $user_info->ID; ?>" name="user_<?php echo $user_info->ID; ?>" value="<?php echo $user_info->ID; ?>" type="checkbox"></th>
-								<td><strong><?php echo $user_info->user_login; ?></strong></td>
 								<td><strong><?php echo $user_info->stored_user_login; ?></strong></td>
+								<td><strong><?php echo $user_info->user_login; ?></strong></td>
 								<td><a href="mailto:<?php echo $user_info->user_email; ?>" title="<?php esc_attr_e("E-mail: ", "register-plus-redux"); echo $user_info->user_email; ?>"><?php echo $user_info->user_email; ?></a></td>
 								<td><strong><?php echo $user_info->user_registered; ?></strong></td>
 								<td><strong><?php echo $user_info->email_verification_sent; ?></strong></td>
@@ -1645,6 +1645,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !empty($options["send_user_message_in_html"]) )
 					add_filter("wp_mail_content_type", array($this, "filter_message_content_type_html"));
 			}
+			$subject = $this->replaceKeywords($subject, $user_info);
 			$message = $this->replaceKeywords($message, $user_info, $plaintext_pass);
 			wp_mail($user_info->user_email, $subject, $message);
 		}
@@ -1670,6 +1671,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !empty($options["send_verification_message_in_html"]) )
 					add_filter("wp_mail_content_type", array($this, "filter_message_content_type_html"));
 			}
+			$subject = $this->replaceKeywords($subject, $user_info);
 			$message = $this->replaceKeywords($message, $user_info, "", $verification_code);
 			wp_mail($user_info->user_email, $subject, $message);
 		}
@@ -1692,6 +1694,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !empty($options["send_admin_message_in_html"]) )
 					add_filter("wp_mail_content_type", array($this, "filter_message_content_type_html"));
 			}
+			$subject = $this->replaceKeywords($subject, $user_info);
 			$message = $this->replaceKeywords($message, $user_info);
 			wp_mail(get_option("admin_email"), $subject, $message);
 		}

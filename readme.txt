@@ -4,7 +4,7 @@ Donate link: http://radiok.info/donate/
 Tags: registration, register, plus, redux, password, invitation, code, email, verification, disclaimer, license, agreement, privacy, policy, logo, moderation, user
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable tag: 3.6.15
+Stable tag: 3.6.16
 
 Enhances the user registration process with complete customization and additional administration options.
 
@@ -99,7 +99,18 @@ TODO: jQuery summarize user message status
 
 TODO: Restore defaults buttons
 
+TODO: Add buttons to Unverified Users Page
+<input type="submit" value="<?php _e("Approve Selected Users", "register-plus-redux");?>" name="verify_users" class="button-secondary" />&nbsp;
+<input type="submit" value="<?php _e("Send E-mail Verification to Selected Users", "register-plus-redux");?>" name="send_verification_email" class="button-secondary" />&nbsp;
+<input type="submit" value="<?php _e("Delete Selected Users", "register-plus-redux");?>" name="delete_users" class="button-secondary delete" />
+
 == Changelog ==
+= 3.6.16 =
+October 9, 2010 by radiok
+
+* Check subject for keywords, as mentioned by Shikant Joshi <http://wordpress.org/support/topic/plugin-register-plus-redux-call_user_func_array-error>
+* Changed the order of usernames in Unverified username page
+
 = 3.6.15 =
 October 8, 2010 by radiok
 
