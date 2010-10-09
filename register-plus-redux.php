@@ -855,11 +855,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				<table class="form-table">
 					<tr valign="top">
 						<th scope="row"><label for="custom_registration_page_css"><?php _e("Custom Register CSS", "register-plus-redux"); ?></label></th>
-						<td><textarea name="custom_registration_page_css" id="custom_registration_page_css" rows="20" cols="40" style="width:80%; height:200px;"><?php echo $options["custom_registration_page_css"]; ?></textarea></td>
+						<td><textarea name="custom_registration_page_css" id="custom_registration_page_css" rows="20" cols="40" style="width:60%; height:160px;"><?php echo $options["custom_registration_page_css"]; ?></textarea></td>
 					</tr>
 					<tr valign="top">
 						<th scope="row"><label for="custom_login_page_css"><?php _e("Custom Login CSS", "register-plus-redux"); ?></label></th>
-						<td><textarea name="custom_login_page_css" id="custom_login_page_css" rows="20" cols="40" style="width:80%; height:200px;"><?php echo $options["custom_login_page_css"]; ?></textarea></td>
+						<td><textarea name="custom_login_page_css" id="custom_login_page_css" rows="20" cols="40" style="width:60%; height:160px;"><?php echo $options["custom_login_page_css"]; ?></textarea></td>
 					</tr>
 				</table>
 				<p class="submit">
