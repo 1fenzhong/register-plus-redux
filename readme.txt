@@ -4,7 +4,7 @@ Donate link: http://radiok.info/donate/
 Tags: registration, register, plus, redux, password, invitation, code, email, verification, disclaimer, license, agreement, privacy, policy, logo, moderation, user
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable tag: 3.6.16
+Stable tag: 3.6.17
 
 Enhances the user registration process with complete customization and additional administration options.
 
@@ -67,17 +67,11 @@ FEATURE REQUEST: Registration widget, need to look into whether someone else too
 
 FEATURE REQUEST: Invitation code link to
 
-FEATURE REQUEST: Display invitation code used on profile page <http://wordpress.org/support/topic/plugin-pie-register-invitation-code-in-user-profile-page>
-
 FEATURE REQUEST: Allow reorder of custom fields <http://wordpress.org/support/topic/plugin-pie-register-adding-new-fields-different-order>
 
 FEATURE REQUEST: After registering, redirect to previous page <http://wordpress.org/support/topic/pie-register-and-redirect-to>
 
 FEATURE REQUEST: BuddyPress compatability
-
-FEATURE REQUEST: URL custom field type <http://radiok.info/blog/administration-redux/>
-
-TODO: Look over password strenght meter <http://radiok.info/blog/administration-redux/>
 
 TODO: Migrate settings from Register Plus?
 
@@ -99,16 +93,18 @@ TODO: jQuery summarize user message status
 
 TODO: Restore defaults buttons
 
-TODO: Add buttons to Unverified Users Page
-<input type="submit" value="<?php _e("Approve Selected Users", "register-plus-redux");?>" name="verify_users" class="button-secondary" />&nbsp;
-<input type="submit" value="<?php _e("Send E-mail Verification to Selected Users", "register-plus-redux");?>" name="send_verification_email" class="button-secondary" />&nbsp;
-<input type="submit" value="<?php _e("Delete Selected Users", "register-plus-redux");?>" name="delete_users" class="button-secondary delete" />
-
 == Changelog ==
 = 3.6.17 =
-October 9, 2010 by radiok
+October 11, 2010 by radiok
 
+* Added buttons back to Unverified Users page
+* Added ability to Edit or Delete users individually from Unverified Users page
+* Added option to enforce minimum password length
+* Added option to enforce case sensitive invitation codes
+* Added new custom field type, URL Field, this field is sanitized as a URL, as requested by Shikant Joshi <http://radiok.info/blog/administration-redux/>
+* Added invitation_code to User Profile page, as requested by janman for Pie Register <http://wordpress.org/support/topic/plugin-pie-register-invitation-code-in-user-profile-page>
 * Fixed asterisks showing up on all predefined fields, not just required ones, as reported by pixelprophet <http://wordpress.org/support/topic/plugin-register-plus-redux-email-conflicts-with-another-plugin>
+* Fixed loophole in Lost Password that would send an unverified user their temporary user login and allow them access using that login, as reported by AzzePis <http://wordpress.org/support/topic/plugin-register-plus-redux-user-can-register-without-confirmation-of-his-account>
 
 = 3.6.16 =
 October 9, 2010 by radiok
