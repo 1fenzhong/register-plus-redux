@@ -67,23 +67,17 @@ FEATURE REQUEST: Registration widget, need to look into whether someone else too
 
 FEATURE REQUEST: Invitation code link to
 
-FEATURE REQUEST: Allow reorder of custom fields <http://wordpress.org/support/topic/plugin-pie-register-adding-new-fields-different-order>
-
 FEATURE REQUEST: After registering, redirect to previous page <http://wordpress.org/support/topic/pie-register-and-redirect-to>
 
 FEATURE REQUEST: BuddyPress compatability
 
-TODO: Migrate settings from Register Plus?
+TODO: Fix datepicker
 
-TODO: User-new.php is not modified with the added fields, does not notice if username is in queue
+TODO: Migrate settings from Register Plus?
 
 TODO: Add localization back in
 
-TODO: Add uninstall function
-
-TODO: Make Redux compatible with Wordpress MU (wp-signup.php)
-
-TODO: Fix datepicker
+TODO: User-new.php is not modified with the added fields, does not notice if username is in queue
 
 TODO: Nickname options
 
@@ -93,7 +87,16 @@ TODO: jQuery summarize user message status
 
 TODO: Restore defaults buttons
 
+TODO: Make Redux compatible with Wordpress MU (wp-signup.php)
+
+TODO: Add uninstall function
+
 == Changelog ==
+= 3.6.18 =
+October 11, 2010 by radiok
+
+* Added code to move custom fields around, as requested by pantone204 for Pie Register <http://wordpress.org/support/topic/plugin-pie-register-adding-new-fields-different-order>
+
 = 3.6.17 =
 October 11, 2010 by radiok
 
