@@ -338,14 +338,14 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								.attr('style', 'cursor: pointer;')
 							)
 							.append(jQuery('<img>')
-								.attr('src', '<?php echo plugins_url("images\arrow-up.png", __FILE__); ?>')
+								.attr('src', '<?php echo plugins_url("images\arrow_up.png", __FILE__); ?>')
 								.attr('alt', '<?php esc_attr_e("Move this Field Up", "register-plus-redux"); ?>')
 								.attr('title', '<?php esc_attr_e("Move this Field Up", "register-plus-redux"); ?>')
 								.attr('class', 'up')
 								.attr('style', 'cursor: pointer;')
 							)
 							.append(jQuery('<img>')
-								.attr('src', '<?php echo plugins_url("images\arrow-down.png", __FILE__); ?>')
+								.attr('src', '<?php echo plugins_url("images\arrow_down.png", __FILE__); ?>')
 								.attr('alt', '<?php esc_attr_e("Move this Field Down", "register-plus-redux"); ?>')
 								.attr('title', '<?php esc_attr_e("Move this Field Down", "register-plus-redux"); ?>')
 								.attr('class', 'down')
@@ -379,6 +379,24 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					} else {
 						row.insertAfter(row.next());
 					}
+				});
+				jQuery('#disable_admin_message_registered,#disable_admin_message_created,#custom_admin_message,#admin_message_from_email,#admin_message_from_name,#admin_message_subject,#admin_message_body').change(function() {
+					if ( jQuery('#disable_admin_message_registered').attr('checked') && jQuery('#disable_admin_message_created').attr('checked') ) {
+						jQuery('#custom_admin_message').attr('disabled', 'disabled');
+						jQuery('#custom_admin_message').removeAttr('checked');
+						jQuery('#custom_admin_message_settings').hide();
+						jQuery('#admin_message_summary').text('No administrator notification will be sent if any user is created.');
+					} else {
+						jQuery('#custom_admin_message').removeAttr('disabled');
+						var sum = 'The following message will be sent out when a user is ';
+						if ( !jQuery('#disable_admin_message_registered').attr('checked') ) sum = sum + 'registered';
+						if ( !jQuery('#disable_admin_message_registered').attr('checked') && !jQuery('#disable_admin_message_created').attr('checked') ) sum = sum + ' or ';
+						if ( !jQuery('#disable_admin_message_created').attr('checked') ) sum = sum + 'created';
+						sum = sum + ':<br />';
+						sum = sum + 'Stay Golden Pony Boy';
+						jQuery('#admin_message_summary').html(sum);
+					}
+					
 				});
 			});
 			</script>
@@ -664,7 +682,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						<td align="center" style="padding-top: 0px; padding-bottom: 0px;">Profile</td>
 						<td align="center" style="padding-top: 0px; padding-bottom: 0px;">Registration</td>
 						<td align="center" style="padding-top: 0px; padding-bottom: 0px;">Require</td>
-						<td align="center" style="padding-top: 0px; padding-bottom: 0px;">Action</td>
+						<td align="center" style="padding-top: 0px; padding-bottom: 0px;">Actions</td>
 					</thead>
 					<tbody>
 						<?php
@@ -691,8 +709,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='required_on_registration[$k]' value='1'"; if ( !empty($v["required_on_registration"]) ) echo " checked='checked'"; if ( empty($v["show_on_registration"]) ) echo " disabled='disabled'"; echo " /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'>";
 							echo "\n	<img src='", plugins_url("images\delete.png", __FILE__), "' alt='", __("Remove Field", "register-plus-redux"), "' title='", __("Remove Field", "register-plus-redux"), "' onclick='removeCustomField(this);' style='cursor: pointer;' />";
-							echo "\n	<img src='", plugins_url("images\arrow-up.png", __FILE__), "' alt='", __("Move this Field Up", "register-plus-redux"), "' title='", __("Move this Field Up", "register-plus-redux"), "' class='up' style='cursor: pointer;' />";
-							echo "\n	<img src='", plugins_url("images\arrow-down.png", __FILE__), "' alt='", __("Move this Field Down", "register-plus-redux"), "' title='", __("Move this Field Down", "register-plus-redux"), "' class='down' style='cursor: pointer;' />";
+							echo "\n	<img src='", plugins_url("images\arrow_up.png", __FILE__), "' alt='", __("Move this Field Up", "register-plus-redux"), "' title='", __("Move this Field Up", "register-plus-redux"), "' class='up' style='cursor: pointer;' />";
+							echo "\n	<img src='", plugins_url("images\arrow_down.png", __FILE__), "' alt='", __("Move this Field Down", "register-plus-redux"), "' title='", __("Move this Field Down", "register-plus-redux"), "' class='down' style='cursor: pointer;' />";
 							echo "\n	</td>";
 							echo "\n</tr>";
 						}
@@ -717,8 +735,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='required_on_registration[]' value='1' disabled='disabled' /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'>";
 							echo "\n	<img src='", plugins_url("images\delete.png", __FILE__), "' alt='", __("Remove Field", "register-plus-redux"), "' title='", __("Remove Field", "register-plus-redux"), "' onclick='removeCustomField(this);' style='cursor: pointer;' />";
-							echo "\n	<img src='", plugins_url("images\arrow-up.png", __FILE__), "' alt='", __("Move this Field Up", "register-plus-redux"), "' title='", __("Move this Field Up", "register-plus-redux"), "' class='up' style='cursor: pointer;' />";
-							echo "\n	<img src='", plugins_url("images\arrow-down.png", __FILE__), "' alt='", __("Move this Field Down", "register-plus-redux"), "' title='", __("Move this Field Down", "register-plus-redux"), "' class='down' style='cursor: pointer;' />";
+							echo "\n	<img src='", plugins_url("images\arrow_up.png", __FILE__), "' alt='", __("Move this Field Up", "register-plus-redux"), "' title='", __("Move this Field Up", "register-plus-redux"), "' class='up' style='cursor: pointer;' />";
+							echo "\n	<img src='", plugins_url("images\arrow_down.png", __FILE__), "' alt='", __("Move this Field Down", "register-plus-redux"), "' title='", __("Move this Field Down", "register-plus-redux"), "' class='down' style='cursor: pointer;' />";
 							echo "\n	</td>";
 							echo "\n</tr>";
 						}
@@ -791,20 +809,20 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								<table width="60%">
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px; width: 20%;"><label for="user_message_from_email"><?php _e("From Email", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="user_message_from_email" id="user_message_from_email" style="width: 100%;" value="<?php echo $options["user_message_from_email"]; ?>" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="user_message_from_email" id="user_message_from_email" style="width: 90%;" value="<?php echo $options["user_message_from_email"]; ?>" /><img src="<?php echo plugins_url("images\arrow_undo.png", __FILE__); ?>" alt="<?php _e("Restore Default", "register-plus-redux"); ?>" title="<?php _e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><label for="user_message_from_name"><?php _e("From Name", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="user_message_from_name" id="user_message_from_name" style="width: 100%;" value="<?php echo stripslashes($options["user_message_from_name"]); ?>" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="user_message_from_name" id="user_message_from_name" style="width: 90%;" value="<?php echo stripslashes($options["user_message_from_name"]); ?>" /><img src="<?php echo plugins_url("images\arrow_undo.png", __FILE__); ?>" alt="<?php _e("Restore Default", "register-plus-redux"); ?>" title="<?php _e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><label for="user_message_subject"><?php _e("Subject", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="user_message_subject" id="user_message_subject" style="width: 100%;" value="<?php echo stripslashes($options["user_message_subject"]); ?>" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="user_message_subject" id="user_message_subject" style="width: 90%;" value="<?php echo stripslashes($options["user_message_subject"]); ?>" /><img src="<?php echo plugins_url("images\arrow_undo.png", __FILE__); ?>" alt="<?php _e("Restore Default", "register-plus-redux"); ?>" title="<?php _e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td colspan="2" style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;">
 											<label for="user_message_body"><?php _e("User Message", "register-plus-redux"); ?></label><br />
-											<textarea name="user_message_body" id="user_message_body" rows="10" cols="25" style="width: 100%; height: 300px;"><?php echo stripslashes($options["user_message_body"]); ?></textarea><br />
+											<textarea name="user_message_body" id="user_message_body" rows="10" cols="25" style="width: 95%; height: 300px;"><?php echo stripslashes($options["user_message_body"]); ?></textarea><img src="<?php echo plugins_url("images\arrow_undo.png", __FILE__); ?>" alt="<?php _e("Restore Default", "register-plus-redux"); ?>" title="<?php _e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /><br />
 											<strong><?php _e("Replacement Keywords", "register-plus-redux"); ?>:</strong> %user_login% %user_password% %user_email% %blogname% %site_url% <?php echo $registration_fields; ?> %registered_from_ip% %registered_from_host% %http_referer% %http_user_agent% %stored_user_login%<br />
 											<label><input type="checkbox" name="send_user_message_in_html" value="1" <?php if ( !empty($options["send_user_message_in_html"]) ) echo "checked='checked'"; ?> />&nbsp;<?php _e("Send as HTML", "register-plus-redux"); ?></label><br />
 											<label><input type="checkbox" name="user_message_newline_as_br" value="1" <?php if ( !empty($options["user_message_newline_as_br"]) ) echo "checked='checked'"; ?> />&nbsp;<?php _e("Convert new lines to &lt;br /&gt; tags (HTML only)", "register-plus-redux"); ?></label>
@@ -829,20 +847,20 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								<table width="60%">
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px; width: 20%;"><label for="verification_message_from_email"><?php _e("From Email", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="verification_message_from_email" id="verification_message_from_email" style="width: 100%;" value="<?php echo $options["verification_message_from_email"]; ?>" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="verification_message_from_email" id="verification_message_from_email" style="width: 90%;" value="<?php echo $options["verification_message_from_email"]; ?>" /><img src="<?php echo plugins_url("images\control_start.png", __FILE__); ?>" alt="<?php _e("Restore Default", "register-plus-redux"); ?>" title="<?php _e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><label for="verification_message_from_name"><?php _e("From Name", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="verification_message_from_name" id="verification_message_from_name" style="width: 100%;" value="<?php echo stripslashes($options["verification_message_from_name"]); ?>" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="verification_message_from_name" id="verification_message_from_name" style="width: 90%;" value="<?php echo stripslashes($options["verification_message_from_name"]); ?>" /><img src="<?php echo plugins_url("images\control_start.png", __FILE__); ?>" alt="<?php _e("Restore Default", "register-plus-redux"); ?>" title="<?php _e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><label for="verification_message_subject"><?php _e("Subject", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="verification_message_subject" id="verification_message_subject" style="width: 100%;" value="<?php echo stripslashes($options["verification_message_subject"]); ?>" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="verification_message_subject" id="verification_message_subject" style="width: 90%;" value="<?php echo stripslashes($options["verification_message_subject"]); ?>" /><img src="<?php echo plugins_url("images\control_start.png", __FILE__); ?>" alt="<?php _e("Restore Default", "register-plus-redux"); ?>" title="<?php _e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td colspan="2" style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;">
 											<label for="verification_message_body"><?php _e("User Message", "register-plus-redux"); ?></label><br />
-											<textarea name="verification_message_body" id="verification_message_body" rows="10" cols="25" style="width: 100%; height: 300px;"><?php echo stripslashes($options["verification_message_body"]); ?></textarea><br />
+											<textarea name="verification_message_body" id="verification_message_body" rows="10" cols="25" style="width: 95%; height: 300px;"><?php echo stripslashes($options["verification_message_body"]); ?></textarea><img src="<?php echo plugins_url("images\control_start.png", __FILE__); ?>" alt="<?php _e("Restore Default", "register-plus-redux"); ?>" title="<?php _e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /><br />
 											<strong><?php _e("Replacement Keywords", "register-plus-redux"); ?>:</strong> %user_login% %user_email% %blogname% %site_url% %verification_url% <?php echo $registration_fields; ?> %registered_from_ip% %registered_from_host% %http_referer% %http_user_agent% %stored_user_login%<br />
 											<label><input type="checkbox" name="send_verification_message_in_html" value="1" <?php if ( !empty($options["send_verification_message_in_html"]) ) echo "checked='checked'"; ?> />&nbsp;<?php _e("Send as HTML", "register-plus-redux"); ?></label><br />
 											<label><input type="checkbox" name="verification_message_newline_as_br" value="1" <?php if ( !empty($options["verification_message_newline_as_br"]) ) echo "checked='checked'"; ?> />&nbsp;<?php _e("Convert new lines to &lt;br /&gt; tags (HTML only)", "register-plus-redux"); ?></label>
@@ -851,7 +869,14 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								</table>
 							</div>
 						</td>
-					</tr>				</table>
+					</tr>
+					<tr valign="top">
+						<th scope="row"><label><?php _e("Summary", "register-plus-redux"); ?></label></th>
+						<td>
+							<span id="user_message_summary"></span>
+						</td>
+					</tr>
+				</table>
 				<h3 class="title"><?php _e("Admin Notification Settings", "register-plus-redux"); ?></h3>
 				<table class="form-table"> 
 					<tr valign="top">
@@ -869,20 +894,20 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								<table width="60%">
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px; width: 20%;"><label for="admin_message_from_email"><?php _e("From Email", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="admin_message_from_email" id="admin_message_from_email" style="width: 100%;" value="<?php echo $options["admin_message_from_email"]; ?>" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="admin_message_from_email" id="admin_message_from_email" style="width: 90%;" value="<?php echo $options["admin_message_from_email"]; ?>" /><img src="<?php echo plugins_url("images\control_start_blue.png", __FILE__); ?>" alt="<?php _e("Restore Default", "register-plus-redux"); ?>" title="<?php _e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><label for="admin_message_from_name"><?php _e("From Name", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="admin_message_from_name" id="admin_message_from_name" style="width: 100%;" value="<?php echo stripslashes($options["admin_message_from_name"]); ?>" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="admin_message_from_name" id="admin_message_from_name" style="width: 90%;" value="<?php echo stripslashes($options["admin_message_from_name"]); ?>" /><img src="<?php echo plugins_url("images\control_start_blue.png", __FILE__); ?>" alt="<?php _e("Restore Default", "register-plus-redux"); ?>" title="<?php _e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><label for="admin_message_subject"><?php _e("Subject", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="admin_message_subject" id="admin_message_subject" style="width: 100%;" value="<?php echo stripslashes($options["admin_message_subject"]); ?>" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="admin_message_subject" id="admin_message_subject" style="width: 90%;" value="<?php echo stripslashes($options["admin_message_subject"]); ?>" /><img src="<?php echo plugins_url("images\control_start_blue.png", __FILE__); ?>" alt="<?php _e("Restore Default", "register-plus-redux"); ?>" title="<?php _e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td colspan="2" style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;">
 											<label for="admin_message_body"><?php _e("Admin Message", "register-plus-redux"); ?></label><br />
-											<textarea name="admin_message_body" id="admin_message_body" rows="10" cols="25" style="width: 100%; height: 300px;"><?php echo stripslashes($options["admin_message_body"]); ?></textarea><br />
+											<textarea name="admin_message_body" id="admin_message_body" rows="10" cols="25" style="width: 95%; height: 300px;"><?php echo stripslashes($options["admin_message_body"]); ?></textarea><img src="<?php echo plugins_url("images\control_start_blue.png", __FILE__); ?>" alt="<?php _e("Restore Default", "register-plus-redux"); ?>" title="<?php _e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /><br />
 											<strong><?php _e("Replacement Keywords", "register-plus-redux"); ?>:</strong> %user_login% %user_email% %blogname% %site_url% <?php echo $registration_fields; ?> %registered_from_ip% %registered_from_host% %http_referer% %http_user_agent% %stored_user_login%<br />
 											<label><input type="checkbox" name="send_admin_message_in_html" value="1" <?php if ( !empty($options["send_admin_message_in_html"]) ) echo "checked='checked'"; ?> />&nbsp;<?php _e("Send as HTML", "register-plus-redux"); ?></label><br />
 											<label><input type="checkbox" name="admin_message_newline_as_br" value="1" <?php if ( !empty($options["admin_message_newline_as_br"]) ) echo "checked='checked'"; ?> />&nbsp;<?php _e("Convert new lines to &lt;br /&gt; tags (HTML only)", "register-plus-redux"); ?></label>
@@ -890,6 +915,12 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									</tr>
 								</table>
 							</div>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row"><label><?php _e("Summary", "register-plus-redux"); ?></label></th>
+						<td>
+							<span id="admin_message_summary"></span>
 						</td>
 					</tr>
 				</table>
