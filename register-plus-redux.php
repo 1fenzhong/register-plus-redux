@@ -337,6 +337,20 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								.attr('onclick', 'removeCustomField(this);')
 								.attr('style', 'cursor: pointer;')
 							)
+							.append(jQuery('<img>')
+								.attr('src', '<?php echo plugins_url("images\arrow-up.png", __FILE__); ?>')
+								.attr('alt', '<?php esc_attr_e("Move this Field Up", "register-plus-redux"); ?>')
+								.attr('title', '<?php esc_attr_e("Move this Field Up", "register-plus-redux"); ?>')
+								.attr('class', 'up')
+								.attr('style', 'cursor: pointer;')
+							)
+							.append(jQuery('<img>')
+								.attr('src', '<?php echo plugins_url("images\arrow-down.png", __FILE__); ?>')
+								.attr('alt', '<?php esc_attr_e("Move this Field Down", "register-plus-redux"); ?>')
+								.attr('title', '<?php esc_attr_e("Move this Field Down", "register-plus-redux"); ?>')
+								.attr('class', 'down')
+								.attr('style', 'cursor: pointer;')
+							)
 						)
 					);
 			}
@@ -357,6 +371,15 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				<?php if ( empty($options["custom_admin_message"]) ) echo "\njQuery('#custom_admin_message_settings').hide();"; ?>
 
 				jQuery('.disabled').hide();
+				
+				jQuery('.up,.down').click(function() {
+					var row = jQuery(this).parents('tr:first');
+					if ( jQuery(this).is('.up') ) {
+						row.insertBefore(row.prev());
+					} else {
+						row.insertAfter(row.next());
+					}
+				});
 			});
 			</script>
 		<?php
@@ -666,7 +689,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_profile[$k]' value='1'"; if ( !empty($v["show_on_profile"]) ) echo " checked='checked'"; echo " /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_registration[$k]' value='1'"; if ( !empty($v["show_on_registration"]) ) echo " checked='checked'"; echo " onclick='modifyNextCellInput(this);' /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='required_on_registration[$k]' value='1'"; if ( !empty($v["required_on_registration"]) ) echo " checked='checked'"; if ( empty($v["show_on_registration"]) ) echo " disabled='disabled'"; echo " /></td>";
-							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><img src='", plugins_url("images\delete.png", __FILE__), "' alt='", __("Remove Field", "register-plus-redux"), "' title='", __("Remove Field", "register-plus-redux"), "' onclick='removeCustomField(this);' style='cursor: pointer;' /></td>";
+							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'>";
+							echo "\n	<img src='", plugins_url("images\delete.png", __FILE__), "' alt='", __("Remove Field", "register-plus-redux"), "' title='", __("Remove Field", "register-plus-redux"), "' onclick='removeCustomField(this);' style='cursor: pointer;' />";
+							echo "\n	<img src='", plugins_url("images\arrow-up.png", __FILE__), "' alt='", __("Move this Field Up", "register-plus-redux"), "' title='", __("Move this Field Up", "register-plus-redux"), "' class='up' style='cursor: pointer;' />";
+							echo "\n	<img src='", plugins_url("images\arrow-down.png", __FILE__), "' alt='", __("Move this Field Down", "register-plus-redux"), "' title='", __("Move this Field Down", "register-plus-redux"), "' class='down' style='cursor: pointer;' />";
+							echo "\n	</td>";
 							echo "\n</tr>";
 						}
 						if ( empty($custom_fields) ) {
@@ -688,7 +715,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_profile[]' value='1' /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_registration[]' value='1' onclick='modifyNextCellInput(this);' /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='required_on_registration[]' value='1' disabled='disabled' /></td>";
-							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><img src='", plugins_url("images\delete.png", __FILE__), "' alt='", __("Remove Field", "register-plus-redux"), "' title='", __("Remove Field", "register-plus-redux"), "' onclick='removeCustomField(this);' style='cursor: pointer;' /></td>";
+							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'>";
+							echo "\n	<img src='", plugins_url("images\delete.png", __FILE__), "' alt='", __("Remove Field", "register-plus-redux"), "' title='", __("Remove Field", "register-plus-redux"), "' onclick='removeCustomField(this);' style='cursor: pointer;' />";
+							echo "\n	<img src='", plugins_url("images\arrow-up.png", __FILE__), "' alt='", __("Move this Field Up", "register-plus-redux"), "' title='", __("Move this Field Up", "register-plus-redux"), "' class='up' style='cursor: pointer;' />";
+							echo "\n	<img src='", plugins_url("images\arrow-down.png", __FILE__), "' alt='", __("Move this Field Down", "register-plus-redux"), "' title='", __("Move this Field Down", "register-plus-redux"), "' class='down' style='cursor: pointer;' />";
+							echo "\n	</td>";
 							echo "\n</tr>";
 						}
 						?>
