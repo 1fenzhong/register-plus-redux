@@ -105,6 +105,11 @@ TODO: Add buttons to Unverified Users Page
 <input type="submit" value="<?php _e("Delete Selected Users", "register-plus-redux");?>" name="delete_users" class="button-secondary delete" />
 
 == Changelog ==
+= 3.6.17 =
+October 9, 2010 by radiok
+
+* Fixed asterisks showing up on all predefined fields, not just required ones, as reported by pixelprophet <http://wordpress.org/support/topic/plugin-register-plus-redux-email-conflicts-with-another-plugin>
+
 = 3.6.16 =
 October 9, 2010 by radiok
 
