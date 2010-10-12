@@ -4,7 +4,7 @@ Donate link: http://radiok.info/donate/
 Tags: registration, register, plus, redux, password, invitation, code, email, verification, disclaimer, license, agreement, privacy, policy, logo, moderation, user
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable tag: 3.6.17
+Stable tag: 3.6.18
 
 Enhances the user registration process with complete customization and additional administration options.
 
@@ -90,19 +90,14 @@ TODO: Make Redux compatible with Wordpress MU (wp-signup.php)
 TODO: Add uninstall function
 
 TODO: Finish summary fields
-#custom_admin_message
-#admin_message_from_email
-#admin_message_from_name
-#admin_message_subject
-#admin_message_body
-#admin_message_summary
 
 == Changelog ==
 = 3.6.18 =
-October 11, 2010 by radiok
+October 12, 2010 by radiok
 
-* Added jQuery to summarize when and what messages are going out
+* Started adding jQuery to summarize when and what messages are going out
 * Added code to move custom fields around, as requested by pantone204 for Pie Register <http://wordpress.org/support/topic/plugin-pie-register-adding-new-fields-different-order>
+* Fixed bug in User Profile with invitation_code but no custom fields, as reported by ak <http://radiok.info/blog/administration-redux/>
 
 = 3.6.17 =
 October 11, 2010 by radiok

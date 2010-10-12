@@ -5,7 +5,7 @@ Plugin Name: Register Plus Redux
 Author URI: http://radiok.info/
 Plugin URI: http://radiok.info/blog/category/register-plus-redux/
 Description: Enhances the user registration process with complete customization and additional administration options.
-Version: 3.6.17
+Version: 3.6.18
 Text Domain: register-plus-redux
 */
 
@@ -388,13 +388,27 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						jQuery('#admin_message_summary').text('No administrator notification will be sent if any user is created.');
 					} else {
 						jQuery('#custom_admin_message').removeAttr('disabled');
-						var sum = 'The following message will be sent out when a user is ';
-						if ( !jQuery('#disable_admin_message_registered').attr('checked') ) sum = sum + 'registered';
-						if ( !jQuery('#disable_admin_message_registered').attr('checked') && !jQuery('#disable_admin_message_created').attr('checked') ) sum = sum + ' or ';
-						if ( !jQuery('#disable_admin_message_created').attr('checked') ) sum = sum + 'created';
-						sum = sum + ':<br />';
-						sum = sum + 'Stay Golden Pony Boy';
-						jQuery('#admin_message_summary').html(sum);
+						var sum = "The following message will be sent out when a user is ";
+						if ( !jQuery('#disable_admin_message_registered').attr('checked') ) sum = sum + "registered";
+						if ( !jQuery('#disable_admin_message_registered').attr('checked') && !jQuery('#disable_admin_message_created').attr('checked') ) sum = sum + " or ";
+						if ( !jQuery('#disable_admin_message_created').attr('checked') ) sum = sum + "created";
+						sum = sum + ":";
+						var msg;
+						if ( !jQuery('#custom_admin_message').attr('checked') ) {
+							msg = "To: <?php echo get_option("admin_email"); ?><br />";
+							msg = msg + "From: <?php echo $this->defaultOptions("admin_message_from_name"); ?> (<?php echo $this->defaultOptions("admin_message_from_email"); ?>)<br />";
+							msg = msg + "Subject: <?php echo stripslashes($this->defaultOptions("admin_message_subject")); ?><br />";
+							msg = msg + "Content-Type: text/plain<br />";
+							msg = msg + (<r><![CDATA[<?php echo nl2br(stripslashes($this->defaultOptions("admin_message_body"))); ?>]]></r>).toString();
+						} else {
+							msg = "To: <?php echo get_option("admin_email"); ?><br />";
+							msg = msg + "From: "+ jQuery("#admin_message_from_name").val() + " (" +  jQuery("#admin_message_from_email").val() +" <br />";
+							msg = msg + "Subject: " +  jQuery("#admin_message_subject").val() + "<br />";
+							msg = msg + "Content-Type: text/plain<br />";
+							msg = msg + ("<r><![CDATA[" + jQuery("admin_message_subject").val() + "]]></r>").toString();
+						}
+						var style = "font-size: 11px; display: block; width: 50%; background-color: #fff; padding: 8px 10px; border: solid 1px #A7A6AA; margin: 1px; overflow:auto;"
+						jQuery('#admin_message_summary').html(sum + "<p style='" + style + "'>" + msg + "</p>");
 					}
 					
 				});
@@ -1887,63 +1901,65 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					echo "\n		<td><input type='text' name='invitation_code' id='invitation_code' value='$profileuser->invitation_code' class='regular-text' readonly='readonly' /></td>";
 					echo "\n	</tr>";
 				}
-				foreach ( $custom_fields as $k => $v ) {
-					if ( !empty($v["show_on_profile"]) ) {
-						$key = $this->fnSanitizeFieldName($v["custom_field_name"]);
-						$value = get_user_meta($profileuser->ID, $key, true);
-						echo "\n	<tr>";
-						echo "\n		<th><label for='$key'>", $v["custom_field_name"], "</label></th>";
-						switch ( $v["custom_field_type"] ) {
-							case "text":
-								echo "\n		<td><input type='text' name='$key' id='$key' value='$value' class='regular-text' /></td>";
-								break;
-							case "select":
-								echo "\n		<td>";
-								echo "\n			<select name='$key' id='$key' style='width: 15em;'>";
-								$custom_field_options = explode(",", $v["custom_field_options"]);
-								foreach ( $custom_field_options as $custom_field_option ) {
-									echo "<option value='$custom_field_option'";
-									if ( $value == $custom_field_option ) echo " selected='selected'";
-									echo ">$custom_field_option</option>";
-								}
-								echo "</select>";
-								echo "\n		</td>";
-								break;
-							case "checkbox":
-								echo "\n		<td>";
-								$custom_field_options = explode(",", $v["custom_field_options"]);
-								$values = explode(", ", $value);
-								foreach ( $custom_field_options as $custom_field_option ) {
-									echo "\n			<label><input type='checkbox' name='$key", "[]' value='$custom_field_option'";
-									if ( in_array($custom_field_option, $values) ) echo " checked='checked'";
-									echo " />&nbsp;$custom_field_option</label><br />";
-								}
-								echo "\n		</td>";
-								break;
-							case "radio":
-								echo "\n		<td>";
-								$custom_field_options = explode(",", $v["custom_field_options"]);
-								foreach ( $custom_field_options as $custom_field_option ) {
-									echo "\n			<label><input type='radio' name='$key' value='$custom_field_option'";
-									if ( $value == $custom_field_option ) echo " checked='checked'";
-									echo " class='tog'>&nbsp;$custom_field_option</label><br />";
-								}
-								echo "\n		</td>";
-								break;
-							case "textarea":
-								echo "\n		<td><textarea name='$key' id='$key' rows='5' cols='30'>", stripslashes($value), "</textarea></td>";
-								break;
-							case "date":
-								echo "\n		<td><input type='text' name='$key' id='$key' value='$value' /></td>";
-								break;
-							case "url":
-								echo "\n		<td><input type='text' name='$key' id='$key' value='$value' /></td>";
-								break;
-							case "hidden":
-								echo "\n		<td><input type='text' disabled='disabled' name='$key' id='$key' value='$value' /></td>";
-								break;
+				if ( is_array($custom_fields) ) {
+					foreach ( $custom_fields as $k => $v ) {
+						if ( !empty($v["show_on_profile"]) ) {
+							$key = $this->fnSanitizeFieldName($v["custom_field_name"]);
+							$value = get_user_meta($profileuser->ID, $key, true);
+							echo "\n	<tr>";
+							echo "\n		<th><label for='$key'>", $v["custom_field_name"], "</label></th>";
+							switch ( $v["custom_field_type"] ) {
+								case "text":
+									echo "\n		<td><input type='text' name='$key' id='$key' value='$value' class='regular-text' /></td>";
+									break;
+								case "select":
+									echo "\n		<td>";
+									echo "\n			<select name='$key' id='$key' style='width: 15em;'>";
+									$custom_field_options = explode(",", $v["custom_field_options"]);
+									foreach ( $custom_field_options as $custom_field_option ) {
+										echo "<option value='$custom_field_option'";
+										if ( $value == $custom_field_option ) echo " selected='selected'";
+										echo ">$custom_field_option</option>";
+									}
+									echo "</select>";
+									echo "\n		</td>";
+									break;
+								case "checkbox":
+									echo "\n		<td>";
+									$custom_field_options = explode(",", $v["custom_field_options"]);
+									$values = explode(", ", $value);
+									foreach ( $custom_field_options as $custom_field_option ) {
+										echo "\n			<label><input type='checkbox' name='$key", "[]' value='$custom_field_option'";
+										if ( in_array($custom_field_option, $values) ) echo " checked='checked'";
+										echo " />&nbsp;$custom_field_option</label><br />";
+									}
+									echo "\n		</td>";
+									break;
+								case "radio":
+									echo "\n		<td>";
+									$custom_field_options = explode(",", $v["custom_field_options"]);
+									foreach ( $custom_field_options as $custom_field_option ) {
+										echo "\n			<label><input type='radio' name='$key' value='$custom_field_option'";
+										if ( $value == $custom_field_option ) echo " checked='checked'";
+										echo " class='tog'>&nbsp;$custom_field_option</label><br />";
+									}
+									echo "\n		</td>";
+									break;
+								case "textarea":
+									echo "\n		<td><textarea name='$key' id='$key' rows='5' cols='30'>", stripslashes($value), "</textarea></td>";
+									break;
+								case "date":
+									echo "\n		<td><input type='text' name='$key' id='$key' value='$value' /></td>";
+									break;
+								case "url":
+									echo "\n		<td><input type='text' name='$key' id='$key' value='$value' /></td>";
+									break;
+								case "hidden":
+									echo "\n		<td><input type='text' disabled='disabled' name='$key' id='$key' value='$value' /></td>";
+									break;
+							}
+							echo "\n	</tr>";
 						}
-						echo "\n	</tr>";
 					}
 				}
 				echo "</table>";
