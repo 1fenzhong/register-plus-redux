@@ -55,6 +55,11 @@ Register Plus offered two different CAPTCHA methods, a simple random CAPTCHA and
 = Didn't Register Plus have a feature to allow duplicate e-mail addresses? =
 Register Plus did have a feature that allowed multiple users to register with the same e-mail address.  I'm not sure when that stopped working for Register Plus, but I can assure you, that method doesn't work in WordPress 3.0 and will not work in any future revision.  Register Plus' method was pretty simple, if the email_exists error is thrown, unthrow it.  Well, that works, to a degree, but once WordPress actually builds the user it chokes up and unpleasant things happen, in my experience.  I'll leave this feature to brigher minds then my own to fix.
 
+= Things to Keep in Mind =
+Really for me, more than you, but who's nitpicking.
+
+HTML attributes should go in the following order name -> id -> class
+
 == Screenshots ==
 
 1. A Modified Registration Page
@@ -96,6 +101,8 @@ TODO: Finish summary fields
 October 12, 2010 by radiok
 
 * Started adding jQuery to summarize when and what messages are going out
+* Rewrote jQuery on Settings Page
+* Added id tags to every field on Registration Page for better CSS user
 * Added code to move custom fields around, as requested by pantone204 for Pie Register <http://wordpress.org/support/topic/plugin-pie-register-adding-new-fields-different-order>
 * Fixed bug in User Profile with invitation_code but no custom fields, as reported by ak <http://radiok.info/blog/administration-redux/>
 
