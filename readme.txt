@@ -97,12 +97,17 @@ TODO: Add uninstall function
 TODO: Finish summary fields
 
 == Changelog ==
-= 3.6.18 =
+= 3.6.19 =
 October 12, 2010 by radiok
 
 * Started adding jQuery to summarize when and what messages are going out
 * Rewrote jQuery on Settings Page
 * Added id tags to every field on Registration Page for better CSS user
+* Added custom Email Verification and Admin Verification messages, as requested by Eric Bostrom <http://radiok.info/blog/administration-redux/>
+
+= 3.6.18 =
+October 12, 2010 by radiok
+
 * Added code to move custom fields around, as requested by pantone204 for Pie Register <http://wordpress.org/support/topic/plugin-pie-register-adding-new-fields-different-order>
 * Fixed bug in User Profile with invitation_code but no custom fields, as reported by ak <http://radiok.info/blog/administration-redux/>
 
