@@ -2161,12 +2161,12 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		
 		function ConflictWarning() {
 			if ( current_user_can(10) && isset($_GET["page"]) && $_GET["page"] == "register-plus-redux" )
-			echo "\n<div id='register-plus-redux-warning' class='updated fade-ff0000'><p><strong>", __("You have another plugin installed that is conflicting with Register Plus Redux. This other plugin is overriding the user notification emails. Please see <a href='http://skullbit.com/news/register-plus-conflicts/'>Register Plus Conflicts</a> for more information.", "register-plus-redux"), "</strong></p></div>";
+			echo "\n<div id='register-plus-redux-warning' class='updated fade-ff0000'><p><strong>", __("There is another active plugin that is conflicting with Register Plus Redux. The conflicting plugin is creating its own wp_new_user_notification function, this function is used to alter the messages sent out following the creation of a new user. Please refer to <a href='http://radiok.info/blog/wp_new_user_notification-conflicts/'>http://radiok.info/blog/wp_new_user_notification-conflicts/</a> for help resolving this issue.", "register-plus-redux"), "</strong></p></div>";
 		}
 
 		function VersionWarning() {
 			global $wp_version;
-			echo "\n<div id='register-plus-redux-warning' class='updated fade-ff0000'><p><strong>", __("Register Plus Redux is only compatible with WordPress 3.0 and up. You are currently using WordPress ", "register-plus-redux"), "$wp_version</strong></p></div>";
+			echo "\n<div id='register-plus-redux-warning' class='updated fade-ff0000'><p><strong>", sprintf(__("Register Plus Redux requires WordPress 3.0 or greater. You are currently using WordPress %s, please upgrade or deactivate Register Plus Redux.", "register-plus-redux"), $wp_version), "</strong></p></div>";
 		}
 	}
 }
