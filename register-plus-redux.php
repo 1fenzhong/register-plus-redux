@@ -478,7 +478,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							<label><input type="checkbox" name="user_set_password" id="user_set_password" value="1" <?php if ( !empty($options["user_set_password"]) ) echo "checked='checked'"; ?> class="showHideSettings" />&nbsp;<?php _e("Require new users enter a password during registration...", "register-plus-redux"); ?></label><br />
 							<div id="password_settings">
 								<label><?php _e("Minimum password length: ","register-plus-redux"); ?><input type="text" name="min_password_length" id="min_password_length" style="width:50px;" value="<?php echo $options["min_password_length"]; ?>" /></label><br />
-								<label><input type="checkbox" name="show_password_meter" id="show_password_meter" value="1" <?php if ( !empty($options["show_password_meter"]) ) echo "checked='checked'"; ?> class="showHideSettings" />&nbsp;<?php _e("Show password stregth meter...","register-plus-redux"); ?></label>
+								<label><input type="checkbox" name="show_password_meter" id="show_password_meter" value="1" <?php if ( !empty($options["show_password_meter"]) ) echo "checked='checked'"; ?> class="showHideSettings" />&nbsp;<?php _e("Show password strength meter...","register-plus-redux"); ?></label>
 								<div id="meter_settings">
 									<table>
 										<tr>
@@ -1551,7 +1551,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				$tabindex++;
 				if ( !empty($options["show_password_meter"]) ) {
 					echo "\n<div id='pass-strength-result'>", stripslashes($options["message_empty_password"]), "</div>";
-					echo "\n<small id='pass_strength_msg'>", sprintf(__("Your password must be at least %d characters long. To make your password stronger, use upper and lower case letters, numbers, and the following symbols !@#$%^&amp;*()", "register-plus-redux"), $options["min_password_length"]), "</small>";
+					echo "\n<small id='pass_strength_msg'>", sprintf(__("Your password must be at least %d characters long. To make your password stronger, use upper and lower case letters, numbers, and the following symbols !@#$%%^&amp;*()", "register-plus-redux"), $options["min_password_length"]), "</small>";
 				}
 			}
 			if ( !empty($options["enable_invitation_code"]) ) {
