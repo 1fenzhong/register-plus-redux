@@ -4,7 +4,7 @@ Donate link: http://radiok.info/donate/
 Tags: registration, register, plus, redux, password, invitation, code, email, verification, disclaimer, license, agreement, privacy, policy, logo, moderation, user
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable tag: 3.6.18
+Stable tag: 3.6.19
 
 Enhances the user registration process with complete customization and additional administration options.
 
@@ -94,12 +94,11 @@ TODO: Make Redux compatible with Wordpress MU (wp-signup.php)
 
 TODO: Add uninstall function
 
-TODO: Finish summary fields
-
 == Changelog ==
 = 3.6.19 =
-October 12, 2010 by radiok
+October 13, 2010 by radiok
 
+* Reorganized Settings Page to better reflect order of fields on Registration Page
 * Started adding jQuery to summarize when and what messages are going out
 * Rewrote jQuery on Settings Page
 * Added id tags to every field on Registration Page for better CSS user
