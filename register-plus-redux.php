@@ -92,7 +92,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !empty($unverified_users) ) {
 					$options = get_option("register_plus_redux_options");
 					$expirationdate = date("Ymd", strtotime("-".$options["delete_unverified_users_after"]." days"));
-					if (!function_exists('wp_delete_user')) require_once(ABSPATH."/wp-admin/includes/user.php");
+					if (!function_exists("wp_delete_user")) require_once(ABSPATH."/wp-admin/includes/user.php");
 					foreach ( $unverified_users as $unverified_user ) {
 						$user_info = get_userdata($unverified_user->user_id);
 						if ( date("Ymd", strtotime($user_info->user_registered)) < $expirationdate ) {
@@ -509,37 +509,37 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									<?php if ( !is_array($options["required_fields"]) ) $options["required_fields"] = array(); ?>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><?php _e("First Name", "register-plus-redux"); ?></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="first_name" <?php if ( in_array("first_name", $options["show_fields"]) ) echo "checked='checked'"; ?> class='modifyNextCellInput' /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="first_name" <?php if ( in_array("first_name", $options["show_fields"]) ) echo "checked='checked'"; ?> class="modifyNextCellInput" /></td>
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="first_name" <?php if ( in_array("first_name", $options["required_fields"]) ) echo "checked='checked'"; ?> <?php if ( !in_array("first_name", $options["show_fields"]) ) echo "disabled='disabled'"; ?> /></td>
 									</tr>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><?php _e("Last Name", "register-plus-redux"); ?></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="last_name" <?php if ( in_array("last_name", $options["show_fields"]) ) echo "checked='checked'"; ?> class='modifyNextCellInput' /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="last_name" <?php if ( in_array("last_name", $options["show_fields"]) ) echo "checked='checked'"; ?> class="modifyNextCellInput" /></td>
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="last_name" <?php if ( in_array("last_name", $options["required_fields"]) ) echo "checked='checked'"; ?> <?php if ( !in_array("last_name", $options["show_fields"]) ) echo "disabled='disabled'"; ?> /></td>
 									</tr>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><?php _e("Website", "register-plus-redux"); ?></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="user_url" <?php if ( in_array("user_url", $options["show_fields"]) ) echo "checked='checked'"; ?> class='modifyNextCellInput' /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="user_url" <?php if ( in_array("user_url", $options["show_fields"]) ) echo "checked='checked'"; ?> class="modifyNextCellInput" /></td>
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="user_url" <?php if ( in_array("user_url", $options["required_fields"]) ) echo "checked='checked'"; ?> <?php if ( !in_array("user_url", $options["show_fields"]) ) echo "disabled='disabled'"; ?> /></td>
 									</tr>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><?php _e("AIM", "register-plus-redux"); ?></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="aim" <?php if ( in_array("aim", $options["show_fields"]) ) echo "checked='checked'"; ?> class='modifyNextCellInput' /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="aim" <?php if ( in_array("aim", $options["show_fields"]) ) echo "checked='checked'"; ?> class="modifyNextCellInput" /></td>
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="aim" <?php if ( in_array("aim", $options["required_fields"]) ) echo "checked='checked'"; ?> <?php if ( !in_array("aim", $options["show_fields"]) ) echo "disabled='disabled'"; ?> /></td>
 									</tr>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><?php _e("Yahoo IM", "register-plus-redux"); ?></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="yahoo" <?php if ( in_array("yahoo", $options["show_fields"]) ) echo "checked='checked'"; ?> class='modifyNextCellInput' /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="yahoo" <?php if ( in_array("yahoo", $options["show_fields"]) ) echo "checked='checked'"; ?> class="modifyNextCellInput" /></td>
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="yahoo" <?php if ( in_array("yahoo", $options["required_fields"]) ) echo "checked='checked'"; ?> <?php if ( !in_array("yahoo", $options["show_fields"]) ) echo "disabled='disabled'"; ?> /></td>
 									</tr>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><?php _e("Jabber / Google Talk", "register-plus-redux"); ?></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="jabber" <?php if ( in_array("jabber", $options["show_fields"]) ) echo "checked='checked'"; ?> class='modifyNextCellInput' /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="jabber" <?php if ( in_array("jabber", $options["show_fields"]) ) echo "checked='checked'"; ?> class="modifyNextCellInput" /></td>
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="jabber" <?php if ( in_array("jabber", $options["required_fields"]) ) echo "checked='checked'"; ?> <?php if ( !in_array("jabber", $options["show_fields"]) ) echo "disabled='disabled'"; ?> /></td>
 									</tr>
 									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><?php _e("About Yourself", "register-plus-redux"); ?></td>
-										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="about" <?php if ( in_array("about", $options["show_fields"]) ) echo "checked='checked'"; ?> class='modifyNextCellInput' /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="about" <?php if ( in_array("about", $options["show_fields"]) ) echo "checked='checked'"; ?> class="modifyNextCellInput" /></td>
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="about" <?php if ( in_array("about", $options["required_fields"]) ) echo "checked='checked'"; ?> <?php if ( !in_array("about", $options["show_fields"]) ) echo "disabled='disabled'"; ?> /></td>
 									</tr>
 								</tbody>
@@ -1123,7 +1123,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					$update = "send_verification_email";
 					foreach ( $_REQUEST["users"] as $user_id ) {
 						$id = (int) $user_id;
-						if ( !current_user_can('promote_user', $id) )
+						if ( !current_user_can("promote_user", $id) )
 							wp_die(__("You cannot edit that user.", "register-plus-redux"));
 						$this->sendVerificationMessage($user_id);
 					}
@@ -1133,7 +1133,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				check_admin_referer("register-plus-redux-unverified-users");
 				if ( isset($_REQUEST["users"]) && is_array($_REQUEST["users"]) ) {
 					$update = "delete_users";
-					if (!function_exists('wp_delete_user')) require_once(ABSPATH."/wp-admin/includes/user.php");
+					if (!function_exists("wp_delete_user")) require_once(ABSPATH."/wp-admin/includes/user.php");
 					foreach ( $_REQUEST["users"] as $user_id )
 						wp_delete_user($user_id);
 				}
@@ -1382,8 +1382,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					?>
 					<script type="text/javascript">
 					jQuery(document).ready(function() {
-						jQuery('#user_login').parent().prepend('*');
-						jQuery('#user_email').parent().prepend('*');
+						jQuery("#user_login").parent().prepend("*");
+						jQuery("#user_email").parent().prepend("*");
 					});
 					</script>
 					<?php
@@ -1402,28 +1402,28 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						}
 						/* ]]> */
 						function check_pass_strength() {
-							var pass1 = jQuery('#pass1').val(), user = jQuery('#user_login').val(), pass2 = jQuery('#pass2').val(), strength;
-							jQuery('#pass-strength-result').removeClass('short bad good strong mismatch');
+							var pass1 = jQuery("#pass1").val(), user = jQuery("#user_login").val(), pass2 = jQuery("#pass2").val(), strength;
+							jQuery("#pass-strength-result").removeClass("short bad good strong mismatch");
 							if ( !pass1 ) {
-								jQuery('#pass-strength-result').html( pwsL10n.empty );
+								jQuery("#pass-strength-result").html( pwsL10n.empty );
 								return;
 							}
 							strength = passwordStrength(pass1, user, pass2);
 							switch ( strength ) {
 								case 2:
-									jQuery('#pass-strength-result').addClass('bad').html( pwsL10n['bad'] );
+									jQuery("#pass-strength-result").addClass("bad").html( pwsL10n["bad"] );
 									break;
 								case 3:
-									jQuery('#pass-strength-result').addClass('good').html( pwsL10n['good'] );
+									jQuery("#pass-strength-result").addClass("good").html( pwsL10n["good"] );
 									break;
 								case 4:
-									jQuery('#pass-strength-result').addClass('strong').html( pwsL10n['strong'] );
+									jQuery("#pass-strength-result").addClass("strong").html( pwsL10n["strong"] );
 									break;
 								case 5:
-									jQuery('#pass-strength-result').addClass('mismatch').html( pwsL10n['mismatch'] );
+									jQuery("#pass-strength-result").addClass("mismatch").html( pwsL10n["mismatch"] );
 									break;
 								default:
-									jQuery('#pass-strength-result').addClass('short').html( pwsL10n['short'] );
+									jQuery("#pass-strength-result").addClass("short").html( pwsL10n["short"] );
 							}
 						}
 						function passwordStrength(password1, username, password2) {
@@ -1454,8 +1454,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							return strongPass;
 						}
 						jQuery(document).ready( function() {
-							jQuery('#pass1').val('').keyup( check_pass_strength );
-							jQuery('#pass2').val('').keyup( check_pass_strength );
+							jQuery("#pass1").val("").keyup( check_pass_strength );
+							jQuery("#pass2").val("").keyup( check_pass_strength );
 						});
 					</script>
 					<?php
