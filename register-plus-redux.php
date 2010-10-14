@@ -92,7 +92,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !empty($unverified_users) ) {
 					$options = get_option("register_plus_redux_options");
 					$expirationdate = date("Ymd", strtotime("-".$options["delete_unverified_users_after"]." days"));
-					require_once(ABSPATH."/wp-admin/includes/user.php");
+					if (!function_exists('wp_delete_user')) require_once(ABSPATH."/wp-admin/includes/user.php");
 					foreach ( $unverified_users as $unverified_user ) {
 						$user_info = get_userdata($unverified_user->user_id);
 						if ( date("Ymd", strtotime($user_info->user_registered)) < $expirationdate ) {
@@ -429,7 +429,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				});
 			});
 			</script>
-		<?php
+			<?php
 		}
 
 		function OptionsPage() {
@@ -1133,7 +1133,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				check_admin_referer("register-plus-redux-unverified-users");
 				if ( isset($_REQUEST["users"]) && is_array($_REQUEST["users"]) ) {
 					$update = "delete_users";
-					require_once(ABSPATH.'/wp-admin/includes/user.php');
+					if (!function_exists('wp_delete_user')) require_once(ABSPATH."/wp-admin/includes/user.php");
 					foreach ( $_REQUEST["users"] as $user_id )
 						wp_delete_user($user_id);
 				}
