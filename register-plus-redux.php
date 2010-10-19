@@ -258,7 +258,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					jQuery("#custom_verification_message_settings").hide();
 				} else {
 					jQuery("#custom_verification_message").removeAttr("disabled");
-					vwhen = "The following message will be sent when a user is registered:"
+					vwhen = "<?php _e("The following message will be sent when a user is registered:", "register-plus-redux"); ?>";
 					from_name = "<?php echo $this->defaultOptions("verification_message_from_name"); ?>";
 					from_email = "<?php echo $this->defaultOptions("verification_message_from_email"); ?>";
 					subject = "<?php echo stripslashes($this->defaultOptions("verification_message_subject")); ?>";
@@ -281,19 +281,19 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					jQuery("#custom_user_message").attr("disabled", "disabled");
 					jQuery("#custom_user_message").removeAttr("checked");
 					jQuery("#custom_user_message_settings").hide();
-					when = "No message will be sent to user whether they are registered or created by an administrator.";
+					when = "<?php _e("No message will be sent to user whether they are registered or created by an administrator.", "register-plus-redux"); ?>";
 				} else {
 					jQuery("#custom_user_message").removeAttr("disabled");
-					when = "The following message will be sent when a user is ";
-					if ( !jQuery("#disable_user_message_registered").attr("checked") ) when = when + "registered";
-					if ( !jQuery("#disable_user_message_registered").attr("checked") && !jQuery("#disable_user_message_created").attr("checked") ) when = when + " or ";
-					if ( !jQuery("#disable_user_message_created").attr("checked") ) when = when + "created";
-					if ( jQuery("#verify_user_email").attr("checked") || jQuery("#verify_user_admin").attr("checked") ) when = when + " after ";
+					when = "<?php _e("The following message will be sent when a user is ", "register-plus-redux"); ?>";
+					if ( !jQuery("#disable_user_message_registered").attr("checked") ) when = when + "<?php _e("registered", "register-plus-redux"); ?>";
+					if ( !jQuery("#disable_user_message_registered").attr("checked") && !jQuery("#disable_user_message_created").attr("checked") ) when = when + "<?php _e(" or ", "register-plus-redux"); ?>";
+					if ( !jQuery("#disable_user_message_created").attr("checked") ) when = when + "<?php _e("created", "register-plus-redux"); ?>";
+					if ( jQuery("#verify_user_email").attr("checked") || jQuery("#verify_user_admin").attr("checked") ) when = when + "<?php _e(" after ", "register-plus-redux"); ?>";
 					if ( jQuery("#verify_user_email").attr("checked"))
 						when = when + "the user has verified their email address"
-					if ( jQuery("#verify_user_email").attr("checked") && jQuery("#verify_user_admin").attr("checked") ) when = when + " and/or ";
+					if ( jQuery("#verify_user_email").attr("checked") && jQuery("#verify_user_admin").attr("checked") ) when = when + "<?php _e(" and/or ", "register-plus-redux"); ?>";
 					if ( jQuery("#verify_user_admin").attr("checked"))
-						when = when + "an administrator has approved the new user"
+						when = when + "<?php _e("an administrator has approved the new user", "register-plus-redux"); ?>";
 					when = when + ":";
 					from_name = "<?php echo $this->defaultOptions("user_message_from_name"); ?>";
 					from_email = "<?php echo $this->defaultOptions("user_message_from_email"); ?>";
@@ -307,10 +307,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						if ( jQuery("#send_user_message_in_html").attr("checked") ) content_type = "text/html";
 						body = jQuery("#user_message_body").val();
 					}
-					msg = "To: %user_email%<br />";
-					msg = msg + "From: " + from_name + " (" + from_email + ")<br />";
-					msg = msg + "Subject: " + subject + "<br />";
-					msg = msg + "Content-Type: " + content_type + "<br />";
+					msg = "<?php _e("To: ", "register-plus-redux"); ?>" + "%user_email%<br />";
+					msg = msg + "<?php _e("From: ", "register-plus-redux"); ?>" + from_name + " (" + from_email + ")<br />";
+					msg = msg + "<?php _e("Subject: ", "register-plus-redux"); ?>" + subject + "<br />";
+					msg = msg + "<?php _e("Content-Type: ", "register-plus-redux"); ?>" + content_type + "<br />";
 					msg = "<p style='font-size: 11px; display: block; width: 50%; background-color: #efefef; padding: 8px 10px; border: solid 1px #dfdfdf; margin: 1px; overflow:auto;'>" + msg + body + "</p>";
 				}
 				jQuery("#user_message_summary").html(vwhen + vmsg + when + msg);
@@ -323,13 +323,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					jQuery("#custom_admin_message").attr("disabled", "disabled");
 					jQuery("#custom_admin_message").removeAttr("checked");
 					jQuery("#custom_admin_message_settings").hide();
-					when = "No message will be sent to administrator whether a user is registered or created.";
+					when = "<?php _e("No message will be sent to administrator whether a user is registered or created.", "register-plus-redux"); ?>";
 				} else {
 					jQuery("#custom_admin_message").removeAttr("disabled");
-					when = "The following message will be sent when a user is ";
-					if ( !jQuery("#disable_admin_message_registered").attr("checked") ) when = when + "registered";
-					if ( !jQuery("#disable_admin_message_registered").attr("checked") && !jQuery("#disable_admin_message_created").attr("checked") ) when = when + " or ";
-					if ( !jQuery("#disable_admin_message_created").attr("checked") ) when = when + "created";
+					when = "<?php _e("The following message will be sent when a user is ", "register-plus-redux"); ?>";
+					if ( !jQuery("#disable_admin_message_registered").attr("checked") ) when = when + "<?php _e("registered", "register-plus-redux"); ?>";
+					if ( !jQuery("#disable_admin_message_registered").attr("checked") && !jQuery("#disable_admin_message_created").attr("checked") ) when = when + "<?php _e(" or ", "register-plus-redux"); ?>";
+					if ( !jQuery("#disable_admin_message_created").attr("checked") ) when = when + "<?php _e("created", "register-plus-redux"); ?>";
 					when = when + ":";
 					from_name = "<?php echo $this->defaultOptions("admin_message_from_name"); ?>";
 					from_email = "<?php echo $this->defaultOptions("admin_message_from_email"); ?>";
@@ -343,10 +343,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						if ( jQuery("#send_admin_message_in_html").attr("checked") ) content_type = "text/html";
 						body = jQuery("#admin_message_body").val();
 					}
-					msg = "To: <?php echo get_option("admin_email"); ?><br />";
-					msg = msg + "From: " + from_name + " (" + from_email + ")<br />";
-					msg = msg + "Subject: " + subject + "<br />";
-					msg = msg + "Content-Type: " + content_type + "<br />";
+					msg = "<?php _e("To: ", "register-plus-redux"); echo get_option("admin_email"); ?><br />";
+					msg = msg + "<?php _e("From: ", "register-plus-redux"); ?>" + from_name + " (" + from_email + ")<br />";
+					msg = msg + "<?php _e("Subject: ", "register-plus-redux"); ?>" + subject + "<br />";
+					msg = msg + "<?php _e("Content-Type: ", "register-plus-redux"); ?>" + content_type + "<br />";
 					msg = "<p style='font-size: 11px; display: block; width: 50%; background-color: #efefef; padding: 8px 10px; border: solid 1px #dfdfdf; margin: 1px; overflow:auto;'>" + msg + body + "</p>";
 				}
 				jQuery("#admin_message_summary").html(when + msg);
