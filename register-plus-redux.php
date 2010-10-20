@@ -261,13 +261,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					from_email = "<?php echo $this->defaultOptions("verification_message_from_email"); ?>";
 					subject = "<?php echo stripslashes($this->defaultOptions("verification_message_subject")); ?>";
 					content_type = "text/plain";
-					body = (<r><![CDATA[<?php echo nl2br(stripslashes($this->defaultOptions("verification_message_body"))); ?>]]></r>).toString();
+					body = "<?php echo str_replace(array("\r", "\r\n", "\n"), '', nl2br(stripslashes($this->defaultOptions("verification_message_body")))); ?>";
 					if ( jQuery("#custom_verification_message").attr("checked") ) {
 						from_name = jQuery("#verification_message_from_name").val();
 						from_email = jQuery("#verification_message_from_email").val();
 						subject = jQuery("#verification_message_subject").val();
 						if ( jQuery("#send_verification_message_in_html").attr("checked") ) content_type = "text/html";
-						body = jQuery("#verification_message_body").val();
+						body = jQuery("#verification_message_body").val().replace(new RegExp( "\\n", "g" ), "<br />");
 					}
 					vmsg = "To: %user_email%<br />";
 					vmsg = vmsg + "From: " + from_name + " (" + from_email + ")<br />";
@@ -297,13 +297,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					from_email = "<?php echo $this->defaultOptions("user_message_from_email"); ?>";
 					subject = "<?php echo stripslashes($this->defaultOptions("user_message_subject")); ?>";
 					content_type = "text/plain";
-					body = (<r><![CDATA[<?php echo nl2br(stripslashes($this->defaultOptions("user_message_body"))); ?>]]></r>).toString();
+					body = "<?php echo str_replace(array("\r", "\r\n", "\n"), '', nl2br(stripslashes($this->defaultOptions("user_message_body")))); ?>";
 					if ( jQuery("#custom_user_message").attr("checked") ) {
 						from_name = jQuery("#user_message_from_name").val();
 						from_email = jQuery("#user_message_from_email").val();
 						subject = jQuery("#user_message_subject").val();
 						if ( jQuery("#send_user_message_in_html").attr("checked") ) content_type = "text/html";
-						body = jQuery("#user_message_body").val();
+						body = jQuery("#user_message_body").val().replace(new RegExp( "\\n", "g" ), "<br />");
 					}
 					msg = "<?php _e("To: ", "register-plus-redux"); ?>" + "%user_email%<br />";
 					msg = msg + "<?php _e("From: ", "register-plus-redux"); ?>" + from_name + " (" + from_email + ")<br />";
@@ -333,13 +333,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					from_email = "<?php echo $this->defaultOptions("admin_message_from_email"); ?>";
 					subject = "<?php echo stripslashes($this->defaultOptions("admin_message_subject")); ?>";
 					content_type = "text/plain";
-					body = (<r><![CDATA[<?php echo nl2br(stripslashes($this->defaultOptions("admin_message_body"))); ?>]]></r>).toString();
+					body = "<?php echo str_replace(array("\r", "\r\n", "\n"), '', nl2br(stripslashes($this->defaultOptions("admin_message_body")))); ?>";
 					if ( jQuery("#custom_admin_message").attr("checked") ) {
 						from_name = jQuery("#admin_message_from_name").val();
 						from_email = jQuery("#admin_message_from_email").val();
 						subject = jQuery("#admin_message_subject").val();
 						if ( jQuery("#send_admin_message_in_html").attr("checked") ) content_type = "text/html";
-						body = jQuery("#admin_message_body").val();
+						body = jQuery("#admin_message_body").val().replace(new RegExp( "\\n", "g" ), "<br />");
 					}
 					msg = "<?php _e("To: ", "register-plus-redux"); echo get_option("admin_email"); ?><br />";
 					msg = msg + "<?php _e("From: ", "register-plus-redux"); ?>" + from_name + " (" + from_email + ")<br />";
