@@ -1226,29 +1226,50 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		function LoginHead() {
 			$options = get_option("register_plus_redux_options");
 			if ( !empty($options["custom_logo_url"]) ) {
+				if ( empty($jquery_loaded) ) {
+					wp_print_scripts("jquery");
+					$jquery_loaded = true;
+				}
 				list($width, $height, $type, $attr) = getimagesize($options["custom_logo_url"]);
-				wp_print_scripts("jquery");
-				echo "\n<script type=\"text/javascript\">";
-				echo "\njQuery(document).ready(function() {";
-				echo "\njQuery('#login h1 a').attr('href', '", get_option("home"), "');";
-				echo "\njQuery('#login h1 a').attr('title', '", get_option("blogname"), " - ", get_option("blogdescription"). "');";
-				echo "\n});";
-				echo "\n</script>";
-				echo "\n<style type=\"text/css\">";
-				echo "\n#login h1 a {";
-				echo "\nbackground-image: url(", $options["custom_logo_url"], ");";
-				echo "\nbackground-position:center top;";
-				echo "\nwidth: $width", "px;";
-				echo "\nmin-width: 292px;";
-				echo "\nheight: $height", "px;";
-				echo "\n</style>";
+				?>
+				<style type="text/css">
+					#login h1 a {
+						background-image: url("<?php echo $options["custom_logo_url"]; ?>");
+						margin: 0 0 0 8px;
+						width: <?php echo $width; ?>px;
+						min-width: 292px;
+						height: <?php echo $height; ?>px;
+					}
+				</style>
+				<script type="text/javascript">
+				jQuery(document).ready(function() {
+					jQuery("#login h1 a").attr("href", "<?php echo get_option("home"); ?>");
+					jQuery("#login h1 a").attr("title", "<?php echo get_option("blogname"); ?> - <?php echo get_option("blogdescription"); ?>");
+				});
+				</script>
+				<?php
 			}
 			if ( isset($_GET["checkemail"]) && $_GET["checkemail"] == "registered" && (!empty($options["verify_user_admin"]) || !empty($options["verify_user_email"])) ) {
-				//label, #user_login, #user_pass, .forgetmenot, #wp-submit, .message { display: none; }
-				echo "\n<style type=\"text/css\">";
-				echo "\np { display: none; }";
-				echo "\n#message, #backtoblog { display: block; }";
-				echo "\n</style>";
+				if ( empty($jquery_loaded) ) {
+					wp_print_scripts("jquery");
+					$jquery_loaded = true;
+				}
+				if ( $options["verify_user_email"] ) {
+					$message = stripslashes($options["message_verify_user_email"]);
+				} elseif ( $options["verify_user_admin"] ) {
+					$message = stripslashes($options["message_verify_user_admin"]);
+				}
+				?>
+				<style type="text/css">
+					form { display: none; }
+					#nav { display: none; }
+				</style>
+				<script type="text/javascript">
+				jQuery(document).ready(function() {
+					jQuery(".message").html("<?php echo $message; ?>");
+				});
+				</script>
+				<?php
 			}
 			if ( isset($_GET["action"]) && $_GET["action"] == "register" ) {
 				$custom_fields = get_option("register_plus_redux_custom_fields");
@@ -1337,9 +1358,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !empty($options["custom_registration_page_css"]) ) echo "\n", $options["custom_registration_page_css"];
 				echo "\n</style>";
 
-				if ( !empty($show_custom_date_fields) || !empty($options["required_fields_asterisk"]) || (!empty($options["user_set_password"]) && !empty($options["show_password_meter"])) )
-					wp_print_scripts("jquery");
 				if ( !empty($show_custom_date_fields) ) {
+					if ( empty($jquery_loaded) ) {
+						wp_print_scripts("jquery");
+						$jquery_loaded = true;
+					}
 					?>
 					<link type="text/css" rel="stylesheet" href="<?php echo plugins_url("js/theme/jquery.ui.all.css", __FILE__); ?>" />
 					<script type="text/javascript" src="<?php echo plugins_url("js/jquery.ui.core.min.js", __FILE__); ?>"></script>
@@ -1352,6 +1375,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					<?php
 				}
 				if ( !empty($options["required_fields_asterisk"]) ) {
+					if ( empty($jquery_loaded) ) {
+						wp_print_scripts("jquery");
+						$jquery_loaded = true;
+					}
 					?>
 					<script type="text/javascript">
 					jQuery(document).ready(function() {
@@ -1362,6 +1389,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					<?php
 				}
 				if ( !empty($options["user_set_password"]) && !empty($options["show_password_meter"]) ) {
+					if ( empty($jquery_loaded) ) {
+						wp_print_scripts("jquery");
+						$jquery_loaded = true;
+					}
 					?>
 					<script type="text/javascript">
 						/* <![CDATA[ */
