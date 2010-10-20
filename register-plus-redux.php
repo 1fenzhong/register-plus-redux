@@ -21,8 +21,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				add_action("init", array($this, "InitializeSettings")); //Runs after WordPress has finished loading but before any headers are sent.
 				add_action("init", array($this, "DeleteExpiredUsers")); //Runs after WordPress has finished loading but before any headers are sent.
 				add_action("admin_menu", array($this, "AddPages") ); //Runs after the basic admin panel menu structure is in place.
-				if ( isset($_GET["page"]) && $_GET["page"] == "register-plus-redux" && isset($_POST["action"]) && $_POST["action"] == "update_settings")
-					add_action("init", array($this, "UpdateSettings") ); //Runs after WordPress has finished loading but before any headers are sent.
 			}
 			add_action("login_head", array($this, "LoginHead")); //Runs just before the end of the HTML head section of the login page. 
 			add_action("register_form", array($this, "AlterRegisterForm")); //Runs just before the end of the new user registration form.
@@ -434,13 +432,16 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function OptionsPage() {
+			if ( isset($_POST["update_settings"]) ) {
+				check_admin_referer("register-plus-redux-update-settings");
+				$this->UpdateSettings();
+				echo "<div id='message' class='updated'><p>", __("Settings Saved", "register-plus-redux"), "</p></div>";
+			}
 			?>
 			<div class="wrap">
 			<h2><?php _e("Register Plus Redux Settings", "register-plus-redux") ?></h2>
-			<?php if ( !empty($_POST["notice"]) ) echo "\n<div id='message' class='updated fade'><p><strong>", $_POST["notice"], "</strong></p></div>"; ?>
 			<form enctype="multipart/form-data" method="post">
 				<?php wp_nonce_field("register-plus-redux-update-settings"); ?>
-				<input type="hidden" name="action" value="update_settings" />
 				<?php $options = get_option("register_plus_redux_options"); ?>
 				<table class="form-table">
 					<tr valign="top">
@@ -976,7 +977,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					</tr>
 				</table>
 				<p class="submit">
-					<input type="submit" class="button-primary" value="<?php esc_attr_e("Save Changes", "register-plus-redux"); ?>" name="submit" />
+					<input type="submit" class="button-primary" value="<?php esc_attr_e("Save Changes", "register-plus-redux"); ?>" name="update_settings" />
 					<input type="button" class="button" value="<?php esc_attr_e("Preview Registraton Page", "register-plus-redux"); ?>" name="preview" onclick="window.open('<?php echo wp_login_url(), "?action=register"; ?>');" />
 				</p>
 			</form>
@@ -989,7 +990,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			UpdateSettings is much harsher than it used to be, does not load old settings and
 			update them, just pulls whatever is on the current settings page
 			*/
-			check_admin_referer("register-plus-redux-update-settings");
 			$options = array();
 			if ( isset($_POST["custom_logo_url"]) ) $options["custom_logo_url"] = $_POST["custom_logo_url"];
 			if ( isset($_POST["registration_banner_url"]) ) $options["registration_banner_url"] = $_POST["registration_banner_url"];
@@ -1089,7 +1089,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 			update_option("register_plus_redux_options", $options);
 			update_option("register_plus_redux_custom_fields", $custom_fields);
-			$_POST["notice"] = __("Settings Saved", "register-plus-redux");
 		}
 
 		function UnverifiedUsersPage() {
@@ -1155,7 +1154,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			?>
 			<div class="wrap">
 				<h2><?php _e("Unverified Users", "register-plus-redux") ?></h2>
-				<form id="verify-filter" method="post" action="">
+				<form id="verify-filter" method="post">
 				<div class="tablenav">
 					<div class="alignleft actions">
 						<select name="action">
