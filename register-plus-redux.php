@@ -628,7 +628,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									</tr>
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;">
-											<label for="message_disclaimer_agree"><?php _e("Agreement Text", "register-plus-redux"); ?></label>
+											<label><input type="checkbox" name="disclaimer_agree_checkbox" value="1" <?php if ( !empty($options["disclaimer_agree_checkbox"]) ) echo "checked='checked'"; ?> />&nbsp;<?php _e("Require Agreement", "register-plus-redux"); ?></label>
 										</td>
 										<td style="padding-top: 0px; padding-bottom: 0px;">
 											<input type="text" name="message_disclaimer_agree" value="<?php echo stripslashes($options["message_disclaimer_agree"]); ?>" style="width: 100%;" />
@@ -660,7 +660,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									</tr>
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;">
-											<label for="message_license_agree"><?php _e("Agreement Text", "register-plus-redux"); ?></label>
+											<label><input type="checkbox" name="license_agree_checkbox" value="1" <?php if ( !empty($options["license_agree_checkbox"]) ) echo "checked='checked'"; ?> />&nbsp;<?php _e("Require Agreement", "register-plus-redux"); ?></label>
 										</td>
 										<td style="padding-top: 0px; padding-bottom: 0px;">
 											<input type="text" name="message_license_agree" value="<?php echo stripslashes($options["message_license_agree"]); ?>" style="width: 100%;" />
@@ -692,7 +692,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									</tr>
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;">
-											<label for="message_privacy_policy_agree"><?php _e("Agreement Text", "register-plus-redux"); ?></label>
+											<label><input type="checkbox" name="privacy_policy_agree_checkbox" value="1" <?php if ( !empty($options["privacy_policy_agree_checkbox"]) ) echo "checked='checked'"; ?> />&nbsp;<?php _e("Require Agreement", "register-plus-redux"); ?></label>
 										</td>
 										<td style="padding-top: 0px; padding-bottom: 0px;">
 											<input type="text" name="message_privacy_policy_agree" value="<?php echo stripslashes($options["message_privacy_policy_agree"]); ?>" style="width: 100%;" />
@@ -1025,14 +1025,17 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( isset($_POST["show_disclaimer"]) ) $options["show_disclaimer"] = $_POST["show_disclaimer"];
 			if ( isset($_POST["message_disclaimer_title"]) ) $options["message_disclaimer_title"] = $_POST["message_disclaimer_title"];
 			if ( isset($_POST["message_disclaimer"]) ) $options["message_disclaimer"] = $_POST["message_disclaimer"];
+			if ( isset($_POST["disclaimer_agree_checkbox"]) ) $options["disclaimer_agree_checkbox"] = $_POST["disclaimer_agree_checkbox"];
 			if ( isset($_POST["message_disclaimer_agree"]) ) $options["message_disclaimer_agree"] = $_POST["message_disclaimer_agree"];
 			if ( isset($_POST["show_license"]) ) $options["show_license"] = $_POST["show_license"];
 			if ( isset($_POST["message_license_title"]) ) $options["message_license_title"] = $_POST["message_license_title"];
 			if ( isset($_POST["message_license"]) ) $options["message_license"] = $_POST["message_license"];
+			if ( isset($_POST["license_agree_checkbox"]) ) $options["license_agree_checkbox"] = $_POST["license_agree_checkbox"];
 			if ( isset($_POST["message_license_agree"]) ) $options["message_license_agree"] = $_POST["message_license_agree"];
 			if ( isset($_POST["show_privacy_policy"]) ) $options["show_privacy_policy"] = $_POST["show_privacy_policy"];
 			if ( isset($_POST["message_privacy_policy_title"]) ) $options["message_privacy_policy_title"] = $_POST["message_privacy_policy_title"];
 			if ( isset($_POST["message_privacy_policy"]) ) $options["message_privacy_policy"] = $_POST["message_privacy_policy"];
+			if ( isset($_POST["privacy_policy_agree_checkbox"]) ) $options["privacy_policy_agree_checkbox"] = $_POST["privacy_policy_agree_checkbox"];
 			if ( isset($_POST["message_privacy_policy_agree"]) ) $options["message_privacy_policy_agree"] = $_POST["message_privacy_policy_agree"];
 			if ( isset($_POST["required_fields_style"]) ) $options["required_fields_style"] = $_POST["required_fields_style"];
 			if ( isset($_POST["required_fields_asterisk"]) ) $options["required_fields_asterisk"] = $_POST["required_fields_asterisk"];
@@ -1969,14 +1972,17 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				"show_disclaimer" => "0",
 				"message_disclaimer_title" => "Disclaimer",
 				"message_disclaimer" => "",
+				"disclaimer_agree_checkbox" => "0",
 				"message_disclaimer_agree" => "Accept the Disclaimer",
 				"show_license" => "0",
 				"message_license_title" => "License Agreement",
 				"message_license" => "",
+				"license_agree_checkbox" => "0",
 				"message_license_agree" => "Accept the License Agreement",
 				"show_privacy_policy" => "0",
 				"message_privacy_policy_title" => "Privacy Policy",
 				"message_privacy_policy" => "",
+				"privacy_policy_agree_checkbox" => "0",
 				"message_privacy_policy_agree" => "Accept the Privacy Policy",
 				"required_fields_style" => "border:solid 1px #E6DB55; background-color:#FFFFE0;",
 				"required_fields_asterisk" => "0",
