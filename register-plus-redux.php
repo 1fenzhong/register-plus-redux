@@ -450,7 +450,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							<input type="text" name="custom_logo_url" id="custom_logo_url" value="<?php echo $options["custom_logo_url"]; ?>" style="width: 60%;" /><br />
 							<?php _e("Upload a new logo:", "register-plus-redux"); ?>&nbsp;<input type="file" name="upload_custom_logo" id="upload_custom_logo" value="1" /><br />
 							<?php _e("You must Save Changes to upload logo.", "register-plus-redux"); ?><br />
-							<?php _e("Custom Logo will be shown on Registration and Login Forms in place of the default Wordpress logo. For the best results custom logo should not exceed 358px width.", "register-plus-redux"); ?>
+							<?php _e("Custom Logo will be shown on Registration and Login Forms in place of the default Wordpress logo. For the best results custom logo should not exceed 350px width.", "register-plus-redux"); ?>
 							<?php if ( !empty($options["custom_logo_url"]) ) { ?>
 								<br /><img src="<?php echo $options["custom_logo_url"]; ?>" /><br />
 								<?php list($custom_logo_width, $custom_logo_height) = getimagesize($options["custom_logo_url"]); ?>
