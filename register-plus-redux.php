@@ -34,6 +34,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			//add_action("wpmu_activate_user", array($this, "UpdateSignup"), 10, 3);
 			//add_action("signup_extra_fields", array($this, "AlterSignupForm"));
 
+			add_action("admin_head-profile.php", array($this, "DatepickerHead"));
+			add_action("admin_head-user-edit.php", array($this, "DatepickerHead"));
 			add_action("show_user_profile", array($this, "ShowCustomFields")); //Runs near the end of the user profile editing screen.
 			add_action("edit_user_profile", array($this, "ShowCustomFields")); //Runs near the end of the user profile editing screen in the admin menus. 
 			add_action("profile_update", array($this, "SaveCustomFields"));	//Runs when a user's profile is updated. Action function argument: user ID. 
@@ -117,6 +119,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			global $wpdb;
 			$options = get_option("register_plus_redux_options");
 			$options_page = add_submenu_page("options-general.php", "Register Plus Redux Settings", "Register Plus Redux", "manage_options", "register-plus-redux", array($this, "OptionsPage"));
+			//$options_page = settings_page_register-plus-redux 
 			add_action("admin_head-$options_page", array($this, "OptionsHead"));
 			add_filter("plugin_action_links_".plugin_basename(__FILE__), array($this, "filter_plugin_actions"), 10, 4);
 			if ( !empty($options["verify_user_email"]) || !empty($options["verify_user_admin"]) || $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_key='stored_user_login'") )
@@ -1313,9 +1316,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !empty($show_custom_textarea_fields) ) echo "\n$show_custom_textarea_fields { font-size:24px; height: 60px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
 				if ( !empty($show_custom_date_fields) ) {
 					echo "\n$show_custom_date_fields { font-size:24px; width:97%; padding:3px; margin-top:2px; margin-right:6px; margin-bottom:16px; border:1px solid #e5e5e5; background:#fbfbfb; }";
-					echo "\na.dp-choose-date { float: left; width: 16px; height: 16px; padding: 0; margin: 5px 3px 0; display: block; text-indent: -2000px; overflow: hidden; background: url('"; echo plugins_url("datepicker/calendar.png", __FILE__); echo "') no-repeat; }";
-					echo "\na.dp-choose-date.dp-disabled { background-position: 0 -20px; cursor: default; } /* makes the input field shorter once the date picker code * has run (to allow space for the calendar icon */";
-					echo "\ninput.dp-applied { width: 140px; float: left; }";
 				}
 				if ( !empty($options["show_disclaimer"]) ) { echo "\n#disclaimer { font-size:12px; display: block; width: 97%; padding: 3px; margin-top:2px; margin-right:6px; margin-bottom:8px; background-color:#fff; border:solid 1px #A7A6AA; font-weight:normal;"; if ( strlen($options["message_disclaimer"]) > 525) echo "height: 160px; overflow:scroll;"; echo " }"; }
 				if ( !empty($options["show_license"]) ) { echo "\n#license { font-size:12px; display: block; width: 97%; padding: 3px; margin-top:2px; margin-right:6px; margin-bottom:8px; background-color:#fff; border:solid 1px #A7A6AA; font-weight:normal;"; if ( strlen($options["message_license"]) > 525) echo "height: 160px; overflow:scroll;"; echo " }"; }
@@ -1341,37 +1341,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !empty($show_custom_date_fields) || !empty($options["required_fields_asterisk"]) || (!empty($options["user_set_password"]) && !empty($options["show_password_meter"])) )
 					wp_print_scripts("jquery");
 				if ( !empty($show_custom_date_fields) ) {
-					wp_print_scripts("jquery-ui-core");
-					wp_print_scripts(plugins_url("js/jquery.ui.datepicker.js", __FILE__));
 					?>
-					<!-- required plugins -->
-					<script type="text/javascript" src="<?php echo plugins_url("datepicker/date.js", __FILE__); ?>"></script>
-					<!--[if IE]><script type="text/javascript" src="<?php echo plugins_url("datepicker/jquery.bgiframe.js", __FILE__); ?>"></script><![endif]-->
-					<!-- jquery.datePicker.js -->
-					<script type="text/javascript" src="<?php echo plugins_url("datepicker/jquery.datePicker.js", __FILE__); ?>"></script>
-					<link href="<?php echo plugins_url("datepicker/datePicker.css", __FILE__); ?>" rel="stylesheet" type="text/css" />
+					<link type="text/css" rel="stylesheet" href="<?php echo plugins_url("js/theme/jquery.ui.all.css", __FILE__); ?>" />
+					<script type="text/javascript" src="<?php echo plugins_url("js/jquery.ui.core.min.js", __FILE__); ?>"></script>
+					<script type="text/javascript" src="<?php echo plugins_url("js/jquery.ui.datepicker.min.js", __FILE__); ?>"></script>
 					<script type="text/javascript">
-					jQuery.dpText = {
-						TEXT_PREV_YEAR	: '<?php _e("Previous year", "register-plus-redux"); ?>',
-						TEXT_PREV_MONTH	: '<?php _e("Previous month", "register-plus-redux"); ?>',
-						TEXT_NEXT_YEAR	: '<?php _e("Next year", "register-plus-redux"); ?>',
-						TEXT_NEXT_MONTH	: '<?php _e("Next Month", "register-plus-redux"); ?>',
-						TEXT_CLOSE	: '<?php _e("Close", "register-plus-redux"); ?>',
-						TEXT_CHOOSE_DATE: '<?php _e("Choose Date", "register-plus-redux"); ?>'
-					}
-					Date.dayNames = ['<?php _e("Monday", "register-plus-redux"); ?>', '<?php _e("Tuesday", "register-plus-redux"); ?>', '<?php _e("Wednesday", "register-plus-redux"); ?>', '<?php _e("Thursday", "register-plus-redux"); ?>', '<?php _e("Friday", "register-plus-redux"); ?>', '<?php _e("Saturday", "register-plus-redux"); ?>', '<?php _e("Sunday", "register-plus-redux"); ?>'];
-					Date.abbrDayNames = ['<?php _e("Mon", "register-plus-redux"); ?>', '<?php _e("Tue", "register-plus-redux"); ?>', '<?php _e("Wed", "register-plus-redux"); ?>", '<?php _e("Thu", "register-plus-redux"); ?>', '<?php _e("Fri", "register-plus-redux"); ?>', '<?php _e("Sat", "register-plus-redux"); ?>', '<?php _e("Sun", "register-plus-redux"); ?>'];
-					Date.monthNames = ['<?php _e("January", "register-plus-redux"); ?>', '<?php _e("February", "register-plus-redux"); ?>', '<?php _e("March", "register-plus-redux"); ?>', '<?php _e("April", "register-plus-redux"); ?>', '<?php _e("May", "register-plus-redux"); ?>', '<?php _e("June", "register-plus-redux"); ?>', '<?php _e("July", "register-plus-redux"); ?>', '<?php _e("August", "register-plus-redux"); ?>', '<?php _e("September", "register-plus-redux"); ?>', '<?php _e("October", "register-plus-redux"); ?>', '<?php _e("November", "register-plus-redux"); ?>', '<?php _e("December", "register-plus-redux"); ?>'];
-					Date.abbrMonthNames = ['<?php _e("Jan", "register-plus-redux"); ?>', '<?php _e("Feb", "register-plus-redux"); ?>', '<?php _e("Mar", "register-plus-redux"); ?>', '<?php _e("Apr", "register-plus-redux"); ?>', '<?php _e("May", "register-plus-redux"); ?>', '<?php _e("Jun", "register-plus-redux"); ?>', '<?php _e("Jul", "register-plus-redux"); ?>', '<?php _e("Aug", "register-plus-redux"); ?>', '<?php _e("Sep", "register-plus-redux"); ?>', '<?php _e("Oct", "register-plus-redux"); ?>', '<?php _e("Nov", "register-plus-redux"); ?>', '<?php _e("Dec", "register-plus-redux"); ?>'];
-					Date.firstDayOfWeek = '<?php echo $options["datepicker_firstdayofweek"]; ?>';
-					Date.format = '<?php echo $options["datepicker_dateformat"]; ?>';
 					jQuery(function() {
-						jQuery('.date-pick').datePicker({
-							clickInput: true,
-							startDate: '<?php echo $options["datepicker_startdate"]; ?>',
-							year: '<?php echo $options["datepicker_calyear"]; ?>',
-							month: '<?php if ( $options["datepicker_calmonth"] != "cur" ) echo $options["datepicker_calmonth"]; else echo date("n")-1; ?>'
-						})
+						jQuery(".datepicker").datepicker();
 					});
 					</script>
 					<?php
@@ -1595,7 +1571,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						case "date":
 							echo "\n<p id='$key-p'><label id='$key-label'>";
 							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
-							echo $v['custom_field_name'], "<br /><input type='text' name='$key' id='$key' class='input' value='", $_POST[$key], "' size='25' tabindex='$tabindex' /></label></p>";
+							echo $v['custom_field_name'], "<br /><input type='text' name='$key' id='$key' class='datepicker' value='", $_POST[$key], "' size='25' tabindex='$tabindex' /></label></p>";
 							$tabindex++;
 							break;
 						case "url":
@@ -1808,6 +1784,34 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 		}
 
+		function DatepickerHead() {
+			//global $pagenow;
+			//echo $pagenow;
+			$custom_fields = get_option("register_plus_redux_custom_fields");
+			if ( !is_array($custom_fields) ) $custom_fields = array();
+			foreach ( $custom_fields as $k => $v ) {
+				if ( !empty($v["show_on_profile"]) ) {
+					if ( $v["custom_field_type"] == "date" ) {
+						$show_custom_date_fields = true;
+						break;
+					}
+				}
+			}
+			if ( !empty($show_custom_date_fields) ) {
+				wp_enqueue_script("jquery");
+				?>
+				<link type="text/css" rel="stylesheet" href="<?php echo plugins_url("js/theme/jquery.ui.all.css", __FILE__); ?>" />
+				<script type="text/javascript" src="<?php echo plugins_url("js/jquery.ui.core.min.js", __FILE__); ?>"></script>
+				<script type="text/javascript" src="<?php echo plugins_url("js/jquery.ui.datepicker.min.js", __FILE__); ?>"></script>
+				<script type="text/javascript">
+				jQuery(function() {
+					jQuery(".datepicker").datepicker();
+				});
+				</script>
+				<?php
+			}
+		}
+
 		function ShowCustomFields( $profileuser ) {
 			$custom_fields = get_option("register_plus_redux_custom_fields");
 			
@@ -1868,7 +1872,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									echo "\n		<td><textarea name='$key' id='$key' cols='25' rows='5'>", stripslashes($value), "</textarea></td>";
 									break;
 								case "date":
-									echo "\n		<td><input type='text' name='$key' id='$key' value='$value' /></td>";
+									echo "\n		<td><input type='text' name='$key' id='$key' class='datepicker' value='$value' /></td>";
 									break;
 								case "url":
 									echo "\n		<td><input type='text' name='$key' id='$key' value='$value' /></td>";
