@@ -1967,7 +1967,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				"verification_message_from_email" => get_option("admin_email"),
 				"verification_message_from_name" => $blogname,
 				"verification_message_subject" => "[".$blogname."] ".__("Verify Your Account", "register-plus-redux"),
-				"verification_message_body" => "Verification URL: %verification_link%\nPlease use the above link to verify your email address and activate your account\n",
+				"verification_message_body" => "Verification URL: %verification_url%\nPlease use the above link to verify your email address and activate your account\n",
 				"send_verification_message_in_html" => "0",
 				"verification_message_newline_as_br" => "0",
 
@@ -2068,7 +2068,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$message = str_replace("%site_url%", site_url(), $message);
 			$message = str_replace("%user_password%", $plaintext_pass, $message);
 			$message = str_replace("%verification_code%", $verification_code, $message);
-			$message = str_replace("%verification_link%", wp_login_url()."?verification_code=".$verification_code, $message);
+			$message = str_replace("%verification_url%", wp_login_url()."?verification_code=".$verification_code, $message);
 			if ( !empty($_SERVER) ) {
 				$message = str_replace("%registered_from_ip%", $_SERVER["REMOTE_ADDR"], $message);
 				$message = str_replace("%registered_from_host%", gethostbyaddr($_SERVER["REMOTE_ADDR"]), $message);
