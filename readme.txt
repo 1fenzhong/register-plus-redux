@@ -49,6 +49,13 @@ Register Plus Redux was forked from Register Plus, developed by skullbit, which 
 = How is Register Plus Redux related to Register Plus? =
 Register Plus was abandoned by skullbit sometime after September, 2008 following the release of Register Plus 3.5.1.  As of September, 2009 skullbit's website was undergoing maintence.  Several bugs have been reported to the Register Plus plugin forum since that time, to resolve these bugs and continue development radiok forked the project.
 
+= What's New? or What's Coming Soon? =
+Visit <http://radiok.info/blog/category/history/> to view recent changes
+
+Visit <http://radiok.info/blog/category/worklog/> to view features in development
+
+Visit <http://radiok.info/blog/category/feature-request/> to view outstanding feature requests
+
 = Didn't Register Plus have CAPTCHA? =
 Register Plus offered two different CAPTCHA methods, a simple random CAPTCHA and reCAPTCHA.  The simple one randomly created a 5-character sequence on a background image with two random lines drawn across the image, this CAPTCHA would be very easy for any OCR program to decipher as the characters were not modified in anyway and contrast was high.  reCAPTCHA is a great idea, but there is another plugin, [WP-reCAPTCHA](http://wordpress.org/extend/plugins/wp-recaptcha/) endorsed by the reCAPTCHA developers that can be used to add reCAPTCHA to the registration page.  I also endorse the use of that plugin for that purpose.
 
@@ -56,7 +63,7 @@ Register Plus offered two different CAPTCHA methods, a simple random CAPTCHA and
 Register Plus did have a feature that allowed multiple users to register with the same e-mail address.  I'm not sure when that stopped working for Register Plus, but I can assure you, that method doesn't work in WordPress 3.0 and will not work in any future revision.  Register Plus' method was pretty simple, if the email_exists error is thrown, unthrow it.  Well, that works, to a degree, but once WordPress actually builds the user it chokes up and unpleasant things happen, in my experience.  I'll leave this feature to brigher minds then my own to fix.
 
 = Things to Keep in Mind =
-Really for me, more than you, but who's nitpicking.
+Really more for me than you, but who's nitpicking.
 
 HTML attributes should go in the following order name -> id -> class
 
@@ -67,34 +74,16 @@ HTML attributes should go in the following order name -> id -> class
 3. Invitation Tracking Dashboard Widget
 4. Unverified User Management
 
-== Worklog ==
-FEATURE REQUEST: Registration widget, need to look into whether someone else took care of that, and if so how Redux interacts with that <http://wordpress.org/support/topic/register-plus>
-
-FEATURE REQUEST: Invitation code link to
-
-FEATURE REQUEST: After registering, redirect to previous page <http://wordpress.org/support/topic/pie-register-and-redirect-to>
-
-FEATURE REQUEST: BuddyPress compatability
-
-TODO: Fix datepicker
-
-TODO: Migrate settings from Register Plus?
-
-TODO: Add localization back in
-
-TODO: User-new.php is not modified with the added fields, does not notice if username is in queue
-
-TODO: Nickname options
-
-TODO: Would like to be able to upload the file a little bit nicer, almost like a form within a form
-
-TODO: Restore defaults buttons
-
-TODO: Make Redux compatible with Wordpress MU (wp-signup.php)
-
-TODO: Add uninstall function
-
 == Changelog ==
+= 3.6.20 =
+October 21, 2010 by radiok
+
+* Fixed jQuery datepicker for date custom fields
+* Fixed jQuery on Settings Page only working with Firefox
+* Added options to specify whether use must agree to Disclaimer, License, or Privacy Policy
+* Added option to turn off Wordpress standard CSS on registration page, as requested by jlsniu <http://wordpress.org/support/topic/plugin-register-plus-redux-css-and-tabindex>
+* Added option to change or disable tabindex's on registration page, as requested by jlsniu <http://wordpress.org/support/topic/plugin-register-plus-redux-css-and-tabindex>
+ 
 = 3.6.19 =
 October 13, 2010 by radiok
 
