@@ -4,7 +4,7 @@ Donate link: http://radiok.info/donate/
 Tags: registration, register, plus, redux, password, invitation, code, email, verification, disclaimer, license, agreement, privacy, policy, logo, moderation, user
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable tag: 3.6.19
+Stable tag: 3.6.20
 
 Enhances the user registration process with complete customization and additional administration options.
 
