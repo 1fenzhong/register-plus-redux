@@ -1254,6 +1254,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					$jquery_loaded = true;
 				}
 				list($width, $height, $type, $attr) = getimagesize($options["custom_logo_url"]);
+				$desc = get_option("blogdescription");
+				if ( empty($desc) ) 
+					$title = get_option("blogname") . " - " . $desc;
+				else
+					$title = get_option("blogname");	
 				?>
 				<style type="text/css">
 					#login h1 a {
@@ -1267,7 +1272,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				<script type="text/javascript">
 				jQuery(document).ready(function() {
 					jQuery("#login h1 a").attr("href", "<?php echo get_option("home"); ?>");
-					jQuery("#login h1 a").attr("title", "<?php echo get_option("blogname"); ?><?php if (!empty(get_option("blogdescription")) ) echo " - ", get_option("blogdescription"); ?>");
+					jQuery("#login h1 a").attr("title", "<?php echo $title; ?>");
 				});
 				</script>
 				<?php
