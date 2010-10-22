@@ -1267,7 +1267,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				<script type="text/javascript">
 				jQuery(document).ready(function() {
 					jQuery("#login h1 a").attr("href", "<?php echo get_option("home"); ?>");
-					jQuery("#login h1 a").attr("title", "<?php echo get_option("blogname"); ?> - <?php echo get_option("blogdescription"); ?>");
+					jQuery("#login h1 a").attr("title", "<?php echo get_option("blogname"); ?><?php if (!empty(get_option("blogdescription")) ) echo " - ", get_option("blogdescription"); ?>");
 				});
 				</script>
 				<?php
@@ -1278,9 +1278,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					$jquery_loaded = true;
 				}
 				if ( $options["verify_user_email"] ) {
-					$message = stripslashes($options["message_verify_user_email"]);
+					$message = str_replace(array("\r", "\r\n", "\n"), '', nl2br(stripslashes($options["message_verify_user_email"])));
 				} elseif ( $options["verify_user_admin"] ) {
-					$message = stripslashes($options["message_verify_user_admin"]);
+					$message = str_replace(array("\r", "\r\n", "\n"), '', nl2br(stripslashes($options["message_verify_user_admin"])));
 				}
 				?>
 				<style type="text/css">
@@ -1856,11 +1856,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 		function AlterLoginForm() {
 			$options = get_option("register_plus_redux_options");
-			if ( isset($_GET["checkemail"]) && $options["verify_user_email"] ) {
-				echo "<p id='message' style='text-align:center;'>", stripslashes($options["message_verify_user_email"]), "</p>";
-			} elseif ( isset($_GET["checkemail"]) && $options["verify_user_admin"] ) {
-				echo "<p id='message' style='text-align:center;'>", stripslashes($options["message_verify_user_admin"]), "</p>";
-			}
 			if ( isset($_GET["verification_code"]) ) {
 				global $wpdb;
 				$verification_code = $_GET["verification_code"];
