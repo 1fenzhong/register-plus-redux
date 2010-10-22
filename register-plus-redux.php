@@ -1258,7 +1258,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( empty($desc) ) 
 					$title = get_option("blogname") . " - " . $desc;
 				else
-					$title = get_option("blogname");	
+					$title = get_option("blogname");
 				?>
 				<style type="text/css">
 					#login h1 a {
