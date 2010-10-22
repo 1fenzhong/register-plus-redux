@@ -362,8 +362,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				<?php if ( empty($options["user_set_password"]) ) echo "\njQuery('#password_settings').hide();"; ?>
 				<?php if ( empty($options["show_password_meter"]) ) echo "\njQuery('#meter_settings').hide();"; ?>
 				<?php if ( empty($options["enable_invitation_code"]) ) echo "\njQuery('#invitation_code_settings').hide();"; ?>
-				<?php if ( empty($options["show_disclaimer"]) ) echo "\njQuery('#disclaim_settings').hide();"; ?>
-				<?php if ( empty($options["show_license"]) ) echo "\njQuery('#license_agreement_settings').hide();"; ?>
+				<?php if ( empty($options["show_disclaimer"]) ) echo "\njQuery('#disclaimer_settings').hide();"; ?>
+				<?php if ( empty($options["show_license"]) ) echo "\njQuery('#license_settings').hide();"; ?>
 				<?php if ( empty($options["show_privacy_policy"]) ) echo "\njQuery('#privacy_policy_settings').hide();"; ?>
 				<?php if ( empty($options["custom_user_message"]) ) echo "\njQuery('#custom_user_message_settings').hide();"; ?>
 				<?php if ( empty($options["custom_verification_message"]) ) echo "\njQuery('#custom_verification_message_settings').hide();"; ?>
@@ -617,7 +617,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						<th scope="row"><?php _e("Disclaimer", "register-plus-redux"); ?></th>
 						<td>
 							<label><input type="checkbox" name="show_disclaimer" id="show_disclaimer" value="1" <?php if ( !empty($options["show_disclaimer"]) ) echo "checked='checked'"; ?> class="showHideSettings" />&nbsp;<?php _e("Show Disclaimer during registration...", "register-plus-redux"); ?></label>
-							<div id="disclaim_settings">
+							<div id="disclaimer_settings">
 								<table width="60%">
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px; width: 40%;">
@@ -649,7 +649,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						<th scope="row"><?php _e("License Agreement", "register-plus-redux"); ?></th>
 						<td>
 							<label><input type="checkbox" name="show_license" id="show_license" value="1" <?php if ( !empty($options["show_license"]) ) echo "checked='checked'"; ?> class="showHideSettings" />&nbsp;<?php _e("Show License Agreement during registration...", "register-plus-redux"); ?></label>
-							<div id="license_agreement_settings">
+							<div id="license_settings">
 								<table width="60%">
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px; width: 40%;">
@@ -1725,7 +1725,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo "\n	<label id='license_title'>", stripslashes($options["message_license_title"]), "</label><br />";
 				echo "\n	<span name='license' id='license'>", stripslashes($options["message_license"]), "</span>";
 				if ( !empty($options["require_license_agree"]) ) {
-					echo "\n	<label id='accept_license-label' class='accept_check'><input type='checkbox' name='accept_license' id='accept_license' value='1'"; if ( !empty($_POST["accept_license_agreement"]) ) echo " checked='checked'";
+					echo "\n	<label id='accept_license-label' class='accept_check'><input type='checkbox' name='accept_license' id='accept_license' value='1'"; if ( !empty($_POST["accept_license"]) ) echo " checked='checked'";
 					if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
 					echo "/>&nbsp;", stripslashes($options["message_license_agree"]), "</label>";
 					$tabindex++;
@@ -1843,8 +1843,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				}
 			}
 			if ( !empty($options["show_license"]) && !empty($options["require_license_agree"]) ) {
-				if ( empty($_POST["accept_license_agreement"]) ) {
-					$errors->add("accept_license_agreement", sprintf(__("<strong>ERROR</strong>: Please accept the %s", "register-plus-redux"), stripslashes($options["message_license_title"])) . ".");
+				if ( empty($_POST["accept_license"]) ) {
+					$errors->add("accept_license", sprintf(__("<strong>ERROR</strong>: Please accept the %s", "register-plus-redux"), stripslashes($options["message_license_title"])) . ".");
 				}
 			}
 			if ( !empty($options["show_privacy_policy"]) && !empty($options["require_privacy_policy_agree"]) ) {
