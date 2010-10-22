@@ -168,14 +168,14 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								.attr("name", "custom_field_type[]")
 								.attr("class", "enableDisableOptions")
 								.attr("style", "width: 100%;")
-								.append("<option value=\"text\">Text Field</option>")
-								.append("<option value=\"select\">Select Field</option>")
-								.append("<option value=\"checkbox\">Checkbox Fields</option>")
-								.append("<option value=\"radio\">Radio Fields</option>")
-								.append("<option value=\"textarea\">Text Area</option>")
-								.append("<option value=\"date\">Date Field</option>")
-								.append("<option value=\"url\">URL Field</option>")
-								.append("<option value=\"hidden\">Hidden Field</option>")
+								.append("<option value=\"text\"><?php esc_attr_e("Text Field", "register-plus-redux"); ?></option>")
+								.append("<option value=\"select\"><?php esc_attr_e("Select Field", "register-plus-redux"); ?></option>")
+								.append("<option value=\"checkbox\"><?php esc_attr_e("Checkbox Fields", "register-plus-redux"); ?></option>")
+								.append("<option value=\"radio\"><?php esc_attr_e("Radio Fields", "register-plus-redux"); ?></option>")
+								.append("<option value=\"textarea\"><?php esc_attr_e("Text Area", "register-plus-redux"); ?></option>")
+								.append("<option value=\"date\"><?php esc_attr_e("Date Field", "register-plus-redux"); ?></option>")
+								.append("<option value=\"url\"><?php esc_attr_e("URL Field", "register-plus-redux"); ?></option>")
+								.append("<option value=\"hidden\"><?php esc_attr_e("Hidden Field", "register-plus-redux"); ?></option>")
 							)
 						)
 						.append(jQuery("<td>")
@@ -733,13 +733,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				<p><?php _e("Enter additional fields to show on the User Profile and/or Registration Pages. Additional fields will be shown after existing profile fields on User Profile, and after selected profile fields on Registration Page but before Password, Invitation Code, Disclaimer, License Agreement, or Privacy Policy (if any of those fields are enabled). Options must be entered for Select, Checkbox, and Radio fields. Options should be entered with commas seperating each possible value. For example, a Radio field named \"Gender\" could have the following options, \"Male,Female\".", "register-plus-redux"); ?></p>
 				<table id="custom_fields" style="width: 80%;">
 					<thead valign="top">
-						<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;">Name</td>
-						<td style="padding-top: 0px; padding-bottom: 0px;">Type</td>
-						<td style="padding-top: 0px; padding-bottom: 0px;">Options</td>
-						<td align="center" style="padding-top: 0px; padding-bottom: 0px;">Profile</td>
-						<td align="center" style="padding-top: 0px; padding-bottom: 0px;">Registration</td>
-						<td align="center" style="padding-top: 0px; padding-bottom: 0px;">Require</td>
-						<td align="center" style="padding-top: 0px; padding-bottom: 0px;">Actions</td>
+						<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><?php _e("Name", "register-plus-redux"); ?></td>
+						<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Type", "register-plus-redux"); ?></td>
+						<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Options", "register-plus-redux"); ?></td>
+						<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Profile", "register-plus-redux"); ?></td>
+						<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Registration", "register-plus-redux"); ?></td>
+						<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Require", "register-plus-redux"); ?></td>
+						<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Actions", "register-plus-redux"); ?></td>
 					</thead>
 					<tbody>
 						<?php
@@ -750,14 +750,14 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_name[$k]' value='", stripslashes($v["custom_field_name"]), "' style='width: 100%;' /></td>";
 							echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'>";
 							echo "\n		<select name='custom_field_type[$k]' class='enableDisableOptions' style='width: 100%;'>";
-							echo "\n			<option value='text'"; if ( $v["custom_field_type"] == "text" ) echo " selected='selected'"; echo ">Text Field</option>";
-							echo "\n			<option value='select'"; if ( $v["custom_field_type"] == "select" ) echo " selected='selected'"; echo ">Select Field</option>";
-							echo "\n			<option value='checkbox'"; if ( $v["custom_field_type"] == "checkbox" ) echo " selected='selected'"; echo ">Checkbox Fields</option>";
-							echo "\n			<option value='radio'"; if ( $v["custom_field_type"] == "radio" ) echo " selected='selected'"; echo ">Radio Fields</option>";
-							echo "\n			<option value='textarea'"; if ( $v["custom_field_type"] == "textarea" ) echo " selected='selected'"; echo ">Text Area</option>";
-							echo "\n			<option value='date'"; if ( $v["custom_field_type"] == "date" ) echo " selected='selected'"; echo ">Date Field</option>";
-							echo "\n			<option value='url'"; if ( $v["custom_field_type"] == "url" ) echo " selected='selected'"; echo ">URL Field</option>";
-							echo "\n			<option value='hidden'"; if ( $v["custom_field_type"] == "hidden" ) echo " selected='selected'"; echo ">Hidden Field</option>";
+							echo "\n			<option value='text'"; if ( $v["custom_field_type"] == "text" ) echo " selected='selected'"; echo ">", __("Text Field", "register-plus-redux"), "</option>";
+							echo "\n			<option value='select'"; if ( $v["custom_field_type"] == "select" ) echo " selected='selected'"; echo ">", __("Select Field", "register-plus-redux"), "</option>";
+							echo "\n			<option value='checkbox'"; if ( $v["custom_field_type"] == "checkbox" ) echo " selected='selected'"; echo ">", __("Checkbox Fields", "register-plus-redux"), "</option>";
+							echo "\n			<option value='radio'"; if ( $v["custom_field_type"] == "radio" ) echo " selected='selected'"; echo ">", __("Radio Fields", "register-plus-redux"), "</option>";
+							echo "\n			<option value='textarea'"; if ( $v["custom_field_type"] == "textarea" ) echo " selected='selected'"; echo ">", __("Text Area", "register-plus-redux"), "</option>";
+							echo "\n			<option value='date'"; if ( $v["custom_field_type"] == "date" ) echo " selected='selected'"; echo ">", __("Date Field", "register-plus-redux"), "</option>";
+							echo "\n			<option value='url'"; if ( $v["custom_field_type"] == "url" ) echo " selected='selected'"; echo ">", __("URL Field", "register-plus-redux"), "</option>";
+							echo "\n			<option value='hidden'"; if ( $v["custom_field_type"] == "hidden" ) echo " selected='selected'"; echo ">", __("Hidden Field", "register-plus-redux"), "</option>";
 							echo "\n		</select>";
 							echo "\n	</td>";
 							echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_options[$k]' value='", stripslashes($v["custom_field_options"]), "'"; if ( $v["custom_field_type"] != "select" && $v["custom_field_type"] != "checkbox" && $v["custom_field_type"] != "radio" ) echo " readonly='readonly'"; echo " style='width: 100%;' /></td>";
@@ -776,14 +776,14 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo "\n	<td style='padding-top: 0px; padding-bottom: 0px; padding-left: 0px;'><input type='text' name='custom_field_name[]' value='' style='width: 100%;'/></td>";
 							echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'>";
 							echo "\n		<select name='custom_field_type[]' class='enableDisableOptions' style='width: 100%;'>";
-							echo "\n			<option value='text'>Text Field</option>";
-							echo "\n			<option value='select'>Select Field</option>";
-							echo "\n			<option value='checkbox'>Checkbox Fields</option>";
-							echo "\n			<option value='radio'>Radio Fields</option>";
-							echo "\n			<option value='textarea'>Text Area</option>";
-							echo "\n			<option value='date'>Date Field</option>";
-							echo "\n			<option value='url'>URL Field</option>";
-							echo "\n			<option value='hidden'>Hidden Field</option>";
+							echo "\n			<option value='text'>", __("Text Field", "register-plus-redux"), "</option>";
+							echo "\n			<option value='select'>", __("Select Field", "register-plus-redux"), "</option>";
+							echo "\n			<option value='checkbox'>", __("Checkbox Fields", "register-plus-redux"), "</option>";
+							echo "\n			<option value='radio'>", __("Radio Fields", "register-plus-redux"), "</option>";
+							echo "\n			<option value='textarea'>", __("Text Area", "register-plus-redux"), "</option>";
+							echo "\n			<option value='date'>", __("Date Field", "register-plus-redux"), "</option>";
+							echo "\n			<option value='url'>", __("URL Field", "register-plus-redux"), "</option>";
+							echo "\n			<option value='hidden'>", __("Hidden Field", "register-plus-redux"), "</option>";
 							echo "\n		</select>";
 							echo "\n	</td>";
 							echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_options[]' value='' readonly='readonly' style='width: 100%;'/></td>";
