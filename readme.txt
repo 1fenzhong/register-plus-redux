@@ -80,7 +80,7 @@ October 21, 2010 by radiok
 
 * Fixed jQuery datepicker for date custom fields
 * Fixed jQuery on Settings Page only working with Firefox
-* Added options to specify whether use must agree to Disclaimer, License, or Privacy Policy
+* Added options to specify whether user must agree to Disclaimer, License, or Privacy Policy
 * Added option to turn off Wordpress standard CSS on registration page, as requested by jlsniu <http://wordpress.org/support/topic/plugin-register-plus-redux-css-and-tabindex>
 * Added option to change or disable tabindex's on registration page, as requested by jlsniu <http://wordpress.org/support/topic/plugin-register-plus-redux-css-and-tabindex>
  
@@ -90,7 +90,7 @@ October 13, 2010 by radiok
 * Reorganized Settings Page to better reflect order of fields on Registration Page
 * Started adding jQuery to summarize when and what messages are going out
 * Rewrote jQuery on Settings Page
-* Added id tags to every field on Registration Page for better CSS user
+* Added id tags to every field on Registration Page for better CSS use
 * Added custom Email Verification and Admin Verification messages, as requested by Eric Bostrom <http://radiok.info/blog/administration-redux/>
 
 = 3.6.18 =
