@@ -2178,6 +2178,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$message = str_replace("%site_url%", site_url(), $message);
 			$message = str_replace("%user_password%", $plaintext_pass, $message);
 			$message = str_replace("%verification_code%", $verification_code, $message);
+			$message = str_replace("%verification_link%", wp_login_url()."?verification_code=".$verification_code, $message);
 			$message = str_replace("%verification_url%", wp_login_url()."?verification_code=".$verification_code, $message);
 			if ( !empty($_SERVER) ) {
 				$message = str_replace("%registered_from_ip%", $_SERVER["REMOTE_ADDR"], $message);
