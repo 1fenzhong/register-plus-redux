@@ -1385,7 +1385,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					if ( !empty($options["user_set_password"]) ) echo "\n#pass1, #pass2 { ", $options["required_fields_style"], " }";
 					if ( !empty($options["require_invitation_code"]) ) echo "\n#invitation_code { ", $options["required_fields_style"], " }";
 				}
-				if ( !empty($options["custom_registration_page_css"]) ) echo "\n", $options["custom_registration_page_css"];
+				if ( !empty($options["custom_registration_page_css"]) ) echo "\n", stripslashes($options["custom_registration_page_css"]);
 				echo "\n</style>";
 
 				if ( !empty($show_custom_date_fields) ) {
@@ -1497,7 +1497,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			} else {
 				if ( !empty($options["custom_login_page_css"]) ) {
 					echo "\n<style type=\"text/css\">";
-					echo "\n", $options["custom_login_page_css"];
+					echo "\n", stripslashes($options["custom_login_page_css"]);
 					echo "\n</style>";
 				}
 			}
