@@ -93,19 +93,21 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					if (!function_exists("wp_delete_user")) require_once(ABSPATH."/wp-admin/includes/user.php");
 					foreach ( $unverified_users as $unverified_user ) {
 						$user_info = get_userdata($unverified_user->user_id);
-						if ( date("Ymd", strtotime($user_info->user_registered)) < $expirationdate ) {
-							if ( !empty($user_info->email_verification_sent) ) {
-								if ( date("Ymd", strtotime($user_info->email_verification_sent)) < $expirationdate ) {
-									if ( !empty($user_info->email_verified) ) {
-										if ( date("Ymd", strtotime($user_info->email_verified)) < $expirationdate ) {
+						if ( !empty($user_info->stored_user_login) && substr($user_info->user_login, 0, 11) == "unverified_") {
+							if ( date("Ymd", strtotime($user_info->user_registered)) < $expirationdate ) {
+								if ( !empty($user_info->email_verification_sent) ) {
+									if ( date("Ymd", strtotime($user_info->email_verification_sent)) < $expirationdate ) {
+										if ( !empty($user_info->email_verified) ) {
+											if ( date("Ymd", strtotime($user_info->email_verified)) < $expirationdate ) {
+												wp_delete_user($unverified_user->user_id);
+											}
+										} else {
 											wp_delete_user($unverified_user->user_id);
 										}
-									} else {
-										wp_delete_user($unverified_user->user_id);
 									}
+								} else {
+									wp_delete_user($unverified_user->user_id);
 								}
-							} else {
-								wp_delete_user($unverified_user->user_id);
 							}
 						}
 					}
