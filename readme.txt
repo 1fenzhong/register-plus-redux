@@ -75,6 +75,18 @@ HTML attributes should go in the following order name -> id -> class
 4. Unverified User Management
 
 == Changelog ==
+= 3.6.21 =
+November 1, 2010 by radiok
+
+* Fixed multiline email or admin responses breaking jQuery
+* Removed old responses from before jQuery that were now hidden
+* Changed logo title to not include empty blog description
+* Added %verification_link% keyword
+* Fixed change to logo title to not include empty blog description
+* Localized a few more strings
+* Fixed bug in custom CSS that did not allow quotes as reported by webakimbo
+* Fixed major bug that could automatically delete users other then unverified users
+
 = 3.6.20 =
 October 21, 2010 by radiok
 
