@@ -749,7 +749,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						if ( !is_array($custom_fields) ) $custom_fields = array();
 						foreach ( $custom_fields as $k => $v ) {
 							echo "\n<tr valign='center' class='custom_field'>";
-							echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_name[$k]' value='", stripslashes($v["custom_field_name"]), "' style='width: 100%;' /></td>";
+							echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_name[$k]' value=\"", stripslashes($v["custom_field_name"]), "\" style='width: 100%;' /></td>";
 							echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'>";
 							echo "\n		<select name='custom_field_type[$k]' class='enableDisableOptions' style='width: 100%;'>";
 							echo "\n			<option value='text'"; if ( $v["custom_field_type"] == "text" ) echo " selected='selected'"; echo ">", __("Text Field", "register-plus-redux"), "</option>";
@@ -762,7 +762,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo "\n			<option value='hidden'"; if ( $v["custom_field_type"] == "hidden" ) echo " selected='selected'"; echo ">", __("Hidden Field", "register-plus-redux"), "</option>";
 							echo "\n		</select>";
 							echo "\n	</td>";
-							echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_options[$k]' value='", stripslashes($v["custom_field_options"]), "'"; if ( $v["custom_field_type"] != "select" && $v["custom_field_type"] != "checkbox" && $v["custom_field_type"] != "radio" ) echo " readonly='readonly'"; echo " style='width: 100%;' /></td>";
+							echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_options[$k]' value=\"", stripslashes($v["custom_field_options"]), "\""; if ( $v["custom_field_type"] != "select" && $v["custom_field_type"] != "checkbox" && $v["custom_field_type"] != "radio" ) echo " readonly='readonly'"; echo " style='width: 100%;' /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_profile[$k]' value='1'"; if ( !empty($v["show_on_profile"]) ) echo " checked='checked'"; echo " /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_registration[$k]' value='1'"; if ( !empty($v["show_on_registration"]) ) echo " checked='checked'"; echo " class='modifyNextCellInput' /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='required_on_registration[$k]' value='1'"; if ( !empty($v["required_on_registration"]) ) echo " checked='checked'"; if ( empty($v["show_on_registration"]) ) echo " disabled='disabled'"; echo " /></td>";
@@ -1593,7 +1593,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						case "text":
 							echo "\n<p id='$key-p'><label id='$key-label'>";
 							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
-							echo $v["custom_field_name"], "<br /><input type='text' name='$key' id='$key' class='input' value='", $_POST[$key], "' size='25' ";
+							echo stripslashes($v["custom_field_name"]), "<br /><input type='text' name='$key' id='$key' class='input' value='", $_POST[$key], "' size='25' ";
 							if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
 							echo "/></label></p>";
 							$tabindex++;
@@ -1601,7 +1601,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						case "select":
 							echo "\n<p id='$key-p'><label id='$key-label'>";
 							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
-							echo $v["custom_field_name"], "<br />";
+							echo stripslashes($v["custom_field_name"]), "<br />";
 							echo "\n<select name='$key' id='$key'";
 							if ( !empty($options["starting_tabindex"]) ) echo " tabindex='$tabindex'";
 							echo ">";
@@ -1609,9 +1609,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							$custom_field_options = explode(",", $v["custom_field_options"]);
 							foreach ( $custom_field_options as $custom_field_option ) {
 								$option = $this->sanitizeText($custom_field_option);
-								echo "<option id='$option' value='$custom_field_option'";
-								if ( $_POST[$key] == $custom_field_option ) echo " selected='selected'";
-								echo ">$custom_field_option</option>";
+								echo "<option id='$option' value=\"", stripslashes($custom_field_option), "\"";
+								if ( $_POST[$key] == stripslashes($custom_field_option) ) echo " selected='selected'";
+								echo ">", stripslashes($custom_field_option), "</option>";
 							}
 							echo "</select>";
 							echo "\n</label></p>";
@@ -1619,15 +1619,14 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						case "checkbox":
 							echo "\n<p id='$key-p' style='margin-bottom:16px;'><label id='$key-label'>";
 							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
-							echo $v["custom_field_name"], "</label><br />";
+							echo stripslashes($v["custom_field_name"]), "</label><br />";
 							$custom_field_options = explode(",", $v["custom_field_options"]);
 							foreach ( $custom_field_options as $custom_field_option ) {
 								$option = $this->sanitizeText($custom_field_option);
-								echo "\n<input type='checkbox' name='$key", "[]' id='$option'";
-								//if ( in_array($custom_field_option, $_POST[$key])) echo " checked='checked'";
-								echo " value='$custom_field_option' ";
-								if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
-								echo "/><label id='$option-label' class='$key' for='$option'>&nbsp;$custom_field_option</label><br />";
+								echo "\n<input type='checkbox' name='", $key, "[]' id='$option' value=\"", stripslashes($custom_field_option), "\"";
+								if ( !empty($options["starting_tabindex"]) ) echo " tabindex='$tabindex'";
+								if ( in_array(stripslashes($custom_field_option), $_POST[$key])) echo " checked='checked'";
+								echo " /><label id='$option-label' class='$key' for='$option'>&nbsp;", stripslashes($custom_field_option), "</label><br />";
 								$tabindex++;
 							}
 							echo "\n</p>";
@@ -1635,15 +1634,14 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						case "radio":
 							echo "\n<p id='$key-p' style='margin-bottom:16px;'><label id='$key-label'>";
 							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
-							echo $v["custom_field_name"], "</label><br />";
+							echo stripslashes($v["custom_field_name"]), "</label><br />";
 							$custom_field_options = explode(",", $v["custom_field_options"]);
 							foreach ( $custom_field_options as $custom_field_option ) {
 								$option = $this->sanitizeText($custom_field_option);
-								echo "\n<input type='radio' name='$key' id='$option'";
-								if ( $_POST[$key] == $custom_field_option ) echo " checked='checked'";
-								echo " value='$custom_field_option' ";
-								if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
-								echo " /><label id='$option-label' class='$key' for='$option'>&nbsp;$custom_field_option</label><br />";
+								echo "\n<input type='radio' name='$key' id='$option' value=\"", stripslashes($custom_field_option), "\"";
+								if ( !empty($options["starting_tabindex"]) ) echo " tabindex='$tabindex'";
+								if ( $_POST[$key] == stripslashes($custom_field_option) ) echo " checked='checked'";
+								echo " /><label id='$option-label' class='$key' for='$option'>&nbsp;", stripslashes($custom_field_option), "</label><br />";
 								$tabindex++;
 							}
 							echo "\n</p>";
@@ -1651,7 +1649,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						case "textarea":
 							echo "\n<p id='$key-p'><label id='$key-label'>";
 							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
-							echo $v["custom_field_name"], "<br /><textarea name='$key' id='$key' cols='25' rows='5'";
+							echo stripslashes($v["custom_field_name"]), "<br /><textarea name='$key' id='$key' cols='25' rows='5'";
 							if ( !empty($options["starting_tabindex"]) ) echo " tabindex='$tabindex'";
 							echo ">", $_POST[$key], "</textarea></label></p>";
 							$tabindex++;
@@ -1659,7 +1657,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						case "date":
 							echo "\n<p id='$key-p'><label id='$key-label'>";
 							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
-							echo $v['custom_field_name'], "<br /><input type='text' name='$key' id='$key' class='datepicker' value='", $_POST[$key], "' size='25' ";
+							echo stripslashes($v["custom_field_name"]), "<br /><input type='text' name='$key' id='$key' class='datepicker' value='", $_POST[$key], "' size='25' ";
 							if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
 							echo " /></label></p>";
 							$tabindex++;
@@ -1667,7 +1665,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						case "url":
 							echo "\n<p id='$key-p'><label id='$key-label'>";
 							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
-							echo $v["custom_field_name"], "<br /><input type='text' name='$key' id='$key' class='input' value='", $_POST[$key], "' size='25' ";
+							echo stripslashes($v["custom_field_name"]), "<br /><input type='text' name='$key' id='$key' class='input' value='", $_POST[$key], "' size='25' ";
 							if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
 							echo "/></label></p>";
 							$tabindex++;
@@ -1938,7 +1936,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							$key = $this->sanitizeText($v["custom_field_name"]);
 							$value = get_user_meta($profileuser->ID, $key, true);
 							echo "\n	<tr>";
-							echo "\n		<th><label for='$key'>", $v["custom_field_name"], "</label></th>";
+							echo "\n		<th><label for='$key'>", stripslashes($v["custom_field_name"]), "</label></th>";
 							switch ( $v["custom_field_type"] ) {
 								case "text":
 									echo "\n		<td><input type='text' name='$key' id='$key' value='$value' class='regular-text' /></td>";
@@ -1948,9 +1946,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									echo "\n			<select name='$key' id='$key' style='width: 15em;'>";
 									$custom_field_options = explode(",", $v["custom_field_options"]);
 									foreach ( $custom_field_options as $custom_field_option ) {
-										echo "<option value='$custom_field_option'";
-										if ( $value == $custom_field_option ) echo " selected='selected'";
-										echo ">$custom_field_option</option>";
+										echo "<option value=\"", stripslashes($custom_field_option), "\"";
+										if ( $value == stripslashes($custom_field_option) ) echo " selected='selected'";
+										echo ">", stripslashes($custom_field_option), "</option>";
 									}
 									echo "</select>";
 									echo "\n		</td>";
@@ -1960,9 +1958,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									$custom_field_options = explode(",", $v["custom_field_options"]);
 									$values = explode(", ", $value);
 									foreach ( $custom_field_options as $custom_field_option ) {
-										echo "\n			<label><input type='checkbox' name='$key", "[]' value='$custom_field_option'";
-										if ( in_array($custom_field_option, $values) ) echo " checked='checked'";
-										echo " />&nbsp;$custom_field_option</label><br />";
+										echo "\n			<label><input type='checkbox' name='$key", "[]' value=\"", stripslashes($custom_field_option), "\"";
+										if ( in_array(stripslashes($custom_field_option), $values) ) echo " checked='checked'";
+										echo " />&nbsp;", stripslashes($custom_field_option), "</label><br />";
 									}
 									echo "\n		</td>";
 									break;
@@ -1970,9 +1968,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									echo "\n		<td>";
 									$custom_field_options = explode(",", $v["custom_field_options"]);
 									foreach ( $custom_field_options as $custom_field_option ) {
-										echo "\n			<label><input type='radio' name='$key' value='$custom_field_option'";
-										if ( $value == $custom_field_option ) echo " checked='checked'";
-										echo " class='tog'>&nbsp;$custom_field_option</label><br />";
+										$option = $this->sanitizeText($custom_field_option);
+										echo "\n			<label><input type='radio' name='$key' value=\"", stripslashes($custom_field_option), "\"";
+										if ( $value == stripslashes($custom_field_option) ) echo " checked='checked'";
+										echo " class='tog'>&nbsp;", stripslashes($custom_field_option), "</label><br />";
 									}
 									echo "\n		</td>";
 									break;
