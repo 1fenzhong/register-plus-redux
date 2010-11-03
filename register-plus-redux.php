@@ -51,6 +51,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		function InitializeSettings() {
 			global $wpdb;
 			// Added 10/01/10 no longer seperating unverified users by type
+			// can be removed once all users are past 3.6.12
 			$unverified_users = $wpdb->get_results("SELECT user_id, meta_value FROM $wpdb->usermeta WHERE meta_key='admin_verification_user_login'");
 			if ( $unverified_users ) {
 				foreach ( $unverified_users as $unverified_user ) {
