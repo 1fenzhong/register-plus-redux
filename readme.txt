@@ -38,6 +38,10 @@ Also includes fixes for known Register Plus bugs.
 
 Register Plus Redux was forked from Register Plus, developed by skullbit, which was abandoned in 2008.
 
+Available in the following translations:
+ir_FA Islamic Republic of Iran Persian
+it_IT Italy Italian
+
 == Installation ==
 
 1. Upload the 'register-plus-redux' directory to the '/wp-content/plugins/' directory
@@ -47,7 +51,7 @@ Register Plus Redux was forked from Register Plus, developed by skullbit, which 
 == Frequently Asked Questions ==
 
 = How is Register Plus Redux related to Register Plus? =
-Register Plus was abandoned by skullbit sometime after September, 2008 following the release of Register Plus 3.5.1.  As of September, 2009 skullbit's website was undergoing maintence.  Several bugs have been reported to the Register Plus plugin forum since that time, to resolve these bugs and continue development radiok forked the project.
+Register Plus was abandoned by skullbit sometime after September, 2008 following the release of Register Plus 3.5.1.  As of September, 2009 skullbit's website was undergoing maintenance.  Several bugs have been reported to the Register Plus plugin forum since that time, to resolve these bugs and continue development radiok forked the project.
 
 = What's New? or What's Coming Soon? =
 Visit <http://radiok.info/blog/category/history/> to view recent changes
@@ -60,7 +64,7 @@ Visit <http://radiok.info/blog/category/feature-request/> to view outstanding fe
 Register Plus offered two different CAPTCHA methods, a simple random CAPTCHA and reCAPTCHA.  The simple one randomly created a 5-character sequence on a background image with two random lines drawn across the image, this CAPTCHA would be very easy for any OCR program to decipher as the characters were not modified in anyway and contrast was high.  reCAPTCHA is a great idea, but there is another plugin, [WP-reCAPTCHA](http://wordpress.org/extend/plugins/wp-recaptcha/) endorsed by the reCAPTCHA developers that can be used to add reCAPTCHA to the registration page.  I also endorse the use of that plugin for that purpose.
 
 = Didn't Register Plus have a feature to allow duplicate e-mail addresses? =
-Register Plus did have a feature that allowed multiple users to register with the same e-mail address.  I'm not sure when that stopped working for Register Plus, but I can assure you, that method doesn't work in WordPress 3.0 and will not work in any future revision.  Register Plus' method was pretty simple, if the email_exists error is thrown, unthrow it.  Well, that works, to a degree, but once WordPress actually builds the user it chokes up and unpleasant things happen, in my experience.  I'll leave this feature to brigher minds then my own to fix.
+Register Plus did have a feature that allowed multiple users to register with the same e-mail address.  I'm not sure when that stopped working for Register Plus, but I can assure you, that method doesn't work in WordPress 3.0 and will not work in any future revision.  Register Plus' method was pretty simple, if the email_exists error is thrown, unthrow it.  Well, that works, to a degree, but once WordPress actually builds the user it chokes up and unpleasant things happen, in my experience.  I'll leave this feature to brighter minds then my own to fix.
 
 = Things to Keep in Mind =
 Really more for me than you, but who's nitpicking.
@@ -76,8 +80,9 @@ HTML attributes should go in the following order name -> id -> class
 
 == Changelog ==
 = 3.6.21 =
-November 1, 2010 by radiok
+November 3, 2010 by radiok
 
+* Added ir_FA and it_IT translations
 * Fixed multiline email or admin responses breaking jQuery
 * Removed old responses from before jQuery that were now hidden
 * Changed logo title to not include empty blog description
