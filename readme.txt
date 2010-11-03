@@ -4,7 +4,7 @@ Donate link: http://radiok.info/donate/
 Tags: registration, register, plus, redux, password, invitation, code, email, verification, disclaimer, license, agreement, privacy, policy, logo, moderation, user
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable tag: 3.6.20
+Stable tag: 3.6.21
 
 Enhances the user registration process with complete customization and additional administration options.
 
@@ -39,7 +39,9 @@ Also includes fixes for known Register Plus bugs.
 Register Plus Redux was forked from Register Plus, developed by skullbit, which was abandoned in 2008.
 
 Available in the following translations:
+
 ir_FA Islamic Republic of Iran Persian
+
 it_IT Italy Italian
 
 == Installation ==
@@ -91,6 +93,7 @@ November 3, 2010 by radiok
 * Localized a few more strings
 * Fixed bug in custom CSS that did not allow quotes as reported by webakimbo
 * Fixed major bug that could automatically delete users other then unverified users
+* Fixed bug with apostrophes in custom field name or options
 
 = 3.6.20 =
 October 21, 2010 by radiok
