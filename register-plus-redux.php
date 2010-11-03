@@ -2004,7 +2004,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			foreach ( $custom_fields as $k => $v ) {
 				if ( !empty($v["show_on_profile"]) ) {
 					$key = $this->sanitizeText($v["custom_field_name"]);
-					if ( is_array($_POST[$key]) ) $_POST[$key] = implode(", ", $_POST[$key]);
+					if ( is_array($_POST[$key]) ) $_POST[$key] = implode(",", $_POST[$key]);
 					if ( $v["custom_field_type"] == "url" ) {
 						$_POST[$key] = esc_url_raw( $_POST[$key] );
 						$_POST[$key] = preg_match("/^(https?|ftps?|mailto|news|irc|gopher|nntp|feed|telnet):/is", $_POST[$key]) ? $_POST[$key] : "http://".$_POST[$key];
@@ -2327,7 +2327,7 @@ if ( !function_exists("wp_new_user_notification") ) {
 		foreach ( $custom_fields as $k => $v ) {
 			$key = $registerPlusRedux->sanitizeText($v["custom_field_name"]);
 			if ( !empty($v["show_on_registration"]) && !empty($_POST[$key]) ) {
-				if ( is_array($_POST[$key]) ) $_POST[$key] = implode(", ", $_POST[$key]);
+				if ( is_array($_POST[$key]) ) $_POST[$key] = implode(",", $_POST[$key]);
 				if ( $v["custom_field_type"] == "url" ) {
 					$_POST[$key] = esc_url_raw( $_POST[$key] );
 					$_POST[$key] = preg_match("/^(https?|ftps?|mailto|news|irc|gopher|nntp|feed|telnet):/is", $_POST[$key]) ? $_POST[$key] : "http://".$_POST[$key];
