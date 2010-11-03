@@ -1968,7 +1968,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									echo "\n		<td>";
 									$custom_field_options = explode(",", $v["custom_field_options"]);
 									foreach ( $custom_field_options as $custom_field_option ) {
-										$option = $this->sanitizeText($custom_field_option);
 										echo "\n			<label><input type='radio' name='$key' value=\"", stripslashes($custom_field_option), "\"";
 										if ( $value == stripslashes($custom_field_option) ) echo " checked='checked'";
 										echo " class='tog'>&nbsp;", stripslashes($custom_field_option), "</label><br />";
