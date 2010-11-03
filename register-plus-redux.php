@@ -513,8 +513,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							<table>
 								<thead valign="top">
 									<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"></td>
-									<td align="center" style="padding-top: 0px; padding-bottom: 0px;">Show</td>
-									<td align="center" style="padding-top: 0px; padding-bottom: 0px;">Require</td>
+									<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Show", "register-plus-redux"); ?></td>
+									<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Require", "register-plus-redux"); ?></td>
 								</thead>
 								<tbody>
 									<?php if ( !is_array($options["show_fields"]) ) $options["show_fields"] = array(); ?>
