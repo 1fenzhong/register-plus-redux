@@ -1626,7 +1626,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								$option = $this->sanitizeText($custom_field_option);
 								echo "\n<input type='checkbox' name='", $key, "[]' id='$option' value=\"", stripslashes($custom_field_option), "\"";
 								if ( !empty($options["starting_tabindex"]) ) echo " tabindex='$tabindex'";
-								if ( in_array(stripslashes($custom_field_option), $_POST[$key])) echo " checked='checked'";
+								if ( is_array($_POST[$key]) && in_array(stripslashes($custom_field_option), $_POST[$key]) ) echo " checked='checked'";
+								if ( !is_array($_POST[$key]) && $_POST[$key] == stripslashes($custom_field_option) ) echo " checked='checked'";
 								echo " /><label id='$option-label' class='$key' for='$option'>&nbsp;", stripslashes($custom_field_option), "</label><br />";
 								$tabindex++;
 							}
@@ -1957,7 +1958,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								case "checkbox":
 									echo "\n		<td>";
 									$custom_field_options = explode(",", $v["custom_field_options"]);
-									$values = explode(", ", $value);
+									$values = explode(",", $value);
 									foreach ( $custom_field_options as $custom_field_option ) {
 										echo "\n			<label><input type='checkbox' name='$key", "[]' value=\"", stripslashes($custom_field_option), "\"";
 										if ( in_array(stripslashes($custom_field_option), $values) ) echo " checked='checked'";
