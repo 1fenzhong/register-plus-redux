@@ -4,7 +4,7 @@ Donate link: http://radiok.info/donate/
 Tags: registration, register, plus, redux, password, invitation, code, email, verification, disclaimer, license, agreement, privacy, policy, logo, moderation, user
 Requires at least: 3.0
 Tested up to: 3.0.1
-Stable tag: 3.6.21
+Stable tag: 3.6.22
 
 Enhances the user registration process with complete customization and additional administration options.
 
@@ -81,6 +81,13 @@ HTML attributes should go in the following order name -> id -> class
 4. Unverified User Management
 
 == Changelog ==
+= 3.6.22 =
+November 5, 2010 by radiok
+
+* Fixed bug in custom checkbox fields, as reported by notquitewild 
+* Added hack to workaround allow_url_fopen, for problem reported by shrikantjoshi
+* Added hack to workaround non-english custom fields, for problem reported by Vrefr
+
 = 3.6.21 =
 November 3, 2010 by radiok
 
