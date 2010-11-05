@@ -463,8 +463,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							<?php _e("Custom Logo will be shown on Registration and Login Forms in place of the default Wordpress logo. For the best results custom logo should not exceed 350px width.", "register-plus-redux"); ?>
 							<?php if ( !empty($options["custom_logo_url"]) ) { ?>
 								<br /><img src="<?php echo $options["custom_logo_url"]; ?>" /><br />
-								<?php list($custom_logo_width, $custom_logo_height) = getimagesize($options["custom_logo_url"]); ?>
-								<?php echo $custom_logo_width; ?>x<?php echo $custom_logo_height; ?><br />
+								<?php if ( empty($options["disable_url_fopen"]) ) list($custom_logo_width, $custom_logo_height) = getimagesize($options["custom_logo_url"]); ?>
+								<?php if ( empty($options["disable_url_fopen"]) ) echo $custom_logo_width, "x", $custom_logo_height, "<br />\n"; ?>
 								<label><input type="checkbox" name="remove_logo" value="1" />&nbsp;<?php _e("Remove Logo", "register-plus-redux"); ?></label><br />
 								<?php _e("You must Save Changes to remove logo.", "register-plus-redux"); ?>
 							<?php } ?>
@@ -997,6 +997,24 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						<td><textarea name="custom_login_page_css" id="custom_login_page_css" style="width:60%; height:160px;"><?php echo $options["custom_login_page_css"]; ?></textarea></td>
 					</tr>
 				</table>
+				<br />
+				<h3 class="title"><?php _e("Hacks & Fixes", "register-plus-redux"); ?></h3>
+				<table class="form-table">
+					<tr valign="top">
+						<th scope="row"><?php _e("Non-English Custom Fields", "register-plus-redux"); ?></th>
+						<td>
+							<label><input type="checkbox" name="disable_sanitize_key" value="1" <?php if ( !empty($options["disable_sanitize_key"]) ) echo "checked='checked'"; ?> />&nbsp;<?php _e("Do not sanitize keys.", "register-plus-redux"); ?></label><br />
+							<?php _e("Custom fields with non-english characters may not work, this hack will stop sanitizing the custom field name which may resolve this issue.", "register-plus-redux"); ?>
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row"><?php _e("URL File Access is Disabled", "register-plus-redux"); ?></th>
+						<td>
+							<label><input type="checkbox" name="disable_url_fopen" value="1" <?php if ( !empty($options["disable_url_fopen"]) ) echo "checked='checked'"; ?> />&nbsp;<?php _e("Do not open URL files.", "register-plus-redux"); ?></label><br />
+							<?php _e("Some PHP configurations do not allow accessing URL objects like files (allow_url_fopen=disabled in php.ini), this hack will stop trying to open URL files as if they were local files. Custom logo must be exactly 326x67 with this hack enabled, otherwise it will be cropped.", "register-plus-redux"); ?>
+						</td>
+					</tr>
+				</table>
 				<p class="submit">
 					<input type="submit" class="button-primary" value="<?php esc_attr_e("Save Changes", "register-plus-redux"); ?>" name="update_settings" />
 					<input type="button" class="button" value="<?php esc_attr_e("Preview Registraton Page", "register-plus-redux"); ?>" name="preview" onclick="window.open('<?php echo wp_login_url(), "?action=register"; ?>');" />
@@ -1112,6 +1130,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 			if ( isset($_POST["custom_registration_page_css"]) ) $options["custom_registration_page_css"] = $_POST["custom_registration_page_css"];
 			if ( isset($_POST["custom_login_page_css"]) ) $options["custom_login_page_css"] = $_POST["custom_login_page_css"];
+
+			$options["disable_sanitize_key"] = isset($_POST["disable_sanitize_key"]) ? $_POST["disable_sanitize_key"] : "";
+			$options["disable_url_fopen"] = isset($_POST["disable_url_fopen"]) ? $_POST["disable_url_fopen"] : "";
 
 			update_option("register_plus_redux_options", $options);
 			update_option("register_plus_redux_custom_fields", $custom_fields);
@@ -1256,7 +1277,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					wp_print_scripts("jquery");
 					$jquery_loaded = true;
 				}
-				list($width, $height, $type, $attr) = getimagesize($options["custom_logo_url"]);
+				if ( empty($options["disable_url_fopen"]) ) list($width, $height, $type, $attr) = getimagesize($options["custom_logo_url"]);
 				$desc = get_option("blogdescription");
 				if ( empty($desc) ) 
 					$title = get_option("blogname") . " - " . $desc;
@@ -1267,9 +1288,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					#login h1 a {
 						background-image: url("<?php echo $options["custom_logo_url"]; ?>");
 						margin: 0 0 0 8px;
-						width: <?php echo $width; ?>px;
-						min-width: 292px;
-						height: <?php echo $height; ?>px;
+						<?php if ( !empty($width) ) echo "width: ", $width, "px;\n"; ?>
+						<?php if ( !empty($height) ) echo "height: ", $height, "px;\n"; ?>
 					}
 				</style>
 				<script type="text/javascript">
@@ -2099,7 +2119,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				"admin_message_newline_as_br" => "0",
 
 				"custom_registration_page_css" => "",
-				"custom_login_page_css" => ""
+				"custom_login_page_css" => "",
+				
+				"disable_sanitize_key" => "",
+				"disable_url_fopen" => ""
 			);
 			if ( !empty($key) )
 				return $default[$key];
@@ -2215,9 +2238,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function sanitizeText( $key ) {
+			$options = get_option("register_plus_redux_options");
 			$key = str_replace(" ", "_", $key);
 			$key = strtolower($key);
-			$key = sanitize_key($key);
+			if ( empty($options["disable_sanitize_key"]) ) $key = sanitize_key($key);
 			return $key;
 		}
 
