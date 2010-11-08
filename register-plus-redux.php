@@ -1323,6 +1323,22 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				<?php
 			}
 			if ( isset($_GET["action"]) && $_GET["action"] == "register" ) {
+				if ( isset($_GET["user_login"]) ) $_POST["user_login"] = $_GET["user_login"];
+				if ( isset($_GET["user_email"]) ) $_POST["user_email"] = $_GET["user_email"];
+				if ( !empty($_POST["user_login"]) || !empty($_POST["user_email"]) ) {
+					if ( empty($jquery_loaded) ) {
+						wp_print_scripts("jquery");
+						$jquery_loaded = true;
+					}
+					?>
+					<script type="text/javascript">
+					jQuery(document).ready(function() {
+						jQuery("#user_login").val("<?php echo $_POST["user_login"]; ?>");
+						jQuery("#user_email").val("<?php echo $_POST["user_email"]; ?>");
+					});
+					</script>
+					<?php
+				}
 				$custom_fields = get_option("register_plus_redux_custom_fields");
 				if ( !is_array($custom_fields) ) $custom_fields = array();
 				foreach ( $custom_fields as $k => $v ) {
