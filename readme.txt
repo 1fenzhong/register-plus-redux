@@ -44,6 +44,8 @@ ir_FA Islamic Republic of Iran Persian
 
 it_IT Italy Italian
 
+ro_RO Romania Romanian
+
 == Installation ==
 
 1. Upload the 'register-plus-redux' directory to the '/wp-content/plugins/' directory
