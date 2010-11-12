@@ -10,8 +10,8 @@ Text Domain: register-plus-redux
 */
 
 $ops = get_option("register_plus_redux_options");
-if ( isset($_POST["enable_invitation_tracking_widget"]) && $ops["enable_invitation_tracking_widget"] )
-	include_once("dash_widget.php");
+if ( !empty($ops["enable_invitation_tracking_widget"]) )
+	include_once("dashboard_invitation_tracking_widget.php");
 
 if ( !class_exists("RegisterPlusReduxPlugin") ) {
 	class RegisterPlusReduxPlugin {
@@ -122,6 +122,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$options_page = add_submenu_page("options-general.php", "Register Plus Redux Settings", "Register Plus Redux", "manage_options", "register-plus-redux", array($this, "OptionsPage"));
 			//$options_page = settings_page_register-plus-redux 
 			add_action("admin_head-$options_page", array($this, "OptionsHead"));
+			add_action("admin_footer-$options_page", array($this, "OptionsFoot"));
 			add_filter("plugin_action_links_".plugin_basename(__FILE__), array($this, "filter_plugin_actions"), 10, 4);
 			if ( !empty($options["verify_user_email"]) || !empty($options["verify_user_admin"]) || $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_key='stored_user_login'") )
 				add_submenu_page("users.php", "Unverified Users", "Unverified Users", "promote_users", "unverified-users", array($this, "UnverifiedUsersPage"));
@@ -129,6 +130,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 		function OptionsHead() {
 			wp_enqueue_script("jquery");
+		}
+
+		function OptionsFoot() {
 			$options = get_option("register_plus_redux_options");
 			?>
 			<script type="text/javascript">
@@ -354,12 +358,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				jQuery("#admin_message_summary").html(when + msg);
 			}
 
-			jQuery(window).load(function () {
-				updateUserMessagesSummary();
-				updateAdminMessageSummary();
-			});
-
 			jQuery(document).ready(function() {
+				//alert("document ready");
+
 				<?php if ( empty($options["verify_user_email"]) ) echo "\njQuery('#verify_user_email_settings').hide();"; ?>
 				<?php if ( empty($options["verify_user_admin"]) ) echo "\njQuery('#verify_user_admin_settings').hide();"; ?>
 				<?php if ( empty($options["user_set_password"]) ) echo "\njQuery('#password_settings').hide();"; ?>
@@ -371,7 +372,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				<?php if ( empty($options["custom_user_message"]) ) echo "\njQuery('#custom_user_message_settings').hide();"; ?>
 				<?php if ( empty($options["custom_verification_message"]) ) echo "\njQuery('#custom_verification_message_settings').hide();"; ?>
 				<?php if ( empty($options["custom_admin_message"]) ) echo "\njQuery('#custom_admin_message_settings').hide();"; ?>
-
 				jQuery(".disabled").hide();
 
 				jQuery(".showHideSettings").bind("click", function() {
@@ -436,6 +436,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				jQuery("#disable_admin_message_registered,#disable_admin_message_created,#custom_admin_message,#admin_message_from_name,#admin_message_from_email,#admin_message_subject,#admin_message_body,#send_admin_message_in_html").change(function() {
 					updateAdminMessageSummary();
 				});
+
+				updateUserMessagesSummary();
+				updateAdminMessageSummary();
 			});
 			</script>
 			<?php
