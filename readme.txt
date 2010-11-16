@@ -40,6 +40,8 @@ Register Plus Redux was forked from Register Plus, developed by skullbit, which 
 
 Available in the following translations:
 
+fr_FR France French
+
 ir_FA Islamic Republic of Iran Persian
 
 it_IT Italy Italian
