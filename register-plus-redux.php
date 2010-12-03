@@ -1415,6 +1415,18 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			update_option("register_plus_redux_custom_fields", $custom_fields);
 		}
 
+		function UpdateRegistrationPage() {
+			$registration_page = array();
+			$registration_page["registration_banner_url"] = isset($_POST["registration_banner_url"]) ? $_POST["registration_banner_url"] : "";
+			if ( !empty($_FILES["upload_custom_logo"]["name"]) ) {
+				$upload = wp_upload_bits($_FILES["upload_custom_logo"]["name"], null, file_get_contents($_FILES["upload_custom_logo"]["tmp_name"]));
+				if ( !$upload["error"] ) $login_page["registration_banner_url"] = $upload["url"];
+			}
+			if ( isset($_POST["remove_logo"]) ) $login_page["registration_banner_url"] = "";
+			$registration_page["custom_registration_page_css"] = isset($_POST["custom_registration_page_css"]) ? $_POST["custom_registration_page_css"] : "";
+			update_option("register_plus_redux_registration_page", $registration_page);
+		}
+
 		function UpdateLoginPage() {
 			$login_page = array();
 			$login_page["login_banner_url"] = isset($_POST["login_banner_url"]) ? $_POST["login_banner_url"] : "";
@@ -1422,9 +1434,12 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				$upload = wp_upload_bits($_FILES["upload_custom_logo"]["name"], null, file_get_contents($_FILES["upload_custom_logo"]["tmp_name"]));
 				if ( !$upload["error"] ) $login_page["login_banner_url"] = $upload["url"];
 			}
-			if ( isset($_POST["remove_logo"]) ) $login_page["custom_logo_url"] = "";
+			if ( isset($_POST["remove_logo"]) ) $login_page["login_banner_url"] = "";
 			$login_page["custom_login_page_css"] = isset($_POST["custom_login_page_css"]) ? $_POST["custom_login_page_css"] : "";
-			update_option("register_plus_redux_hacks", $login_page);
+			update_option("register_plus_redux_login_page", $login_page);
+		}
+
+		function UpdateCustomFields() {
 		}
 
 		function UpdateMessages() {
