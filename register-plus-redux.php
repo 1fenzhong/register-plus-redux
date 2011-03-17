@@ -5,7 +5,7 @@ Plugin Name: Register Plus Redux
 Author URI: http://radiok.info/
 Plugin URI: http://radiok.info/category/register-plus-redux/
 Description: Enhances the user registration process with complete customization and additional administration options.
-Version: 3.7.1
+Version: 3.7.1.99
 Text Domain: register-plus-redux
 */
 
@@ -14,7 +14,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		function RegisterPlusReduxPlugin() {
 			global $wp_version;
 			if ( is_admin() ) {
-				add_action("init", array($this, "InitializeSettings")); //Runs after WordPress has finished loading but before any headers are sent.
+				add_action("init", array($this, "Initialization")); //Runs after WordPress has finished loading but before any headers are sent.
 				add_action("init", array($this, "DeleteExpiredUsers")); //Runs after WordPress has finished loading but before any headers are sent.
 				add_action("admin_menu", array($this, "AddPages") ); //Runs after the basic admin panel menu structure is in place.
 			}
@@ -41,9 +41,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				add_action("admin_notices", array($this, "VersionWarning"));
 		}
 
-		function InitializeSettings() {
+		function Initialization() {
 			global $wpdb;
-			// Added 10/01/10 no longer seperating unverified users by type
+			// Added 10/01/10 no longer separating unverified users by type
 			// can be removed once all users are past 3.6.12
 			$unverified_users = $wpdb->get_results("SELECT user_id, meta_value FROM $wpdb->usermeta WHERE meta_key='admin_verification_user_login'");
 			if ( $unverified_users ) {
@@ -729,12 +729,12 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						<th scope="row"><?php _e("Starting Tabindex", "register-plus-redux"); ?></th>
 						<td>
 							<input type="text" name="starting_tabindex" style="width:50px;" value="<?php echo $options["starting_tabindex"]; ?>" /><br />
-							<?php _e("The first field added will have this tabindex, the tabindex will incriment by 1 for each additional field. Enter 0 to remove all tabindex's.", "register-plus-redux"); ?>
+							<?php _e("The first field added will have this tabindex, the tabindex will increment by 1 for each additional field. Enter 0 to remove all tabindex's.", "register-plus-redux"); ?>
 						</td>
 					</tr>
 				</table>
 				<h3 class="title"><?php _e("Additional Fields", "register-plus-redux"); ?></h3>
-				<p><?php _e("Enter additional fields to show on the User Profile and/or Registration Pages. Additional fields will be shown after existing profile fields on User Profile, and after selected profile fields on Registration Page but before Password, Invitation Code, Disclaimer, License Agreement, or Privacy Policy (if any of those fields are enabled). Options must be entered for Select, Checkbox, and Radio fields. Options should be entered with commas seperating each possible value. For example, a Radio field named \"Gender\" could have the following options, \"Male,Female\".", "register-plus-redux"); ?></p>
+				<p><?php _e("Enter additional fields to show on the User Profile and/or Registration Pages. Additional fields will be shown after existing profile fields on User Profile, and after selected profile fields on Registration Page but before Password, Invitation Code, Disclaimer, License Agreement, or Privacy Policy (if any of those fields are enabled). Options must be entered for Select, Checkbox, and Radio fields. Options should be entered with commas separating each possible value. For example, a Radio field named \"Gender\" could have the following options, \"Male,Female\".", "register-plus-redux"); ?></p>
 				<table id="custom_fields" style="width: 80%;">
 					<thead valign="top">
 						<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><?php _e("Name", "register-plus-redux"); ?></td>
@@ -1020,7 +1020,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				</table>
 				<p class="submit">
 					<input type="submit" class="button-primary" value="<?php esc_attr_e("Save Changes", "register-plus-redux"); ?>" name="update_settings" />
-					<input type="button" class="button" value="<?php esc_attr_e("Preview Registraton Page", "register-plus-redux"); ?>" name="preview" onclick="window.open('<?php echo wp_login_url(), "?action=register"; ?>');" />
+					<input type="button" class="button" value="<?php esc_attr_e("Preview Registration Page", "register-plus-redux"); ?>" name="preview" onclick="window.open('<?php echo wp_login_url(), "?action=register"; ?>');" />
 				</p>
 			</form>
 			</div>
