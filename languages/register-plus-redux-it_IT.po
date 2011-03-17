@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Register Plus Redux in italiano\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-03-16 21:35+0100\n"
-"PO-Revision-Date: 2011-03-17 17:15+0100\n"
+"PO-Revision-Date: 2011-03-17 18:43+0100\n"
 "Last-Translator: Gianni Diurno (aka gidibao) <gidibao[at]gmail[dot]com>\n"
 "Language-Team: Gianni Diurno | gidibao.net <gidibao[at]gmail[dot]com>\n"
 "MIME-Version: 1.0\n"
@@ -890,7 +890,7 @@ msgstr "Conferma password"
 #: register-plus-redux/register-plus-redux.php:1736
 #, php-format
 msgid "Your password must be at least %d characters long. To make your password stronger, use upper and lower case letters, numbers, and the following symbols !@#$%%^&amp;*()"
-msgstr "La tua password dovrà contenere almeno %d caratteri. Per potere rendere più sicura la tua password, usa lettere maiuscole e minuscole, numeri nonché i seguenti simboli !@#$%^&amp;*()"
+msgstr "La tua password dovrà contenere almeno %d caratteri. Per potere rendere più sicura la tua password, usa lettere maiuscole e minuscole, numeri nonché i seguenti simboli !@#$%%^&amp;*()"
 
 #: register-plus-redux/register-plus-redux.php:1748
 msgid "This website is currently closed to public registrations. You will need an invitation code to register."
@@ -943,11 +943,11 @@ msgstr "<strong>ERRORE</strong>: inserisci alcune informazioni su te stesso."
 #: register-plus-redux/register-plus-redux.php:1851
 #, php-format
 msgid "<strong>ERROR</strong>: Please complete %s."
-msgstr "<strong>ERROR</strong>: completa %s."
+msgstr "<strong>ERRORE</strong>: completa %s."
 
 #: register-plus-redux/register-plus-redux.php:1857
 msgid "<strong>ERROR</strong>: Please enter a password."
-msgstr "<strong>ERRORE/strong>: Inserisci una password."
+msgstr "<strong>ERRORE</strong>: Inserisci una password."
 
 #: register-plus-redux/register-plus-redux.php:1859
 msgid "<strong>ERROR</strong>: Your password does not match."
