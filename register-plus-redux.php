@@ -179,7 +179,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								.append("<option value=\"textarea\"><?php esc_attr_e("Text Area", "register-plus-redux"); ?></option>")
 								.append("<option value=\"date\"><?php esc_attr_e("Date Field", "register-plus-redux"); ?></option>")
 								.append("<option value=\"url\"><?php esc_attr_e("URL Field", "register-plus-redux"); ?></option>")
-								.append("<option value=\"regex\"><?php esc_attr_e("Regex Field", "register-plus-redux"); ?></option>")
 								.append("<option value=\"hidden\"><?php esc_attr_e("Hidden Field", "register-plus-redux"); ?></option>")
 							)
 						)
@@ -412,7 +411,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				});
 
 				jQuery(".enableDisableOptions").live("change", function() {
-					if ( jQuery(this).val() == "select" || jQuery(this).val() == "checkbox" || jQuery(this).val() == "radio" || jQuery(this).val() == "regex" )
+					if ( jQuery(this).val() == "text" || jQuery(this).val() == "select" || jQuery(this).val() == "checkbox" || jQuery(this).val() == "radio" )
 						jQuery(this).parent().next().find("input").removeAttr("readonly");
 					else
 						jQuery(this).parent().next().find("input").attr("readonly", "readonly");
@@ -771,11 +770,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo "\n			<option value='textarea'"; if ( $v["custom_field_type"] == "textarea" ) echo " selected='selected'"; echo ">", __("Text Area", "register-plus-redux"), "</option>";
 							echo "\n			<option value='date'"; if ( $v["custom_field_type"] == "date" ) echo " selected='selected'"; echo ">", __("Date Field", "register-plus-redux"), "</option>";
 							echo "\n			<option value='url'"; if ( $v["custom_field_type"] == "url" ) echo " selected='selected'"; echo ">", __("URL Field", "register-plus-redux"), "</option>";
-							echo "\n			<option value='regex'"; if ( $v["custom_field_type"] == "regex" ) echo " selected='selected'"; echo ">", __("Regex Field", "register-plus-redux"), "</option>";
 							echo "\n			<option value='hidden'"; if ( $v["custom_field_type"] == "hidden" ) echo " selected='selected'"; echo ">", __("Hidden Field", "register-plus-redux"), "</option>";
 							echo "\n		</select>";
 							echo "\n	</td>";
-							echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_options[$k]' value=\"", stripslashes($v["custom_field_options"]), "\""; if ( $v["custom_field_type"] != "select" && $v["custom_field_type"] != "checkbox" && $v["custom_field_type"] != "radio" && $v["custom_field_type"] != "regex" ) echo " readonly='readonly'"; echo " style='width: 100%;' /></td>";
+							echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_options[$k]' value=\"", stripslashes($v["custom_field_options"]), "\""; if ( $v["custom_field_type"] != "text" && $v["custom_field_type"] != "select" && $v["custom_field_type"] != "checkbox" && $v["custom_field_type"] != "radio" ) echo " readonly='readonly'"; echo " style='width: 100%;' /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><img src='", plugins_url("images\help.png", __FILE__), "' title='", __("No help available", "register-plus-redux"), "' class='helpCustomField' /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_profile[$k]' value='1'"; if ( !empty($v["show_on_profile"]) ) echo " checked='checked'"; echo " /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_registration[$k]' value='1'"; if ( !empty($v["show_on_registration"]) ) echo " checked='checked'"; echo " class='modifyNextCellInput' /></td>";
@@ -799,7 +797,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo "\n			<option value='textarea'>", __("Text Area", "register-plus-redux"), "</option>";
 							echo "\n			<option value='date'>", __("Date Field", "register-plus-redux"), "</option>";
 							echo "\n			<option value='url'>", __("URL Field", "register-plus-redux"), "</option>";
-							echo "\n			<option value='regex'>", __("Regex Field", "register-plus-redux"), "</option>";
 							echo "\n			<option value='hidden'>", __("Hidden Field", "register-plus-redux"), "</option>";
 							echo "\n		</select>";
 							echo "\n	</td>";
@@ -1358,7 +1355,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !is_array($custom_fields) ) $custom_fields = array();
 				foreach ( $custom_fields as $k => $v ) {
 					if ( !empty($v["show_on_registration"]) ) {
-\						if ( $v["custom_field_type"] == "text" || $v["custom_field_type"] == "url" || $v["custom_field_type"] == "regex" ) {
+\						if ( $v["custom_field_type"] == "text" || $v["custom_field_type"] == "url" ) {
 							if ( empty($show_custom_text_fields) )
 								$show_custom_text_fields = "#".$this->sanitizeText($v["custom_field_name"]);
 							else
@@ -1635,6 +1632,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					if ( isset($_GET[$key]) ) $_POST[$key] = $_GET[$key];
 					switch ( $v["custom_field_type"] ) {
 						case "text":
+						case "url":
 							echo "\n<p id='$key-p'><label id='$key-label'>";
 							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
 							echo stripslashes($v["custom_field_name"]), "<br /><input type='text' name='$key' id='$key' class='input' value='", $_POST[$key], "' size='25' ";
@@ -1700,20 +1698,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo stripslashes($v["custom_field_name"]), "<br /><input type='text' name='$key' id='$key' class='datepicker' value='", $_POST[$key], "' size='25' ";
 							if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 							echo " /></label></p>";
-							break;
-						case "url":
-							echo "\n<p id='$key-p'><label id='$key-label'>";
-							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
-							echo stripslashes($v["custom_field_name"]), "<br /><input type='text' name='$key' id='$key' class='input' value='", $_POST[$key], "' size='25' ";
-							if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
-							echo "/></label></p>";
-							break;
-						case "regex":
-							echo "\n<p id='$key-p'><label id='$key-label'>";
-							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
-							echo stripslashes($v["custom_field_name"]), "<br /><input type='text' name='$key' id='$key' class='input' value='", $_POST[$key], "' size='25' ";
-							if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
-							echo "/></label></p>";
 							break;
 						case "hidden":
 							echo "\n<input type='hidden' name='$key' id='$key' value='", $_POST[$key], "' ";
@@ -1851,7 +1835,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						$errors->add("empty_$key", sprintf(__("<strong>ERROR</strong>: Please complete %s.", "register-plus-redux"), $v["custom_field_name"]));
 					}
 				}
-				if ($v["custom_field_type"] == "regex" && !preg_match($v["custom_field_options"], $_POST[$key])) {
+				if ( $v["custom_field_type"] == "text" && !empty($v["custom_field_options"]) && !preg_match($v["custom_field_options"], $_POST[$key]) ) {
 					$errors->add("invalid_$key", sprintf(__("<strong>ERROR</strong>: Please enter new value for %s, value specified is not in the correct format.", "register-plus-redux"), $v["custom_field_name"]));
 				}
 			}
@@ -1981,7 +1965,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							switch ( $v["custom_field_type"] ) {
 								case "text":
 								case "url":
-								case "regex":
 									echo "\n		<td><input type='text' name='$key' id='$key' value='$value' class='regular-text' /></td>";
 									break;
 								case "select":
