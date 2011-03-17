@@ -1946,10 +1946,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		function ShowCustomFields( $profileuser ) {
 			$custom_fields = get_option("register_plus_redux_custom_fields");
 			
-			if ( !empty($profileuser->invitation_code) || is_array($custom_fields) ) {
+			if ( !empty($options["enable_invitation_code"]) || is_array($custom_fields) ) {
 				echo "<h3>", __("Additional Information", "register-plus-redux"), "</h3>";
 				echo "<table class='form-table'>";
-				if ( !empty($profileuser->invitation_code) ) {
+				if ( !empty($options["enable_invitation_code"]) ) {
 					echo "\n	<tr>";
 					echo "\n		<th><label for='invitation_code'>", __("Invitation Code", "register-plus-redux"), "</label></th>";
 					echo "\n		<td><input type='text' name='invitation_code' id='invitation_code' value='$profileuser->invitation_code' class='regular-text' readonly='readonly' /></td>";
