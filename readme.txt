@@ -40,6 +40,8 @@ Register Plus Redux was forked from Register Plus, developed by skullbit, which 
 
 Available in the following translations:
 
+de_DE Germany German
+
 fr_FR France French
 
 ir_FA Islamic Republic of Iran Persian
@@ -93,6 +95,7 @@ HTML attributes should go in the following order name -> id -> class
 
 * Text fields may now be validated against a regular expression if entered
 * Fixed bug with asterisks and required fields
+* Added de_DE translation
 
 = 3.7.1 =
 March 16, 2011 by radiok

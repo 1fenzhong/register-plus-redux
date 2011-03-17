@@ -283,10 +283,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						if ( jQuery("#send_verification_message_in_html").attr("checked") ) content_type = "text/html";
 						body = jQuery("#verification_message_body").val().replace(new RegExp( "\\n", "g" ), "<br />");
 					}
-					vmsg = "To: %user_email%<br />";
-					vmsg = vmsg + "From: " + from_name + " (" + from_email + ")<br />";
-					vmsg = vmsg + "Subject: " + subject + "<br />";
-					vmsg = vmsg + "Content-Type: " + content_type + "<br />";
+					vmsg = "<?php _e("To: ", "register-plus-redux"); ?>" + "%user_email%<br />";
+					vmsg = vmsg + "<?php _e("From: ", "register-plus-redux"); ?>" + from_name + " (" + from_email + ")<br />";
+					vmsg = vmsg + "<?php _e("Subject: ", "register-plus-redux"); ?>" + subject + "<br />";
+					vmsg = vmsg + "<?php _e("Content-Type: ", "register-plus-redux"); ?>" + content_type + "<br />";
 					vmsg = "<p style='font-size: 11px; display: block; width: 50%; background-color: #efefef; padding: 8px 10px; border: solid 1px #dfdfdf; margin: 1px; overflow:auto;'>" + vmsg + body + "</p><br />";
 				}
 				if ( jQuery("#disable_user_message_registered").attr("checked") && jQuery("#disable_user_message_created").attr("checked") ) {
@@ -302,7 +302,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					if ( !jQuery("#disable_user_message_created").attr("checked") ) when = when + "<?php _e("created", "register-plus-redux"); ?>";
 					if ( jQuery("#verify_user_email").attr("checked") || jQuery("#verify_user_admin").attr("checked") ) when = when + "<?php _e(" after ", "register-plus-redux"); ?>";
 					if ( jQuery("#verify_user_email").attr("checked"))
-						when = when + "the user has verified their email address"
+						when = when + "<?php _e("the user has verified their email address", "register-plus-redux"); ?>";
 					if ( jQuery("#verify_user_email").attr("checked") && jQuery("#verify_user_admin").attr("checked") ) when = when + "<?php _e(" and/or ", "register-plus-redux"); ?>";
 					if ( jQuery("#verify_user_admin").attr("checked"))
 						when = when + "<?php _e("an administrator has approved the new user", "register-plus-redux"); ?>";
