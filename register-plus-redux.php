@@ -403,7 +403,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				});
 
 				jQuery(".enableDisableOptions").live("change", function() {
-					if ( jQuery(this).val() == "select" || jQuery(this).val() == "checkbox" || jQuery(this).val() == "radio" )
+					if ( jQuery(this).val() == "select" || jQuery(this).val() == "checkbox" || jQuery(this).val() == "radio" || jQuery(this).val() == "regex" )
 						jQuery(this).parent().next().find("input").removeAttr("readonly");
 					else
 						jQuery(this).parent().next().find("input").attr("readonly", "readonly");
@@ -765,7 +765,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo "\n			<option value='hidden'"; if ( $v["custom_field_type"] == "hidden" ) echo " selected='selected'"; echo ">", __("Hidden Field", "register-plus-redux"), "</option>";
 							echo "\n		</select>";
 							echo "\n	</td>";
-							echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_options[$k]' value=\"", stripslashes($v["custom_field_options"]), "\""; if ( $v["custom_field_type"] != "select" && $v["custom_field_type"] != "checkbox" && $v["custom_field_type"] != "radio" ) echo " readonly='readonly'"; echo " style='width: 100%;' /></td>";
+							echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_options[$k]' value=\"", stripslashes($v["custom_field_options"]), "\""; if ( $v["custom_field_type"] != "select" && $v["custom_field_type"] != "checkbox" && $v["custom_field_type"] != "radio" && $v["custom_field_type"] != "regex" ) echo " readonly='readonly'"; echo " style='width: 100%;' /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_profile[$k]' value='1'"; if ( !empty($v["show_on_profile"]) ) echo " checked='checked'"; echo " /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_registration[$k]' value='1'"; if ( !empty($v["show_on_registration"]) ) echo " checked='checked'"; echo " class='modifyNextCellInput' /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='required_on_registration[$k]' value='1'"; if ( !empty($v["required_on_registration"]) ) echo " checked='checked'"; if ( empty($v["show_on_registration"]) ) echo " disabled='disabled'"; echo " /></td>";
@@ -1856,15 +1856,14 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$custom_fields = get_option("register_plus_redux_custom_fields");
 			if ( !is_array($custom_fields) ) $custom_fields = array();
 			foreach ( $custom_fields as $k => $v ) {
+				$key = $this->sanitizeText($v["custom_field_name"]);
 				if ( !empty($v["show_on_registration"]) && !empty($v["required_on_registration"]) ) {
-					$key = $this->sanitizeText($v["custom_field_name"]);
 					if ( empty($_POST[$key]) ) {
 						$errors->add("empty_$key", sprintf(__("<strong>ERROR</strong>: Please complete %s.", "register-plus-redux"), $v["custom_field_name"]));
 					}
 				}
-				// TODO: Verify regex eval
 				if ($v["custom_field_type"] == "regex" && !preg_match($v["custom_field_options"], $_POST[$key])) {
-					$errors->add("invalid_$key", sprintf(__("<strong>ERROR</strong>: Value entered for %s is not in the correct format.", "register-plus-redux"), $v["custom_field_name"]));
+					$errors->add("invalid_$key", sprintf(__("<strong>ERROR</strong>: Please enter new value for %s, value specified is not in the correct format.", "register-plus-redux"), $v["custom_field_name"]));
 				}
 			}
 			if ( !empty($options["user_set_password"]) ) {
