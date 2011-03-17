@@ -116,13 +116,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		function AddPages() {
 			global $wpdb;
 			$options = get_option("register_plus_redux_options");
-			$options_page = add_submenu_page("options-general.php", "Register Plus Redux Settings", "Register Plus Redux", "manage_options", "register-plus-redux", array($this, "OptionsPage"));
+			$options_page = add_submenu_page("options-general.php", __("Register Plus Redux Settings", "register-plus-redux"), "Register Plus Redux", "manage_options", "register-plus-redux", array($this, "OptionsPage"));
 			//$options_page = settings_page_register-plus-redux 
 			add_action("admin_head-$options_page", array($this, "OptionsHead"));
 			add_action("admin_footer-$options_page", array($this, "OptionsFoot"));
 			add_filter("plugin_action_links_".plugin_basename(__FILE__), array($this, "filter_plugin_actions"), 10, 4);
 			if ( !empty($options["verify_user_email"]) || !empty($options["verify_user_admin"]) || $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_key='stored_user_login'") )
-				add_submenu_page("users.php", "Unverified Users", "Unverified Users", "promote_users", "unverified-users", array($this, "UnverifiedUsersPage"));
+				add_submenu_page("users.php", __("Unverified Users", "register-plus-redux"), __("Unverified Users", "register-plus-redux"), "promote_users", "unverified-users", array($this, "UnverifiedUsersPage"));
 		}
 
 		function OptionsHead() {
