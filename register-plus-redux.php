@@ -195,6 +195,15 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						.append(jQuery("<td>")
 							.attr("align", "center")
 							.attr("style", "padding-top: 0px; padding-bottom: 0px;")
+							.append(jQuery("<img>")
+								.attr("src", "<?php echo plugins_url("images\help.png", __FILE__); ?>")
+								.attr("title", "<?php esc_attr_e("No help available", "register-plus-redux"); ?>")
+								.attr("class", "helpCustomField")
+							)
+						)
+						.append(jQuery("<td>")
+							.attr("align", "center")
+							.attr("style", "padding-top: 0px; padding-bottom: 0px;")
 							.append(jQuery("<input>")
 								.attr("type", "checkbox")
 								.attr("name", "show_on_profile[]")
@@ -740,6 +749,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><?php _e("Name", "register-plus-redux"); ?></td>
 						<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Type", "register-plus-redux"); ?></td>
 						<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Options", "register-plus-redux"); ?></td>
+						<td align="center" style="padding-top: 0px; padding-bottom: 0px;"></td>
 						<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Profile", "register-plus-redux"); ?></td>
 						<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Registration", "register-plus-redux"); ?></td>
 						<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Require", "register-plus-redux"); ?></td>
@@ -766,6 +776,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo "\n		</select>";
 							echo "\n	</td>";
 							echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_options[$k]' value=\"", stripslashes($v["custom_field_options"]), "\""; if ( $v["custom_field_type"] != "select" && $v["custom_field_type"] != "checkbox" && $v["custom_field_type"] != "radio" && $v["custom_field_type"] != "regex" ) echo " readonly='readonly'"; echo " style='width: 100%;' /></td>";
+							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><img src='", plugins_url("images\help.png", __FILE__), "' title='", __("No help available", "register-plus-redux"), "' class='helpCustomField' /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_profile[$k]' value='1'"; if ( !empty($v["show_on_profile"]) ) echo " checked='checked'"; echo " /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_registration[$k]' value='1'"; if ( !empty($v["show_on_registration"]) ) echo " checked='checked'"; echo " class='modifyNextCellInput' /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='required_on_registration[$k]' value='1'"; if ( !empty($v["required_on_registration"]) ) echo " checked='checked'"; if ( empty($v["show_on_registration"]) ) echo " disabled='disabled'"; echo " /></td>";
@@ -793,6 +804,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo "\n		</select>";
 							echo "\n	</td>";
 							echo "\n	<td style='padding-top: 0px; padding-bottom: 0px;'><input type='text' name='custom_field_options[]' value='' readonly='readonly' style='width: 100%;'/></td>";
+							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><img src='", plugins_url("images\help.png", __FILE__), "' title='", __("No help available", "register-plus-redux"), "' class='helpCustomField' /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_profile[]' value='1' /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='show_on_registration[]' value='1' class='modifyNextCellInput' /></td>";
 							echo "\n	<td align='center' style='padding-top: 0px; padding-bottom: 0px;'><input type='checkbox' name='required_on_registration[]' value='1' disabled='disabled' /></td>";
