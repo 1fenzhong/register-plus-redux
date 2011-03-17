@@ -77,7 +77,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 			//LOCALIZATION
 			//Place your language file in the plugin folder and name it "register-plus-redux-{language}.mo replace {language} with your language value from wp-config.php
-			load_plugin_textdomain("register-plus-redux", false, dirname(plugin_basename(__FILE__)));
+			load_plugin_textdomain("register-plus-redux", false, dirname(plugin_basename(__FILE__)) . "/languages/" );
 		}
 
 		function DeleteExpiredUsers() {
