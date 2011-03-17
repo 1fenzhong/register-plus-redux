@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Register Plus Redux in italiano\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-03-16 21:35+0100\n"
-"PO-Revision-Date: 2011-03-16 21:48+0100\n"
+"PO-Revision-Date: 2011-03-17 17:15+0100\n"
 "Last-Translator: Gianni Diurno (aka gidibao) <gidibao[at]gmail[dot]com>\n"
 "Language-Team: Gianni Diurno | gidibao.net <gidibao[at]gmail[dot]com>\n"
 "MIME-Version: 1.0\n"
@@ -902,7 +902,7 @@ msgstr "Hai un codice invito? Inseriscilo qui. (Non é obbligatorio)"
 
 #: register-plus-redux/register-plus-redux.php:1798
 msgid "<strong>ERROR</strong>: This username is already registered, please choose another one."
-msgstr "<strong>ERRORE/strong>: questo nome utente é già in uso: utilizzane un altro."
+msgstr "<strong>ERRORE</strong>: questo nome utente é già in uso: utilizzane un altro."
 
 #: register-plus-redux/register-plus-redux.php:1803
 msgid "<strong>ERROR</strong>: Please confirm your e-mail address."
