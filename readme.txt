@@ -90,9 +90,9 @@ HTML attributes should go in the following order name -> id -> class
 
 == Changelog ==
 = 3.7.2 =
-March 16, 2011 by radiok
 
-* Added new custom field type, Regex Field, this field is verified against the additional options specified
+* Text fields may now be validated against a regular expression if entered
+* Fixed bug with asterisks and required fields
 
 = 3.7.1 =
 March 16, 2011 by radiok
@@ -102,7 +102,7 @@ March 16, 2011 by radiok
 = 3.7.0 =
 March 16, 2011 by radiok
 
-* Major change, wp_new_user_notification is only created as neccessary
+* Major change, wp_new_user_notification is only created as necessary
 * Added fr_FR, ro_RO, ru_RU, and tr_TR translations
 * Fixed bug with auto-complete not filling in user_login and user_email, as reported by webakimbo
 * Fixed invitation code tracking dashboard widget, as reported by Galyn
@@ -230,7 +230,7 @@ September 28, 2010 by radiok
 * Renamed several variables
 * Changed wp_update_user to $wpdb->query for updating user_login
 * Removed function to create random string, use wp_generate_password instead
-* Reogranized wp_new_user_notification more logically
+* Reorganized wp_new_user_notification more logically
 
 = 3.6.8 =
 September 25, 2010 by radiok
@@ -355,7 +355,7 @@ June 23, 2008 by Skullbit
 June 19, 2008 by Skullbit
 
 * Added more localization files
-* Added doccumentation for auto-complete queries
+* Added documentation for auto-complete queries
 * Fixed Admin notification email to now actually really go to the administrator
 
 = 3.0 =
@@ -422,7 +422,7 @@ April 27, 2008 by Skullbit
 = 2.1 =
 April 26, 2008 by Skullbit
 
-* Fixed Admin Registation Password issue
+* Fixed Admin Registration Password issue
 * Added Dashboard Widget for showing invitation code tracking
 * Added Email Verification for ensuring legitimate addresses are registered.  
 * Unvalidated registrations are unable to login and are deleted after a set grace period

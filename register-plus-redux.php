@@ -1566,6 +1566,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo "/></label></p>";
 			}
 			if ( !is_array($options["show_fields"]) ) $options["show_fields"] = array();
+			if ( !is_array($options["required_fields"]) ) $options["required_fields"] = array();
 			if ( in_array("first_name", $options["show_fields"]) ) {
 				if ( isset($_GET["first_name"]) ) $_POST["first_name"] = $_GET["first_name"];
 				echo "\n<p id='first_name-p'><label id='first_name-label'>";
