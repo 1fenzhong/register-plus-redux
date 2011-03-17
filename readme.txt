@@ -89,6 +89,11 @@ HTML attributes should go in the following order name -> id -> class
 4. Unverified User Management
 
 == Changelog ==
+= 3.7.2 =
+March 16, 2011 by radiok
+
+* Added new custom field type, Regex Field, this field is verified against the additional options specified
+
 = 3.7.1 =
 March 16, 2011 by radiok
 

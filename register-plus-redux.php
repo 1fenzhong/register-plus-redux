@@ -1862,7 +1862,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						$errors->add("empty_$key", sprintf(__("<strong>ERROR</strong>: Please complete %s.", "register-plus-redux"), $v["custom_field_name"]));
 					}
 				}
-				// TODO: Add regex eval
+				// TODO: Verify regex eval
+				if ($v["custom_field_type"] == "regex" && !preg_match($v["custom_field_options"], $_POST[$key])) {
+					$errors->add("invalid_$key", sprintf(__("<strong>ERROR</strong>: Value entered for %s is not in the correct format.", "register-plus-redux"), $v["custom_field_name"]));
+				}
 			}
 			if ( !empty($options["user_set_password"]) ) {
 				if ( empty($_POST["pass1"]) || empty($_POST["pass2"]) ) {
