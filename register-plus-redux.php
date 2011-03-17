@@ -1565,9 +1565,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo "\n<p id='user_email2-p'><label id='user_email2-label'>";
 				if ( !empty($options["required_fields_asterisk"]) ) echo "*";
 				echo __("Confirm E-mail", "register-plus-redux"), "<br /><input type='text' autocomplete='off' name='user_email2' id='user_email2' class='input' value='", $_POST["user_email2"], "' size='25' ";
-				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 				echo "/></label></p>";
-				$tabindex++;
 			}
 			if ( !is_array($options["show_fields"]) ) $options["show_fields"] = array();
 			if ( in_array("first_name", $options["show_fields"]) ) {
@@ -1575,54 +1574,48 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo "\n<p id='first_name-p'><label id='first_name-label'>";
 				if ( !empty($options["required_fields_asterisk"]) && in_array("first_name", $options["required_fields"]) ) echo "*";
 				echo __("First Name", "register-plus-redux"), "<br /><input type='text' name='first_name' id='first_name' class='input' value='", $_POST["first_name"],"' size='25' ";
-				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 				echo "/></label></p>";
-				$tabindex++;
 			}
 			if ( in_array("last_name", $options["show_fields"]) ) {
 				if ( isset($_GET["last_name"]) ) $_POST["last_name"] = $_GET["last_name"];
 				echo "\n<p id='last_name-p'><label id='last_name-label'>";
 				if ( !empty($options["required_fields_asterisk"]) && in_array("last_name", $options["required_fields"]) ) echo "*";
 				echo __("Last Name", "register-plus-redux"), "<br /><input type='text' name='last_name' id='last_name' class='input' value='", $_POST["last_name"], "' size='25' ";
-				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 				echo "/></label></p>";
-				$tabindex++;
 			}
 			if ( in_array("user_url", $options["show_fields"]) ) {
 				if ( isset($_GET["url"]) ) $_POST["url"] = $_GET["url"];
 				echo "\n<p id='user_url-p'><label id='user_url-label'>";
 				if ( !empty($options["required_fields_asterisk"]) && in_array("user_url", $options["required_fields"]) ) echo "*";
 				echo __("Website", "register-plus-redux"), "<br /><input type='text' name='url' id='user_url' class='input' value='", $_POST["url"], "' size='25' ";
-				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 				echo "/></label></p>";
-				$tabindex++;
 			}
 			if ( in_array("aim", $options["show_fields"]) ) {
 				if ( isset($_GET["aim"]) ) $_POST["aim"] = $_GET["aim"];
 				echo "\n<p id='aim-p'><label id='aim-label'>";
 				if ( !empty($options["required_fields_asterisk"]) && in_array("aim", $options["required_fields"]) ) echo "*";
 				echo __("AIM", "register-plus-redux"), "<br /><input type='text' name='aim' id='aim' class='input' value='", $_POST["aim"], "' size='25' ";
-				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 				echo "/></label></p>";
-				$tabindex++;
 			}
 			if ( in_array("yahoo", $options["show_fields"]) ) {
 				if ( isset($_GET["yahoo"]) ) $_POST["yahoo"] = $_GET["yahoo"];
 				echo "\n<p id='yahoo-p'><label id='yahoo-label'>";
 				if ( !empty($options["required_fields_asterisk"]) && in_array("yahoo", $options["required_fields"]) ) echo "*";
 				echo __("Yahoo IM", "register-plus-redux"), "<br /><input type='text' name='yahoo' id='yahoo' class='input' value='", $_POST["yahoo"], "' size='25' ";
-				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 				echo "/></label></p>";
-				$tabindex++;
 			}
 			if ( in_array("jabber", $options["show_fields"]) ) {
 				if ( isset($_GET["jabber"]) ) $_POST["jabber"] = $_GET["jabber"];
 				echo "\n<p id='jabber-p'><label id='jabber-label'>";
 				if ( !empty($options["required_fields_asterisk"]) && in_array("jabber", $options["required_fields"]) ) echo "*";
 				echo __("Jabber / Google Talk", "register-plus-redux"), "<br /><input type='text' name='jabber' id='jabber' class='input' value='", $_POST["jabber"], "' size='25' ";
-				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 				echo "/></label></p>";
-				$tabindex++;
 			}
 			if ( in_array("about", $options["show_fields"]) ) {
 				if ( isset($_GET["about"]) ) $_POST["about"] = $_GET["about"];
@@ -1631,9 +1624,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo __("About Yourself", "register-plus-redux"), "</label><br />";
 				echo "\n<small id='about_msg'>", __("Share a little biographical information to fill out your profile. This may be shown publicly.", "register-plus-redux"), "</small><br />";
 				echo "\n<textarea name='about' id='about' cols='25' rows='5'";
-				if ( !empty($options["starting_tabindex"]) ) echo " tabindex='$tabindex'";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 				echo ">", stripslashes($_POST["about"]), "</textarea></p>";
-				$tabindex++;
 			}
 			$custom_fields = get_option("register_plus_redux_custom_fields");
 			if ( !is_array($custom_fields) ) $custom_fields = array();
@@ -1646,18 +1638,16 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo "\n<p id='$key-p'><label id='$key-label'>";
 							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
 							echo stripslashes($v["custom_field_name"]), "<br /><input type='text' name='$key' id='$key' class='input' value='", $_POST[$key], "' size='25' ";
-							if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+							if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 							echo "/></label></p>";
-							$tabindex++;
 							break;
 						case "select":
 							echo "\n<p id='$key-p'><label id='$key-label'>";
 							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
 							echo stripslashes($v["custom_field_name"]), "<br />";
 							echo "\n<select name='$key' id='$key'";
-							if ( !empty($options["starting_tabindex"]) ) echo " tabindex='$tabindex'";
+							if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 							echo ">";
-							$tabindex++;
 							$custom_field_options = explode(",", $v["custom_field_options"]);
 							foreach ( $custom_field_options as $custom_field_option ) {
 								$option = $this->sanitizeText($custom_field_option);
@@ -1676,11 +1666,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							foreach ( $custom_field_options as $custom_field_option ) {
 								$option = $this->sanitizeText($custom_field_option);
 								echo "\n<input type='checkbox' name='", $key, "[]' id='$option' value=\"", stripslashes($custom_field_option), "\"";
-								if ( !empty($options["starting_tabindex"]) ) echo " tabindex='$tabindex'";
+								if ( !empty($options["starting_tabindex"]) ) echo " tabindex='", $tabindex++, "' ";
 								if ( is_array($_POST[$key]) && in_array(stripslashes($custom_field_option), $_POST[$key]) ) echo " checked='checked'";
 								if ( !is_array($_POST[$key]) && $_POST[$key] == stripslashes($custom_field_option) ) echo " checked='checked'";
 								echo " /><label id='$option-label' class='$key' for='$option'>&nbsp;", stripslashes($custom_field_option), "</label><br />";
-								$tabindex++;
 							}
 							echo "\n</p>";
 							break;
@@ -1692,10 +1681,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							foreach ( $custom_field_options as $custom_field_option ) {
 								$option = $this->sanitizeText($custom_field_option);
 								echo "\n<input type='radio' name='$key' id='$option' value=\"", stripslashes($custom_field_option), "\"";
-								if ( !empty($options["starting_tabindex"]) ) echo " tabindex='$tabindex'";
+								if ( !empty($options["starting_tabindex"]) ) echo " tabindex='", $tabindex++, "' ";
 								if ( $_POST[$key] == stripslashes($custom_field_option) ) echo " checked='checked'";
 								echo " /><label id='$option-label' class='$key' for='$option'>&nbsp;", stripslashes($custom_field_option), "</label><br />";
-								$tabindex++;
 							}
 							echo "\n</p>";
 							break;
@@ -1703,39 +1691,34 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo "\n<p id='$key-p'><label id='$key-label'>";
 							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
 							echo stripslashes($v["custom_field_name"]), "<br /><textarea name='$key' id='$key' cols='25' rows='5'";
-							if ( !empty($options["starting_tabindex"]) ) echo " tabindex='$tabindex'";
+							if ( !empty($options["starting_tabindex"]) ) echo " tabindex='", $tabindex++, "' ";
 							echo ">", $_POST[$key], "</textarea></label></p>";
-							$tabindex++;
 							break;
 						case "date":
 							echo "\n<p id='$key-p'><label id='$key-label'>";
 							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
 							echo stripslashes($v["custom_field_name"]), "<br /><input type='text' name='$key' id='$key' class='datepicker' value='", $_POST[$key], "' size='25' ";
-							if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+							if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 							echo " /></label></p>";
-							$tabindex++;
 							break;
 						case "url":
 							echo "\n<p id='$key-p'><label id='$key-label'>";
 							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
 							echo stripslashes($v["custom_field_name"]), "<br /><input type='text' name='$key' id='$key' class='input' value='", $_POST[$key], "' size='25' ";
-							if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+							if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 							echo "/></label></p>";
-							$tabindex++;
 							break;
 						case "regex":
 							echo "\n<p id='$key-p'><label id='$key-label'>";
 							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
 							echo stripslashes($v["custom_field_name"]), "<br /><input type='text' name='$key' id='$key' class='input' value='", $_POST[$key], "' size='25' ";
-							if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+							if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 							echo "/></label></p>";
-							$tabindex++;
 							break;
 						case "hidden":
 							echo "\n<input type='hidden' name='$key' id='$key' value='", $_POST[$key], "' ";
-							if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+							if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 							echo "/>";
-							$tabindex++;
 							break;
 					}
 				}
@@ -1745,15 +1728,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo "\n<p id='pass1-p'><label id='pass1-label'>";
 				if ( !empty($options["required_fields_asterisk"]) ) echo "*";
 				echo __("Password", "register-plus-redux"), "<br /><input type='password' autocomplete='off' name='pass1' id='pass1' value='", $_POST["password"], "' size='25' ";
-				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 				echo "/></label></p>";
-				$tabindex++;
 				echo "\n<p id='pass2-p'><label id='pass2-label'>";
 				if ( !empty($options["required_fields_asterisk"]) ) echo "*";
 				echo __("Confirm Password", "register-plus-redux"), "<br /><input type='password' autocomplete='off' name='pass2' id='pass2' value='", $_POST["password"], "' size='25' ";
-				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 				echo "/></label></p>";
-				$tabindex++;
 				if ( !empty($options["show_password_meter"]) ) {
 					echo "\n<div id='pass-strength-result'>", stripslashes($options["message_empty_password"]), "</div>";
 					echo "\n<small id='pass_strength_msg'>", sprintf(__("Your password must be at least %d characters long. To make your password stronger, use upper and lower case letters, numbers, and the following symbols !@#$%%^&amp;*()", "register-plus-redux"), $options["min_password_length"]), "</small>";
@@ -1764,9 +1745,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo "\n<p id='invitation_code-p'><label id='invitation_code-label'>";
 				if ( !empty($options["required_fields_asterisk"]) && !empty($options["require_invitation_code"]) ) echo "*";
 				echo __("Invitation Code", "register-plus-redux"), "<br /><input type='text' name='invitation_code' id='invitation_code' class='input' value='", $_POST["invitation_code"], "' size='25' ";
-				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 				echo "/></label></p>";
-				$tabindex++;
 				if ( !empty($options["require_invitation_code"]) )
 					echo "\n<small id='invitation_code_msg'>", __("This website is currently closed to public registrations. You will need an invitation code to register.", "register-plus-redux"), "</small>";
 				else
@@ -1779,9 +1759,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo "\n	<span name='disclaimer' id='disclaimer'>", stripslashes($options["message_disclaimer"]), "</span>";
 				if ( !empty($options["require_disclaimer_agree"]) ) {
 					echo "\n	<label id='accept_disclaimer-label' class='accept_check'><input type='checkbox' name='accept_disclaimer' id='accept_disclaimer' value='1'"; if ( !empty($_POST["accept_disclaimer"]) ) echo " checked='checked'";
-					if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+					if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 					echo "/>&nbsp;", stripslashes($options["message_disclaimer_agree"]), "</label>";
-					$tabindex++;
 				}
 				echo "\n</p>";
 			}
@@ -1792,9 +1771,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo "\n	<span name='license' id='license'>", stripslashes($options["message_license"]), "</span>";
 				if ( !empty($options["require_license_agree"]) ) {
 					echo "\n	<label id='accept_license-label' class='accept_check'><input type='checkbox' name='accept_license' id='accept_license' value='1'"; if ( !empty($_POST["accept_license"]) ) echo " checked='checked'";
-					if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+					if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 					echo "/>&nbsp;", stripslashes($options["message_license_agree"]), "</label>";
-					$tabindex++;
 				}
 				echo "\n</p>";
 			}
@@ -1805,9 +1783,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo "\n	<span name='privacy_policy' id='privacy_policy'>", stripslashes($options["message_privacy_policy"]), "</span>";
 				if ( !empty($options["require_privacy_policy_agree"]) ) {
 					echo "\n	<label id='accept_privacy_policy-label' class='accept_check'><input type='checkbox' name='accept_privacy_policy' id='accept_privacy_policy' value='1'"; if ( !empty($_POST["accept_privacy_policy"]) ) echo " checked='checked'";
-					if ( !empty($options["starting_tabindex"]) ) echo "tabindex='$tabindex' ";
+					if ( !empty($options["starting_tabindex"]) ) echo "tabindex='", $tabindex++, "' ";
 					echo "/>&nbsp;", stripslashes($options["message_privacy_policy_agree"]), "</label>";
-					$tabindex++;
 				}
 				echo "\n</p>";
 			}
