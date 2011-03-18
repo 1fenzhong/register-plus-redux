@@ -1900,7 +1900,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					if ( empty($options["verify_user_admin"]) ) {
 						$stored_user_login = get_user_meta($user_id, "stored_user_login", true);
 						$plaintext_pass = get_user_meta($user_id, "stored_user_password", true);
-						$wpdb->query( $wpdb->prepare("UPDATE $wpdb->users SET user_login = '$stored_user_login' WHERE ID = '$user_id'") );
+						$wpdb->query( $wpdb->prepare("UPDATE $->users SET user_login = '$stored_user_login' WHERE ID = '$user_id'") );
 						delete_user_meta($user_id, "email_verification_code");
 						delete_user_meta($user_id, "email_verification_sent");
 						delete_user_meta($user_id, "stored_user_login");
@@ -1963,11 +1963,14 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				}
 				if ( is_array($custom_fields) ) {
 					foreach ( $custom_fields as $k => $v ) {
-						if ( !empty($v["show_on_profile"]) ) {
+						if ( is_admin() || !empty($v["show_on_profile"]) ) {
 							$key = $this->sanitizeText($v["custom_field_name"]);
 							$value = get_user_meta($profileuser->ID, $key, true);
 							echo "\n	<tr>";
-							echo "\n		<th><label for='$key'>", stripslashes($v["custom_field_name"]), "</label></th>";
+							echo "\n		<th><label for='$key'>", stripslashes($v["custom_field_name"]);
+							if ( empty($v["show_on_profile"]) ) echo " <span class=\"description\">(hidden)</span>";
+							if ( !empty($v["required_on_registration"]) ) echo " <span class=\"description\">(required)</span>";
+							echo "</label></th>";
 							switch ( $v["custom_field_type"] ) {
 								case "text":
 								case "url":
@@ -2032,14 +2035,18 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$custom_fields = get_option("register_plus_redux_custom_fields");
 			if ( !is_array($custom_fields) ) $custom_fields = array();
 			foreach ( $custom_fields as $k => $v ) {
-				if ( !empty($v["show_on_profile"]) ) {
+				if ( is_admin() || !empty($v["show_on_profile"]) ) {
 					$key = $this->sanitizeText($v["custom_field_name"]);
 					if ( is_array($_POST[$key]) ) $_POST[$key] = implode(",", $_POST[$key]);
 					if ( $v["custom_field_type"] == "url" ) {
 						$_POST[$key] = esc_url_raw( $_POST[$key] );
 						$_POST[$key] = preg_match("/^(https?|ftps?|mailto|news|irc|gopher|nntp|feed|telnet):/is", $_POST[$key]) ? $_POST[$key] : "http://".$_POST[$key];
 					}
-					update_user_meta($user_id, $key, $wpdb->prepare($_POST[$key]));
+					
+					$valid_value = true;
+					if ( !empty($v["required_on_registration"]) && empty($_POST[$key]) ) $valid_value = false;
+					if ( $v["custom_field_type"] == "text" && !empty($v["custom_field_options"]) && !preg_match($v["custom_field_options"], $_POST[$key]) ) $valid_value = false;
+					if ( $valid_value ) update_user_meta($user_id, $key, $wpdb->prepare($_POST[$key]));
 				}
 			}
 		}

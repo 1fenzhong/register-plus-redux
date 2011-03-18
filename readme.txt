@@ -94,6 +94,7 @@ HTML attributes should go in the following order name -> id -> class
 = 3.7.2 =
 
 * Text fields may now be validated against a regular expression if entered
+* Additional fields are now visible to admin, regardless of visibility to other users
 * Fixed bug with asterisks and required fields
 * Added de_DE translation
 
