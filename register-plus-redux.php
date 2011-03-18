@@ -1784,7 +1784,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$options = get_option("register_plus_redux_options");
 			if ( !empty($sanitized_user_login) ) {
 				global $wpdb;
-				if ( $wpdb->get_var($wpdb->prepare("SELECT * FROM $wpdb->usermeta WHERE meta_value=%s", $sanitized_user_login)) ) {
+				if ( $wpdb->get_var($wpdb->prepare("SELECT user_id FROM $wpdb->usermeta WHERE meta_key='stored_user_login' AND meta_value='%s'", $sanitized_user_login)) ) {
 					$errors->add("username_exists", __("<strong>ERROR</strong>: This username is already registered, please choose another one.", "register-plus-redux"));
 				}
 			}
@@ -1836,12 +1836,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( !is_array($custom_fields) ) $custom_fields = array();
 			foreach ( $custom_fields as $k => $v ) {
 				$key = $this->sanitizeText($v["custom_field_name"]);
-				if ( !empty($v["show_on_registration"]) && !empty($v["required_on_registration"]) ) {
-					if ( empty($_POST[$key]) ) {
-						$errors->add("empty_$key", sprintf(__("<strong>ERROR</strong>: Please complete %s.", "register-plus-redux"), $v["custom_field_name"]));
-					}
+				if ( !empty($v["show_on_registration"]) && !empty($v["required_on_registration"]) && empty($_POST[$key]) ) {
+					$errors->add("empty_$key", sprintf(__("<strong>ERROR</strong>: Please complete %s.", "register-plus-redux"), $v["custom_field_name"]));
 				}
-				if ( $v["custom_field_type"] == "text" && !empty($v["custom_field_options"]) && !preg_match($v["custom_field_options"], $_POST[$key]) ) {
+				if ( !empty($v["show_on_registration"]) && $v["custom_field_type"] == "text" && !empty($v["custom_field_options"]) && !preg_match($v["custom_field_options"], $_POST[$key]) ) {
 					$errors->add("invalid_$key", sprintf(__("<strong>ERROR</strong>: Please enter new value for %s, value specified is not in the correct format.", "register-plus-redux"), $v["custom_field_name"]));
 				}
 			}
