@@ -1900,7 +1900,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					if ( empty($options["verify_user_admin"]) ) {
 						$stored_user_login = get_user_meta($user_id, "stored_user_login", true);
 						$plaintext_pass = get_user_meta($user_id, "stored_user_password", true);
-						$wpdb->query( $wpdb->prepare("UPDATE $->users SET user_login = '$stored_user_login' WHERE ID = '$user_id'") );
+						$wpdb->query( $wpdb->prepare("UPDATE $wpdb->users SET user_login = '$stored_user_login' WHERE ID = '$user_id'") );
 						delete_user_meta($user_id, "email_verification_code");
 						delete_user_meta($user_id, "email_verification_sent");
 						delete_user_meta($user_id, "stored_user_login");
