@@ -2052,11 +2052,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		function SaveAddedFields ( $user_id ) {
 			global $wpdb;
 			$options = get_option("register_plus_redux_options");
-			$custom_fields = get_option("register_plus_redux_custom_fields");
 			if ( !is_array($options["show_fields"]) ) $options["show_fields"] = array();
-			if ( !empty($_POST["first_name"]) ) update_user_meta($user_id, "first_name", $wpdb->prepare($_POST["first_name"]));
-			if ( !empty($_POST["last_name"]) ) update_user_meta($user_id, "last_name", $wpdb->prepare($_POST["last_name"]));
-			if ( !empty($_POST["url"]) ) {
+			if ( in_array("first_name", $options["show_fields"]) && !empty($_POST["first_name"]) ) update_user_meta($user_id, "first_name", $wpdb->prepare($_POST["first_name"]));
+			if ( in_array("last_name", $options["show_fields"]) && !empty($_POST["last_name"]) ) update_user_meta($user_id, "last_name", $wpdb->prepare($_POST["last_name"]));
+			if ( in_array("url", $options["show_fields"]) && !empty($_POST["url"]) ) {
 				$user_url = esc_url_raw( $_POST["url"] );
 				$user_url = preg_match("/^(https?|ftps?|mailto|news|irc|gopher|nntp|feed|telnet):/is", $user_url) ? $user_url : "http://".$user_url;
 				wp_update_user(array("ID" => $user_id, "user_url" => $wpdb->prepare($user_url)));
@@ -2065,23 +2064,18 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( in_array("yahoo", $options["show_fields"]) && !empty($_POST["yahoo"]) ) update_user_meta($user_id, "yim", $wpdb->prepare($_POST["yahoo"]));
 			if ( in_array("jabber", $options["show_fields"]) && !empty($_POST["jabber"]) ) update_user_meta($user_id, "jabber", $wpdb->prepare($_POST["jabber"]));
 			if ( in_array("about", $options["show_fields"]) && !empty($_POST["about"]) ) update_user_meta($user_id, "description", $wpdb->prepare($_POST["about"]));
-			if ( !is_array($custom_fields) ) $custom_fields = array();
-			foreach ( $custom_fields as $k => $v ) {
-				$key = $this->sanitizeText($v["custom_field_name"]);
-				if ( !empty($v["show_on_registration"]) && !empty($_POST[$key]) ) {
-					if ( is_array($_POST[$key]) ) $_POST[$key] = implode(",", $_POST[$key]);
-					if ( $v["custom_field_type"] == "url" ) {
-						$_POST[$key] = esc_url_raw( $_POST[$key] );
-						$_POST[$key] = preg_match("/^(https?|ftps?|mailto|news|irc|gopher|nntp|feed|telnet):/is", $_POST[$key]) ? $_POST[$key] : "http://".$_POST[$key];
-					}
-					update_user_meta($user_id, $key, $wpdb->prepare($_POST[$key]));
-				}
-			}
+
+			$this->SaveCustomFields($user_id);
+
 			if ( !empty($options["user_set_password"]) && !empty($_POST["password"]) ) {
 				$plaintext_pass = $wpdb->prepare($_POST["password"]);
 				update_user_option( $user_id, "default_password_nag", false, true );
 				wp_set_password($plaintext_pass, $user_id);
 			}
+			$created_by = "user";
+			$ref = explode("?", $_SERVER["HTTP_REFERER"]);
+			if ( $ref[0] == site_url("wp-admin/user-new.php") )
+				$created_by = "admin";
 			if ( $created_by == "admin" && !empty($_POST["pass1"]) ) {
 				$plaintext_pass = $wpdb->prepare($_POST["pass1"]);
 				update_user_option( $user_id, "default_password_nag", false, true );
@@ -2089,12 +2083,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 			if ( !empty($options["enable_invitation_code"]) && !empty($_POST["invitation_code"]) )
 				update_user_meta($user_id, "invitation_code", $wpdb->prepare($_POST["invitation_code"]));
-
-			$created_by = "user";
-			$ref = explode("?", $_SERVER["HTTP_REFERER"]);
-			if ( $ref[0] == site_url("wp-admin/user-new.php") )
-				$created_by = "admin";
-
 			$user_info = get_userdata($user_id);
 			if ( $created_by == "user" && (!empty($options["verify_user_email"]) || !empty($options["verify_user_admin"])) ) {
 				update_user_meta($user_id, "stored_user_login", $wpdb->prepare($user_info->user_login));
