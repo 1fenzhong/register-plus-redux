@@ -92,10 +92,15 @@ HTML attributes should go in the following order name -> id -> class
 
 == Changelog ==
 = 3.7.2 =
+March 23, 2011 by radiok
 
 * Text fields may now be validated against a regular expression if entered
 * Additional fields are now visible to admin, regardless of visibility to other users
+* Added new custom field type, Static Text
+* Change registration error checking from action to filter for better compatibility with PHP versions before PHP5
 * Fixed bug with asterisks and required fields
+* Fixed bug with l18n only loading for admins
+* Found and repaired additional untranslated strings
 * Added de_DE translation
 
 = 3.7.1 =
