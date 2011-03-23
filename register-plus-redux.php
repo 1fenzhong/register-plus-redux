@@ -13,16 +13,16 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 	class RegisterPlusReduxPlugin {
 		function RegisterPlusReduxPlugin() {
 			global $wp_version;
-			add_action("init", array($this, "InitL18n")); //Runs after WordPress has finished loading but before any headers are sent.
+			add_action("init", array($this, "InitL18n"), 10, 1); //Runs after WordPress has finished loading but before any headers are sent.
 
 			if ( is_admin() ) {
-				add_action("init", array($this, "InitOptions")); //Runs after WordPress has finished loading but before any headers are sent.
-				add_action("init", array($this, "InitDeleteExpiredUsers")); //Runs after WordPress has finished loading but before any headers are sent.
-				add_action("admin_menu", array($this, "AddPages") ); //Runs after the basic admin panel menu structure is in place.
+				add_action("init", array($this, "InitOptions"), 10, 1); //Runs after WordPress has finished loading but before any headers are sent.
+				add_action("init", array($this, "InitDeleteExpiredUsers"), 10, 1); //Runs after WordPress has finished loading but before any headers are sent.
+				add_action("admin_menu", array($this, "AddPages"), 10, 1); //Runs after the basic admin panel menu structure is in place.
 			}
 
 			if ( is_multisite() ) {
-				add_action("signup_extra_fields", array($this, "AlterRegisterSignupForm"));
+				add_action("signup_extra_fields", array($this, "AlterRegisterSignupForm"), 10, 1);
 				add_filter("wpmu_validate_user_signup", array($this, "filter_wpmu_validate_user_signup"), 10, 1); //applied to the list of registration errors generated while registering a user for a new account. 
 				//add_action("wpmu_activate_user", array($this, "UpdateSignup"), 10, 3);
 			}
@@ -30,23 +30,23 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( !is_multisite() ) {
 				add_filter("login_headerurl", array($this, "filter_login_headerurl"), 10, 1);
 				add_filter("login_headertitle", array($this, "filter_login_headertitle"), 10, 1);
-				add_action("register_form", array($this, "AlterRegisterSignupForm")); //Runs just before the end of the new user registration form.
+				add_action("register_form", array($this, "AlterRegisterSignupForm"), 10, 1); //Runs just before the end of the new user registration form.
 				add_filter("registration_errors", array($this, "filter_registration_errors"), 10, 3); //applied to the list of registration errors generated while registering a user for a new account. 
-				add_filter("registration_redirect", array($this, "filter_registration_redirect"));
+				add_filter("registration_redirect", array($this, "filter_registration_redirect"), 10, 1);
 			}
 
-			add_action("login_head", array($this, "LoginHead")); //Runs just before the end of the HTML head section of the login page. 
-			add_action("login_form", array($this, "AlterLoginForm")); //Runs just before the end of the HTML head section of the login page.
-			add_action("admin_head-profile.php", array($this, "DatepickerHead")); //Runs in the HTML <head> section of the admin panel of a page or a plugin-generated page.
-			add_action("admin_head-user-edit.php", array($this, "DatepickerHead")); //Runs in the HTML <head> section of the admin panel of a page or a plugin-generated page.
-			add_action("show_user_profile", array($this, "ShowCustomFields")); //Runs near the end of the user profile editing screen.
-			add_action("edit_user_profile", array($this, "ShowCustomFields")); //Runs near the end of the user profile editing screen in the admin menus. 
-			add_action("profile_update", array($this, "SaveCustomFields"));	//Runs when a user's profile is updated. Action function argument: user ID.
-			add_action("user_register", array($this, "SaveAddedFields")); //Runs when a user's profile is first created. Action function argument: user ID. 
+			add_action("login_head", array($this, "LoginHead"), 10, 1); //Runs just before the end of the HTML head section of the login page. 
+			add_action("login_form", array($this, "AlterLoginForm"), 10, 1); //Runs just before the end of the HTML head section of the login page.
+			add_action("admin_head-profile.php", array($this, "DatepickerHead"), 10, 1); //Runs in the HTML <head> section of the admin panel of a page or a plugin-generated page.
+			add_action("admin_head-user-edit.php", array($this, "DatepickerHead"), 10, 1); //Runs in the HTML <head> section of the admin panel of a page or a plugin-generated page.
+			add_action("show_user_profile", array($this, "ShowCustomFields"), 10, 1); //Runs near the end of the user profile editing screen.
+			add_action("edit_user_profile", array($this, "ShowCustomFields"), 10, 1); //Runs near the end of the user profile editing screen in the admin menus. 
+			add_action("profile_update", array($this, "SaveCustomFields"), 10, 1);	//Runs when a user's profile is updated. Action function argument: user ID.
+			add_action("user_register", array($this, "SaveAddedFields"), 10, 1); //Runs when a user's profile is first created. Action function argument: user ID. 
 			add_filter("allow_password_reset", array($this, "filter_password_reset"), 10, 2);
 
 			if ( $wp_version < 3.0 )
-				add_action("admin_notices", array($this, "VersionWarning")); //Runs after the admin menu is printed to the screen. 
+				add_action("admin_notices", array($this, "VersionWarning"), 10, 1); //Runs after the admin menu is printed to the screen. 
 		}
 
 		function InitL18n() {
@@ -127,8 +127,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$options = get_option("register_plus_redux_options");
 			$options_page = add_submenu_page("options-general.php", __("Register Plus Redux Settings", "register-plus-redux"), "Register Plus Redux", "manage_options", "register-plus-redux", array($this, "OptionsPage"));
 			//$options_page = settings_page_register-plus-redux 
-			add_action("admin_head-$options_page", array($this, "OptionsHead"));
-			add_action("admin_footer-$options_page", array($this, "OptionsFoot"));
+			add_action("admin_head-$options_page", array($this, "OptionsHead"), 10, 1);
+			add_action("admin_footer-$options_page", array($this, "OptionsFoot"), 10, 1);
 			add_filter("plugin_action_links_".plugin_basename(__FILE__), array($this, "filter_plugin_actions"), 10, 4);
 			if ( !empty($options["verify_user_email"]) || !empty($options["verify_user_admin"]) || $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_key=\"stored_user_login\"") )
 				add_submenu_page("users.php", __("Unverified Users", "register-plus-redux"), __("Unverified Users", "register-plus-redux"), "promote_users", "unverified-users", array($this, "UnverifiedUsersPage"));
@@ -2300,18 +2300,18 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			update_user_meta($user_id, "email_verification_sent", gmdate("Y-m-d H:i:s"));
 			$subject = stripslashes($this->defaultOptions("verification_message_subject"));
 			$message = stripslashes($this->defaultOptions("verification_message_body"));
-			add_filter("wp_mail_content_type", array($this, "filter_message_content_type_text"));
+			add_filter("wp_mail_content_type", array($this, "filter_message_content_type_text"), 10, 1);
 			if ( !empty($options["custom_verification_message"]) ) {
 				$subject = stripslashes($options["verification_message_subject"]);
 				$message = stripslashes($options["verification_message_body"]);
 				if ( !empty($options["send_verification_message_in_html"]) && !empty($options["verification_message_newline_as_br"]) )
 					$message = nl2br($message);
 				if ( !empty($options["verification_message_from_name"]) )
-					add_filter("wp_mail_from_name", array($this, "filter_verification_message_from_name"));
+					add_filter("wp_mail_from_name", array($this, "filter_verification_message_from_name"), 10, 1);
 				if ( !empty($options["verification_message_from_email"]) )
-					add_filter("wp_mail_from", array($this, "filter_verification_message_from"));
+					add_filter("wp_mail_from", array($this, "filter_verification_message_from"), 10, 1);
 				if ( !empty($options["send_verification_message_in_html"]) )
-					add_filter("wp_mail_content_type", array($this, "filter_message_content_type_html"));
+					add_filter("wp_mail_content_type", array($this, "filter_message_content_type_html"), 10, 1);
 			}
 			$subject = $this->replaceKeywords($subject, $user_info);
 			$message = $this->replaceKeywords($message, $user_info, "", $verification_code);
@@ -2323,18 +2323,18 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$options = get_option("register_plus_redux_options");
 			$subject = stripslashes($this->defaultOptions("user_message_subject"));
 			$message = stripslashes($this->defaultOptions("user_message_body"));
-			add_filter("wp_mail_content_type", array($this, "filter_message_content_type_text"));
+			add_filter("wp_mail_content_type", array($this, "filter_message_content_type_text"), 10, 1);
 			if ( !empty($options["custom_user_message"]) ) {
 				$subject = stripslashes($options["user_message_subject"]);
 				$message = stripslashes($options["user_message_body"]);
 				if ( !empty($options["send_user_message_in_html"]) && !empty($options["user_message_newline_as_br"]) )
 					$message = nl2br($message);
 				if ( !empty($options["user_message_from_name"]) )
-					add_filter("wp_mail_from_name", array($this, "filter_user_message_from_name"));
+					add_filter("wp_mail_from_name", array($this, "filter_user_message_from_name"), 10, 1);
 				if ( !empty($options["user_message_from_email"]) )
-					add_filter("wp_mail_from", array($this, "filter_user_message_from"));
+					add_filter("wp_mail_from", array($this, "filter_user_message_from"), 10, 1);
 				if ( !empty($options["send_user_message_in_html"]) )
-					add_filter("wp_mail_content_type", array($this, "filter_message_content_type_html"));
+					add_filter("wp_mail_content_type", array($this, "filter_message_content_type_html"), 10, 1);
 			}
 			$subject = $this->replaceKeywords($subject, $user_info);
 			$message = $this->replaceKeywords($message, $user_info, $plaintext_pass);
@@ -2346,18 +2346,18 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$options = get_option("register_plus_redux_options");
 			$subject = stripslashes($this->defaultOptions("admin_message_subject"));
 			$message = stripslashes($this->defaultOptions("admin_message_body"));
-			add_filter("wp_mail_content_type", array($this, "filter_message_content_type_text"));
+			add_filter("wp_mail_content_type", array($this, "filter_message_content_type_text"), 10, 1);
 			if ( !empty($options["custom_admin_message"]) ) {
 				$subject = stripslashes($options["admin_message_subject"]);
 				$message = stripslashes($options["admin_message_body"]);
 				if ( !empty($options["send_admin_message_in_html"]) && !empty($options["admin_message_newline_as_br"]) )
 					$message = nl2br($message);
 				if ( !empty($options["admin_message_from_name"]) )
-					add_filter("wp_mail_from_name", array($this, "filter_admin_message_from_name"));
+					add_filter("wp_mail_from_name", array($this, "filter_admin_message_from_name"), 10, 1);
 				if ( !empty($options["admin_message_from_email"]) )
-					add_filter("wp_mail_from", array($this, "filter_admin_message_from"));
+					add_filter("wp_mail_from", array($this, "filter_admin_message_from"), 10, 1);
 				if ( !empty($options["send_admin_message_in_html"]) )
-					add_filter("wp_mail_content_type", array($this, "filter_message_content_type_html"));
+					add_filter("wp_mail_content_type", array($this, "filter_message_content_type_html"), 10, 1);
 			}
 			$subject = $this->replaceKeywords($subject, $user_info);
 			$message = $this->replaceKeywords($message, $user_info);
@@ -2511,7 +2511,7 @@ function custom_wp_new_user_notification() {
 
 if ( custom_wp_new_user_notification() == true ) {
 	if ( function_exists("wp_new_user_notification") ) {
-		add_action("admin_notices", array($registerPlusRedux, "ConflictWarning"));
+		add_action("admin_notices", array($registerPlusRedux, "ConflictWarning"), 10, 1);
 	}
 	
 	// Called after user completes registration from wp-login.php
