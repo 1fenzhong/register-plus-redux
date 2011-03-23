@@ -79,7 +79,7 @@ Register Plus offered two different CAPTCHA methods, a simple random CAPTCHA and
 Register Plus did have a feature that allowed multiple users to register with the same e-mail address.  I'm not sure when that stopped working for Register Plus, but I can assure you, that method doesn't work in WordPress 3.0 and will not work in the foreseeable future.  Register Plus' method was pretty simple, if the email_exists error is thrown, unthrow it.  Well, that works, to a degree, but once WordPress actually builds the user it chokes up and unpleasant things happen, in my experience.  I'll leave this feature to brighter minds then my own to implement.
 
 = I do not want users to go to the Dashboard after logging in. How do I redirect users after they login? =
-This isn't quite a registration issue, but I can see how the line blurs since A) Redux does have configuration options for the Login screen, and B) Redux has a configuration for redirect after registation.  I briefly considering programming this feature, but [Peter's Login Redirect](http://wordpress.org/extend/plugins/peters-login-redirect/) does everything I could do and so much more.  I endorse the use of that plugin for this purpose.
+This isn't quite a registration issue, but I can see how the line blurs since A) Redux does have configuration options for the Login screen, and B) Redux has a configuration for redirect after registration.  I briefly considering programming this feature, but [Peter's Login Redirect](http://wordpress.org/extend/plugins/peters-login-redirect/) does everything I could do and so much more.  I endorse the use of that plugin for this purpose.
 
 = Things to Keep in Mind =
 Really more for me than you, but who's nitpicking.
@@ -97,6 +97,7 @@ HTML attributes should go in the following order name -> id -> class
 = 3.7.2 =
 March 23, 2011 by radiok
 
+* Add Registration Redirect option
 * Text fields may now be validated against a regular expression if entered
 * Additional fields are now visible to admin, regardless of visibility to other users
 * Added new custom field type, Static Text
