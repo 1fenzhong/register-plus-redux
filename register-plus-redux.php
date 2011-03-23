@@ -2117,9 +2117,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 		function filter_wpmu_validate_user_signup( $result ) {
 			$options = get_option("register_plus_redux_options");
-			if ( !empty($result["orig_username"]) ) {
+			if ( !empty($result["user_name"]) ) {
 				global $wpdb;
-				if ( $wpdb->get_var($wpdb->prepare("SELECT user_id FROM $wpdb->usermeta WHERE meta_key=\"stored_user_login\" AND meta_value=\"%s\"", $result["orig_username"])) ) {
+				if ( $wpdb->get_var($wpdb->prepare("SELECT user_id FROM $wpdb->usermeta WHERE meta_key=\"stored_user_login\" AND meta_value=\"%s\"", $result["user_name"])) ) {
 					$result['errors']->add("username_exists", __("<strong>ERROR</strong>: This username is already registered, please choose another one.", "register-plus-redux"));
 				}
 			}
