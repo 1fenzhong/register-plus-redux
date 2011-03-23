@@ -4,7 +4,7 @@ Donate link: http://radiok.info/donate/
 Tags: registration, register, plus, redux, password, invitation, code, email, verification, disclaimer, license, agreement, privacy, policy, logo, moderation, user
 Requires at least: 3.1
 Tested up to: 3.1
-Stable tag: 3.7.1
+Stable tag: 3.7.2
 
 Enhances the user registration process with complete customization and additional administration options.
 
@@ -97,10 +97,11 @@ HTML attributes should go in the following order name -> id -> class
 = 3.7.2 =
 March 23, 2011 by radiok
 
-* Add Registration Redirect option
+* Added new custom field type, Static Text
+* Added Registration Redirect option
+* Added Email Address as Username option
 * Text fields may now be validated against a regular expression if entered
 * Additional fields are now visible to admin, regardless of visibility to other users
-* Added new custom field type, Static Text
 * Change registration error checking from action to filter for better compatibility with PHP versions before PHP5
 * Fixed bug with asterisks and required fields
 * Fixed bug with l18n only loading for admins

@@ -35,6 +35,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				add_filter("registration_redirect", array($this, "filter_registration_redirect"), 10, 1);
 			}
 
+			add_filter("pre_user_login", array($this, "filter_pre_user_login"), 10, 1);
 			add_action("login_head", array($this, "LoginHead"), 10, 1); //Runs just before the end of the HTML head section of the login page. 
 			add_filter("login_message", array($this, "filter_login_message"), 10, 1);
 			add_filter("login_messages", array($this, "filter_login_messages"), 10, 1);
@@ -1348,7 +1349,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					?>
 					<script type="text/javascript">
 					jQuery(document).ready(function() {
-						jQuery("#user_login").parent().prepend("*");
+						jQuery("#user_login").parent().parent().hide();
 					});
 					</script>
 					<?php
@@ -1786,6 +1787,14 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 		function CheckRegistrationForm( $errors, $sanitized_user_login, $user_email ) {
 			$options = get_option("register_plus_redux_options");
+			if ( !empty($options["username_is_email"]) && in_array('empty_username', $errors->get_error_codes()) ) {
+				unset($errors->errors['empty_username']);
+				unset($errors->error_data['empty_username']);
+				$sanitized_user_login = sanitize_user($_POST['user_email']);
+				if ( !in_array('empty_username', $errors->get_error_codes()) && $sanitized_user_login != $_POST['user_email'] ) {
+					$errors->add("invalid_email", __("<strong>ERROR</strong>: Email address is not appropriate as a username, please enter another email address.", "register-plus-redux"));
+				}
+			}
 			if ( !empty($sanitized_user_login) ) {
 				global $wpdb;
 				if ( $wpdb->get_var($wpdb->prepare("SELECT user_id FROM $wpdb->usermeta WHERE meta_key=\"stored_user_login\" AND meta_value=\"%s\"", $sanitized_user_login)) ) {
@@ -2440,7 +2449,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						}
 						if ( empty($options["disable_user_message_registered"]) )
 							$this->sendUserMessage($user_id, $plaintext_pass);
-						$messages = sprintf(__("Thank you %s, your account has been verified, please login.", "register-plus-redux"), $stored_user_login);
+						if ( empty($options["user_set_password"]) )
+							$messages = sprintf(__("Thank you %s, your account has been verified, your password will be emailed to you.", "register-plus-redux"), $stored_user_login);
+						else
+							$messages = sprintf(__("Thank you %s, your account has been verified, please login with the password you specified during registration.", "register-plus-redux"), $stored_user_login);
 					} elseif ( !empty($options["verify_user_admin"]) ) {
 						update_user_meta($user_id, "email_verified", gmdate("Y-m-d H:i:s"));
 						$messages = __("Your account will be reviewed by an administrator and you will be notified when it is activated.", "register-plus-redux");
@@ -2478,6 +2490,12 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			// ... or after other links
 			//$links[] = "<a href=\"options-general.php?page=register-plus-redux\">".__("Settings", "register-plus-redux")."</a>";			
 			return $actions;
+		}
+
+		function filter_pre_user_login( $user_login ) {
+			$options = get_option("register_plus_redux_options");
+			if ( !empty($options["username_is_email"]) && !empty($_POST['user_email']) ) $user_login = strtolower(sanitize_user($_POST['user_email']));
+			return $user_login;
 		}
 
 		function filter_registration_redirect( $redirect_to ) {
