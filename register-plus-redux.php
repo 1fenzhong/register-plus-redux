@@ -32,13 +32,12 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				add_filter("login_headertitle", array($this, "filter_login_headertitle"), 10, 1);
 				add_action("register_form", array($this, "AlterRegisterSignupForm"), 10, 1); //Runs just before the end of the new user registration form.
 				add_filter("registration_errors", array($this, "CheckRegistrationForm"), 10, 3); //applied to the list of registration errors generated while registering a user for a new account. 
-				//TODO: Dig into Peter's Login Redirect
-				add_filter("login_redirect", array($this, "filter_login_redirect"), 10, 1);
 				add_filter("registration_redirect", array($this, "filter_registration_redirect"), 10, 1);
 			}
 
 			add_action("login_head", array($this, "LoginHead"), 10, 1); //Runs just before the end of the HTML head section of the login page. 
-			add_action("login_form", array($this, "AlterLoginForm"), 10, 1); //Runs just before the end of the HTML head section of the login page.
+			add_filter("login_message", array($this, "filter_login_message"), 10, 1);
+			add_filter("login_messages", array($this, "filter_login_messages"), 10, 1);
 			add_action("admin_head-profile.php", array($this, "DatepickerHead"), 10, 1); //Runs in the HTML <head> section of the admin panel of a page or a plugin-generated page.
 			add_action("admin_head-user-edit.php", array($this, "DatepickerHead"), 10, 1); //Runs in the HTML <head> section of the admin panel of a page or a plugin-generated page.
 			add_action("show_user_profile", array($this, "ShowCustomFields"), 10, 1); //Runs near the end of the user profile editing screen.
@@ -519,10 +518,28 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							<?php _e("All unverified users will automatically be deleted after the Grace Period specified, to disable this process enter 0 to never automatically delete unverified users.", "register-plus-redux"); ?>
 						</td>
 					</tr>
+					<tr valign="top">
+						<th scope="row"><?php _e("Registration Redirect", "register-plus-redux"); ?></th>
+						<td>
+							<input type="text" name="registration_redirect" id="registration_redirect" value="<?php echo $options["registration_redirect"]; ?>" style="width: 60%;" /><br />
+							<?php echo sprintf(__("By default, after registering, users will be sent to %s/wp-login.php?checkemail=registered, leave this value empty if you do not wish to change this behavior. You may enter another address here, however, if that addresses is not on the same domain, Wordpress will ignore the redirect.", "register-plus-redux"), home_url()); ?><br />
+						</td>
+					</tr>
+					<tr valign="top" class="disabled">
+						<th scope="row"><?php _e("Verification Redirect", "register-plus-redux"); ?></th>
+						<td>
+							<input type="text" name="verification_redirect" id="verification_redirect" value="<?php echo $options["verification_redirect"]; ?>" style="width: 60%;" /><br />
+							<?php echo sprintf(__("By default, after verifing, users will be sent to %s/wp-login.php, leave this value empty if you do not wish to change this behavior. You may enter another address here, however, if that addresses is not on the same domain, Wordpress will ignore the redirect.", "register-plus-redux"), home_url()); ?><br />
+						</td>
+					</tr>
 				</table>
 				<h3 class="title"><?php _e("Registration Page", "register-plus-redux"); ?></h3>
 				<p><?php _e("Select which fields to show on the Registration Page. Users will not be able to register without completing any fields marked required.", "register-plus-redux"); ?></p>
 				<table class="form-table">
+					<tr valign="top">
+						<th scope="row"><?php _e("Use Email as Username", "register-plus-redux"); ?></th>
+						<td><label><input type="checkbox" name="username_is_email" value="1" <?php if ( !empty($options["username_is_email"]) ) echo "checked=\"checked\""; ?> />&nbsp;<?php _e("New users will not be asked to enter a username, instead their email address will be used as their username.", "register-plus-redux"); ?></label></td>
+					</tr>
 					<tr valign="top">
 						<th scope="row"><?php _e("Confirm Email", "register-plus-redux"); ?></th>
 						<td><label><input type="checkbox" name="double_check_email" value="1" <?php if ( !empty($options["double_check_email"]) ) echo "checked=\"checked\""; ?> />&nbsp;<?php _e("Require new users to enter e-mail address twice during registration.", "register-plus-redux"); ?></label></td>
@@ -1023,24 +1040,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					</tr>
 				</table>
 				<br />
-				<h3 class="title"><?php _e("Redirects", "register-plus-redux"); ?></h3>
-				<table class="form-table">
-					<tr valign="top">
-						<th scope="row"><?php _e("Registration Redirect", "register-plus-redux"); ?></th>
-						<td>
-							<input type="text" name="registration_redirect" id="registration_redirect" value="<?php echo $options["registration_redirect"]; ?>" style="width: 60%;" /><br />
-							<?php echo sprintf(__("By default, after registering, users will be sent to %s/wp-login.php?checkemail=registered, leave this value empty if you do not wish to change this behavior. You may enter another address here, however, if that addresses is not on the same domain, Wordpress will ignore the redirect.", "register-plus-redux"), home_url()); ?><br />
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row"><?php _e("Login Redirect", "register-plus-redux"); ?></th>
-						<td>
-							<input type="text" name="login_redirect" id="login_redirect" value="<?php echo $options["login_redirect"]; ?>" style="width: 60%;" /><br />
-							<?php echo sprintf(__("By default, after logging in, users will be sent to %s, leave this value empty if you do not wish to change this behavior. You may enter another address here, however, if that addresses is not on the same domain, Wordpress will ignore the redirect.", "register-plus-redux"), admin_url()); ?><br />
-						</td>
-					</tr>
-				</table>
-				<br />
 				<h3 class="title"><?php _e("Hacks & Fixes", "register-plus-redux"); ?></h3>
 				<table class="form-table">
 					<tr valign="top">
@@ -1074,8 +1073,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			*/
 			$options = array();
 			if ( isset($_POST["custom_logo_url"]) ) $options["custom_logo_url"] = $_POST["custom_logo_url"];
-			if ( isset($_POST["registration_banner_url"]) ) $options["registration_banner_url"] = $_POST["registration_banner_url"];
-			if ( isset($_POST["login_banner_url"]) ) $options["login_banner_url"] = $_POST["login_banner_url"];
 			if ( !empty($_FILES["upload_custom_logo"]["name"]) ) {
 				$upload = wp_upload_bits($_FILES["upload_custom_logo"]["name"], null, file_get_contents($_FILES["upload_custom_logo"]["tmp_name"]));
 				if ( !$upload["error"] ) $options["custom_logo_url"] = $upload["url"];
@@ -1087,6 +1084,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( isset($_POST["message_verify_user_admin"]) ) $options["message_verify_user_admin"] = $_POST["message_verify_user_admin"];
 			if ( isset($_POST["delete_unverified_users_after"]) ) $options["delete_unverified_users_after"] = $_POST["delete_unverified_users_after"];
 
+			$options["username_is_email"] = isset($_POST["username_is_email"]) ? $_POST["username_is_email"] : "";
 			if ( isset($_POST["double_check_email"]) ) $options["double_check_email"] = $_POST["double_check_email"];
 			if ( isset($_POST["show_fields"]) ) $options["show_fields"] = $_POST["show_fields"];
 			if ( isset($_POST["required_fields"]) ) $options["required_fields"] = $_POST["required_fields"];
@@ -1175,7 +1173,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( isset($_POST["custom_login_page_css"]) ) $options["custom_login_page_css"] = $_POST["custom_login_page_css"];
 
 			$options["registration_redirect"] = isset($_POST["registration_redirect"]) ? $_POST["registration_redirect"] : "";
-			$options["login_redirect"] = isset($_POST["login_redirect"]) ? $_POST["login_redirect"] : "";
+			$options["verification_redirect"] = isset($_POST["verification_redirect"]) ? $_POST["verification_redirect"] : "";
 
 			$options["disable_sanitize_key"] = isset($_POST["disable_sanitize_key"]) ? $_POST["disable_sanitize_key"] : "";
 			$options["disable_url_fopen"] = isset($_POST["disable_url_fopen"]) ? $_POST["disable_url_fopen"] : "";
@@ -1218,7 +1216,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						$id = (int) $user_id;
 						if ( !current_user_can("promote_user", $id) )
 							wp_die(__("You cannot edit that user.", "register-plus-redux"));
-						$this->sendVerificationMessage($user_id);
+						$verification_code = wp_generate_password(20, false);
+						update_user_meta($user_id, "email_verification_code", $verification_code);
+						update_user_meta($user_id, "email_verification_sent", gmdate("Y-m-d H:i:s"));
+						$this->sendVerificationMessage($user_id, $verification_code);
 					}
 				}
 			}
@@ -1319,7 +1320,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		function LoginHead() {
 			$options = get_option("register_plus_redux_options");
 			if ( !empty($options["custom_logo_url"]) ) {
-				if ( empty($options["disable_url_fopen"]) ) list($width, $height, $type, $attr) = getimagesize($options["custom_logo_url"]);
+				if ( empty($options["disable_url_fopen"]) )
+					list($width, $height, $type, $attr) = getimagesize($options["custom_logo_url"]);
 				?>
 				<style type="text/css">
 					#login h1 a {
@@ -1332,35 +1334,29 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				<?php
 			}
 			if ( isset($_GET["checkemail"]) && $_GET["checkemail"] == "registered" && (!empty($options["verify_user_admin"]) || !empty($options["verify_user_email"])) ) {
-				if ( empty($jquery_loaded) ) {
-					wp_print_scripts("jquery");
-					$jquery_loaded = true;
-				}
-				if ( $options["verify_user_email"] ) {
-					$message = str_replace(array("\r", "\r\n", "\n"), "", nl2br(stripslashes($options["message_verify_user_email"])));
-				} elseif ( $options["verify_user_admin"] ) {
-					$message = str_replace(array("\r", "\r\n", "\n"), "", nl2br(stripslashes($options["message_verify_user_admin"])));
-				}
 				?>
 				<style type="text/css">
-					form { display: none; }
+					#loginform { display: none; }
 					#nav { display: none; }
 				</style>
-				<script type="text/javascript">
-				jQuery(document).ready(function() {
-					jQuery(".message").html("<?php echo $message; ?>");
-				});
-				</script>
 				<?php
+				
 			}
 			if ( isset($_GET["action"]) && $_GET["action"] == "register" ) {
+				if ( !empty($options["username_is_email"]) ) {
+					wp_enqueue_script("jquery");
+					?>
+					<script type="text/javascript">
+					jQuery(document).ready(function() {
+						jQuery("#user_login").parent().prepend("*");
+					});
+					</script>
+					<?php
+				}
 				if ( isset($_GET["user_login"]) ) $_POST["user_login"] = $_GET["user_login"];
 				if ( isset($_GET["user_email"]) ) $_POST["user_email"] = $_GET["user_email"];
 				if ( !empty($_POST["user_login"]) || !empty($_POST["user_email"]) ) {
-					if ( empty($jquery_loaded) ) {
-						wp_print_scripts("jquery");
-						$jquery_loaded = true;
-					}
+					wp_enqueue_script("jquery");
 					?>
 					<script type="text/javascript">
 					jQuery(document).ready(function() {
@@ -1374,7 +1370,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !is_array($custom_fields) ) $custom_fields = array();
 				foreach ( $custom_fields as $k => $v ) {
 					if ( !empty($v["show_on_registration"]) ) {
-\						if ( $v["custom_field_type"] == "text" || $v["custom_field_type"] == "url" ) {
+						if ( $v["custom_field_type"] == "text" || $v["custom_field_type"] == "url" ) {
 							if ( empty($show_custom_text_fields) )
 								$show_custom_text_fields = "#".$this->sanitizeText($v["custom_field_name"]);
 							else
@@ -1459,13 +1455,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo "\n</style>";
 
 				if ( !empty($show_custom_date_fields) ) {
-					if ( empty($jquery_loaded) ) {
-						wp_print_scripts("jquery");
-						$jquery_loaded = true;
-					}
+					wp_enqueue_script("jquery");
+					wp_enqueue_script("jquery-ui-core");
 					?>
 					<link type="text/css" rel="stylesheet" href="<?php echo plugins_url("js/theme/jquery.ui.all.css", __FILE__); ?>" />
-					<script type="text/javascript" src="<?php echo plugins_url("js/jquery.ui.core.min.js", __FILE__); ?>"></script>
 					<script type="text/javascript" src="<?php echo plugins_url("js/jquery.ui.datepicker.min.js", __FILE__); ?>"></script>
 					<script type="text/javascript">
 					jQuery(function() {
@@ -1475,10 +1468,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					<?php
 				}
 				if ( !empty($options["required_fields_asterisk"]) ) {
-					if ( empty($jquery_loaded) ) {
-						wp_print_scripts("jquery");
-						$jquery_loaded = true;
-					}
+					wp_enqueue_script("jquery");
 					?>
 					<script type="text/javascript">
 					jQuery(document).ready(function() {
@@ -1489,10 +1479,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					<?php
 				}
 				if ( !empty($options["user_set_password"]) && !empty($options["show_password_meter"]) ) {
-					if ( empty($jquery_loaded) ) {
-						wp_print_scripts("jquery");
-						$jquery_loaded = true;
-					}
+					wp_enqueue_script("jquery");
 					?>
 					<script type="text/javascript">
 						/* <![CDATA[ */
@@ -2015,37 +2002,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			return $result;
 		}
 
-		function AlterLoginForm() {
-			$options = get_option("register_plus_redux_options");
-			if ( isset($_GET["verification_code"]) ) {
-				global $wpdb;
-				$verification_code = $_GET["verification_code"];
-				$user_id = $wpdb->get_var("SELECT user_id FROM $wpdb->usermeta WHERE meta_key=\"email_verification_code\" AND meta_value=\"$verification_code\"");
-				if ( !empty($user_id) ) {
-					if ( empty($options["verify_user_admin"]) ) {
-						$stored_user_login = get_user_meta($user_id, "stored_user_login", true);
-						$plaintext_pass = get_user_meta($user_id, "stored_user_password", true);
-						$wpdb->query( $wpdb->prepare("UPDATE $wpdb->users SET user_login = \"$stored_user_login\" WHERE ID = \"$user_id\"") );
-						delete_user_meta($user_id, "email_verification_code");
-						delete_user_meta($user_id, "email_verification_sent");
-						delete_user_meta($user_id, "stored_user_login");
-						delete_user_meta($user_id, "stored_user_password");
-						if ( empty($plaintext_pass) ) {
-							$plaintext_pass = wp_generate_password();
-							update_user_option( $user_id, "default_password_nag", true, true );
-							wp_set_password($plaintext_pass, $user_id);
-						}
-						if ( empty($options["disable_user_message_registered"]) )
-							$this->sendUserMessage($user_id, $plaintext_pass);
-						echo "<p>", sprintf(__("Thank you %s, your account has been verified, please login.", "register-plus-redux"), $stored_user_login), "</p>";
-					} elseif ( !empty($options["verify_user_admin"]) ) {
-						update_user_meta($user_id, "email_verified", gmdate("Y-m-d H:i:s"));
-						echo "<p id=\"message\" style=\"text-align:center;\">", __("Your account will be reviewed by an administrator and you will be notified when it is activated.", "register-plus-redux"), "</p>";
-					}
-				}
-			}
-		}
-
 		function DatepickerHead() {
 			//global $pagenow;
 			//echo $pagenow;
@@ -2061,9 +2017,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 			if ( !empty($show_custom_date_fields) ) {
 				wp_enqueue_script("jquery");
+				wp_enqueue_script("jquery-ui-core");
 				?>
 				<link type="text/css" rel="stylesheet" href="<?php echo plugins_url("js/theme/jquery.ui.all.css", __FILE__); ?>" />
-				<script type="text/javascript" src="<?php echo plugins_url("js/jquery.ui.core.min.js", __FILE__); ?>"></script>
 				<script type="text/javascript" src="<?php echo plugins_url("js/jquery.ui.datepicker.min.js", __FILE__); ?>"></script>
 				<script type="text/javascript">
 				jQuery(function() {
@@ -2224,14 +2180,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$blogname = stripslashes(wp_specialchars_decode(get_option("blogname"), ENT_QUOTES));
 			$default = array(
 				"custom_logo_url" => "",
-				"registration_banner_url" => "",
-				"login_banner_url" => "",
 				"verify_user_email" => "0",
 				"message_verify_user_email" => __("Please verify your account using the verification link sent to your email address.", "register-plus-redux"),
 				"verify_user_admin" => "0",
 				"message_verify_user_admin" => __("Your account will be reviewed by an administrator and you will be notified when it is activated.", "register-plus-redux"),
 				"delete_unverified_users_after" => "7",
 
+				"username_is_email" => "0",
 				"double_check_email" => "0",
 				"show_fields" => array(),
 				"required_fields" => array(),
@@ -2307,7 +2262,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				"custom_login_page_css" => "",
 				
 				"registration_redirect" => "",
-				"login_redirect" => "",
+				"verification_redirect" => "",
 				
 				"disable_sanitize_key" => "",
 				"disable_url_fopen" => ""
@@ -2318,12 +2273,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				return $default;
 		}
 
-		function sendVerificationMessage ( $user_id ) {
+		function sendVerificationMessage ( $user_id, $verification_code ) {
 			$user_info = get_userdata($user_id);
 			$options = get_option("register_plus_redux_options");
-			$verification_code = wp_generate_password(20, false);
-			update_user_meta($user_id, "email_verification_code", $verification_code);
-			update_user_meta($user_id, "email_verification_sent", gmdate("Y-m-d H:i:s"));
 			$subject = stripslashes($this->defaultOptions("verification_message_subject"));
 			$message = stripslashes($this->defaultOptions("verification_message_body"));
 			add_filter("wp_mail_content_type", array($this, "filter_message_content_type_text"), 10, 1);
@@ -2367,7 +2319,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			wp_mail($user_info->user_email, $subject, $message);
 		}
 
-		function sendAdminMessage ( $user_id, $plaintext_pass ) {
+		function sendAdminMessage ( $user_id, $plaintext_pass, $verification_code ) {
 			$user_info = get_userdata($user_id);
 			$options = get_option("register_plus_redux_options");
 			$subject = stripslashes($this->defaultOptions("admin_message_subject"));
@@ -2386,7 +2338,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					add_filter("wp_mail_content_type", array($this, "filter_message_content_type_html"), 10, 1);
 			}
 			$subject = $this->replaceKeywords($subject, $user_info);
-			$message = $this->replaceKeywords($message, $user_info);
+			$message = $this->replaceKeywords($message, $user_info, $plaintext_pass, $verification_code);
 			wp_mail(get_option("admin_email"), $subject, $message);
 		}
 
@@ -2456,11 +2408,53 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			return home_url();
 		}
 
-		function filter_login_redirect( $redirect_to ) {
-			//default: admin_url()
+		function filter_login_message( $message ) {
+			//Throw an error otherwise login_messages filter will not trigger
 			$options = get_option("register_plus_redux_options");
-			if ( !empty($options["login_redirect"]) ) $redirect_to = stripslashes($options["login_redirect"]);
-			return $redirect_to;
+			if ( isset($_GET["verification_code"]) ) {
+				global $errors;
+				$errors->add('invalidverificationcode', __('Invalid verification code.'), 'message');
+			}
+			return $message;
+		}
+
+		function filter_login_messages( $messages ) {
+			$options = get_option("register_plus_redux_options");
+			if ( isset($_GET["verification_code"]) ) {
+				global $wpdb;
+				$verification_code = $_GET["verification_code"];
+				$user_id = $wpdb->get_var("SELECT user_id FROM $wpdb->usermeta WHERE meta_key=\"email_verification_code\" AND meta_value=\"$verification_code\"");
+				if ( !empty($user_id) ) {
+					if ( empty($options["verify_user_admin"]) ) {
+						$stored_user_login = get_user_meta($user_id, "stored_user_login", true);
+						$plaintext_pass = get_user_meta($user_id, "stored_user_password", true);
+						$wpdb->query( $wpdb->prepare("UPDATE $wpdb->users SET user_login = \"$stored_user_login\" WHERE ID = \"$user_id\"") );
+						delete_user_meta($user_id, "email_verification_code");
+						delete_user_meta($user_id, "email_verification_sent");
+						delete_user_meta($user_id, "stored_user_login");
+						delete_user_meta($user_id, "stored_user_password");
+						if ( empty($plaintext_pass) ) {
+							$plaintext_pass = wp_generate_password();
+							update_user_option( $user_id, "default_password_nag", true, true );
+							wp_set_password($plaintext_pass, $user_id);
+						}
+						if ( empty($options["disable_user_message_registered"]) )
+							$this->sendUserMessage($user_id, $plaintext_pass);
+						$messages = sprintf(__("Thank you %s, your account has been verified, please login.", "register-plus-redux"), $stored_user_login);
+					} elseif ( !empty($options["verify_user_admin"]) ) {
+						update_user_meta($user_id, "email_verified", gmdate("Y-m-d H:i:s"));
+						$messages = __("Your account will be reviewed by an administrator and you will be notified when it is activated.", "register-plus-redux");
+					}
+				}
+			}
+			if ( isset($_GET["checkemail"]) && $_GET["checkemail"] == "registered" ) {
+				if ( !empty($options["verify_user_email"]) ) {
+					$messages = str_replace(array("\r", "\r\n", "\n"), "", nl2br(stripslashes($options["message_verify_user_email"])));
+				} elseif ( !empty($options["verify_user_admin"]) ) {
+					$messages = str_replace(array("\r", "\r\n", "\n"), "", nl2br(stripslashes($options["message_verify_user_admin"])));
+				}
+			}
+			return $messages;
 		}
 
 		function filter_message_content_type_html( $content_type ) {
@@ -2564,7 +2558,10 @@ if ( custom_wp_new_user_notification() == true ) {
 			if ( $created_by == "admin" && !empty($_POST["pass1"]) )
 				$plaintext_pass = $wpdb->prepare($_POST["pass1"]);
 			if ( $created_by == "user" && !empty($options["verify_user_email"]) ) {
-				$registerPlusRedux->sendVerificationMessage($user_id);
+				$verification_code = wp_generate_password(20, false);
+				update_user_meta($user_id, "email_verification_code", $verification_code);
+				update_user_meta($user_id, "email_verification_sent", gmdate("Y-m-d H:i:s"));
+				$registerPlusRedux->sendVerificationMessage($user_id, $verification_code);
 			}
 			if ( $created_by == "user" && empty($options["disable_user_message_registered"]) || 
 				$created_by == "admin" && empty($options["disable_user_message_created"]) ) {
@@ -2574,7 +2571,7 @@ if ( custom_wp_new_user_notification() == true ) {
 			}
 			if ( $created_by == "user" && empty($options["disable_admin_message_registered"]) || 
 				$created_by == "admin" && empty($options["disable_admin_message_created"]) ) {
-				$registerPlusRedux->sendAdminMessage($user_id, $plaintext_pass);
+				$registerPlusRedux->sendAdminMessage($user_id, $plaintext_pass, $verification_code);
 			}
 		}
 	}
