@@ -16,6 +16,8 @@ Enhancements to registration include:
 
 * Customized registration page, including your own logo, disclaimer, license agreement, or privacy policy
 
+* Use Email Address as Username __(new feature in version 3.7.2)__
+
 * User-entered password (with password strength meter)
 
 * Added profile fields
@@ -24,7 +26,7 @@ Enhancements to registration include:
 
 * Invitation code system (with dashboard widget to track invites)
 
-* User-defined fields
+* User-defined fields __(can be checked against regex as of version 3.7.2)__
 
 * Email verification of new users
 
@@ -105,6 +107,7 @@ March 23, 2011 by radiok
 * Change registration error checking from action to filter for better compatibility with PHP versions before PHP5
 * Fixed bug with asterisks and required fields
 * Fixed bug with l18n only loading for admins
+* Fixed bug with user set passwords still nagging, as reported by Jim
 * Found and repaired additional untranslated strings
 * Added de_DE translation
 
@@ -469,3 +472,6 @@ First stable release by radiok with bugfixes to issues found in 3.5.1
 
 = 3.7.0 =
 Major change to avoid conflicts
+
+= 3.7.2 =
+New featues, can use email address as username and validate text fields with regex

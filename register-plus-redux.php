@@ -46,7 +46,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			add_action("profile_update", array($this, "SaveCustomFields"), 10, 1);	//Runs when a user's profile is updated. Action function argument: user ID.
 			add_action("user_register", array($this, "SaveAddedFields"), 10, 1); //Runs when a user's profile is first created. Action function argument: user ID. 
 			add_filter("allow_password_reset", array($this, "filter_password_reset"), 10, 2);
-
+			add_filter("update_user_metadata", array($this, "filter_update_user_metadata"), 10, 5);
+			
 			if ( $wp_version < 3.0 )
 				add_action("admin_notices", array($this, "VersionWarning"), 10, 1); //Runs after the admin menu is printed to the screen. 
 		}
@@ -2503,6 +2504,14 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$options = get_option("register_plus_redux_options");
 			if ( !empty($options["registration_redirect"]) ) $redirect_to = stripslashes($options["registration_redirect"]);
 			return $redirect_to;
+		}
+
+		function filter_update_user_metadata( $check, $object_id, $meta_key, $meta_value, $prev_value ) {
+			if ( $meta_key == "default_password_nag" ) {
+				$options = get_option("register_plus_redux_options");
+				if ( !empty($options["user_set_password"]) ) $check = true;
+			}
+			return $check;
 		}
 
 		function filter_user_message_from( $from_email ) {
