@@ -23,7 +23,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 			if ( is_multisite() ) {
 				add_action("signup_extra_fields", array($this, "AlterRegisterSignupForm"), 10, 1);
-				add_filter("wpmu_validate_user_signup", array($this, "filter_wpmu_validate_user_signup"), 10, 1); //applied to the list of registration errors generated while registering a user for a new account. 
+				add_filter("wpmu_validate_user_signup", array($this, "CheckSignupForm"), 10, 1); //applied to the list of registration errors generated while registering a user for a new account. 
 				//add_action("wpmu_activate_user", array($this, "UpdateSignup"), 10, 3);
 			}
 
@@ -31,7 +31,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				add_filter("login_headerurl", array($this, "filter_login_headerurl"), 10, 1);
 				add_filter("login_headertitle", array($this, "filter_login_headertitle"), 10, 1);
 				add_action("register_form", array($this, "AlterRegisterSignupForm"), 10, 1); //Runs just before the end of the new user registration form.
-				add_filter("registration_errors", array($this, "filter_registration_errors"), 10, 3); //applied to the list of registration errors generated while registering a user for a new account. 
+				add_filter("registration_errors", array($this, "CheckRegistrationForm"), 10, 3); //applied to the list of registration errors generated while registering a user for a new account. 
+				//TODO: Dig into Peter's Login Redirect
+				add_filter("login_redirect", array($this, "filter_login_redirect"), 10, 1);
 				add_filter("registration_redirect", array($this, "filter_registration_redirect"), 10, 1);
 			}
 
@@ -1021,6 +1023,24 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					</tr>
 				</table>
 				<br />
+				<h3 class="title"><?php _e("Redirects", "register-plus-redux"); ?></h3>
+				<table class="form-table">
+					<tr valign="top">
+						<th scope="row"><?php _e("Registration Redirect", "register-plus-redux"); ?></th>
+						<td>
+							<input type="text" name="registration_redirect" id="registration_redirect" value="<?php echo $options["registration_redirect"]; ?>" style="width: 60%;" /><br />
+							<?php echo sprintf(__("By default, after registering, users will be sent to %s/wp-login.php?checkemail=registered, leave this value empty if you do not wish to change this behavior. You may enter another address here, however, if that addresses is not on the same domain, Wordpress will ignore the redirect.", "register-plus-redux"), home_url()); ?><br />
+						</td>
+					</tr>
+					<tr valign="top">
+						<th scope="row"><?php _e("Login Redirect", "register-plus-redux"); ?></th>
+						<td>
+							<input type="text" name="login_redirect" id="login_redirect" value="<?php echo $options["login_redirect"]; ?>" style="width: 60%;" /><br />
+							<?php echo sprintf(__("By default, after logging in, users will be sent to %s, leave this value empty if you do not wish to change this behavior. You may enter another address here, however, if that addresses is not on the same domain, Wordpress will ignore the redirect.", "register-plus-redux"), admin_url()); ?><br />
+						</td>
+					</tr>
+				</table>
+				<br />
 				<h3 class="title"><?php _e("Hacks & Fixes", "register-plus-redux"); ?></h3>
 				<table class="form-table">
 					<tr valign="top">
@@ -1153,6 +1173,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 			if ( isset($_POST["custom_registration_page_css"]) ) $options["custom_registration_page_css"] = $_POST["custom_registration_page_css"];
 			if ( isset($_POST["custom_login_page_css"]) ) $options["custom_login_page_css"] = $_POST["custom_login_page_css"];
+
+			$options["registration_redirect"] = isset($_POST["registration_redirect"]) ? $_POST["registration_redirect"] : "";
+			$options["login_redirect"] = isset($_POST["login_redirect"]) ? $_POST["login_redirect"] : "";
 
 			$options["disable_sanitize_key"] = isset($_POST["disable_sanitize_key"]) ? $_POST["disable_sanitize_key"] : "";
 			$options["disable_url_fopen"] = isset($_POST["disable_url_fopen"]) ? $_POST["disable_url_fopen"] : "";
@@ -1774,7 +1797,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 		}
 
-		function filter_registration_errors( $errors, $sanitized_user_login, $user_email ) {
+		function CheckRegistrationForm( $errors, $sanitized_user_login, $user_email ) {
 			$options = get_option("register_plus_redux_options");
 			if ( !empty($sanitized_user_login) ) {
 				global $wpdb;
@@ -1883,7 +1906,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			return $errors;
 		}
 
-		function filter_wpmu_validate_user_signup( $result ) {
+		function CheckSignupForm( $result ) {
 			$options = get_option("register_plus_redux_options");
 			if ( !empty($result["user_name"]) ) {
 				global $wpdb;
@@ -2283,6 +2306,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				"custom_registration_page_css" => "",
 				"custom_login_page_css" => "",
 				
+				"registration_redirect" => "",
+				"login_redirect" => "",
+				
 				"disable_sanitize_key" => "",
 				"disable_url_fopen" => ""
 			);
@@ -2430,6 +2456,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			return home_url();
 		}
 
+		function filter_login_redirect( $redirect_to ) {
+			//default: admin_url()
+			$options = get_option("register_plus_redux_options");
+			if ( !empty($options["login_redirect"]) ) $redirect_to = stripslashes($options["login_redirect"]);
+			return $redirect_to;
+		}
+
 		function filter_message_content_type_html( $content_type ) {
 			return "text/html";
 		}
@@ -2454,9 +2487,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function filter_registration_redirect( $redirect_to ) {
-			//apply_filters( \"registration_redirect\", !empty( $_REQUEST[\"redirect_to\"] ) ? $_REQUEST[\"redirect_to\"] : \"\" )
-			//$options = get_option("register_plus_redux_options");
-			//return stripslashes($options["admin_message_from_email"]);
+			//default: 'wp-login.php?checkemail=registered'
+			$options = get_option("register_plus_redux_options");
+			if ( !empty($options["registration_redirect"]) ) $redirect_to = stripslashes($options["registration_redirect"]);
 			return $redirect_to;
 		}
 
