@@ -13,9 +13,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 	class RegisterPlusReduxPlugin {
 		function RegisterPlusReduxPlugin() {
 			global $wp_version;
+			add_action("init", array($this, "InitL18n")); //Runs after WordPress has finished loading but before any headers are sent.
 			if ( is_admin() ) {
-				add_action("init", array($this, "Initialization")); //Runs after WordPress has finished loading but before any headers are sent.
-				add_action("init", array($this, "DeleteExpiredUsers")); //Runs after WordPress has finished loading but before any headers are sent.
+				add_action("init", array($this, "InitOptions")); //Runs after WordPress has finished loading but before any headers are sent.
+				add_action("init", array($this, "InitDeleteExpiredUsers")); //Runs after WordPress has finished loading but before any headers are sent.
 				add_action("admin_menu", array($this, "AddPages") ); //Runs after the basic admin panel menu structure is in place.
 			}
 			add_action("login_head", array($this, "LoginHead")); //Runs just before the end of the HTML head section of the login page. 
@@ -43,7 +44,12 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				add_action("admin_notices", array($this, "VersionWarning")); //Runs after the admin menu is printed to the screen. 
 		}
 
-		function Initialization() {
+		function InitL18n() {
+			//Place your language file in the languages subfolder and name it "register-plus-redux-{language}.mo replace {language} with your language value from wp-config.php
+			load_plugin_textdomain("register-plus-redux", false, dirname(plugin_basename(__FILE__)) . "/languages/" );
+		}
+
+		function InitOptions() {
 			global $wpdb;
 			// Added 10/01/10 no longer separating unverified users by type
 			// can be removed once all users are past 3.6.12
@@ -76,13 +82,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				}
 				if ( !empty($update) ) update_option("register_plus_redux_options", $options);
 			}
-
-			//LOCALIZATION
-			//Place your language file in the plugin folder and name it "register-plus-redux-{language}.mo replace {language} with your language value from wp-config.php
-			load_plugin_textdomain("register-plus-redux", false, dirname(plugin_basename(__FILE__)) . "/languages/" );
 		}
 
-		function DeleteExpiredUsers() {
+		function InitDeleteExpiredUsers() {
 			$options = get_option("register_plus_redux_options");
 			if ( !empty($options["delete_unverified_users_after"]) ) {
 				global $wpdb;
