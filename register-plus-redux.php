@@ -14,30 +14,35 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		function RegisterPlusReduxPlugin() {
 			global $wp_version;
 			add_action("init", array($this, "InitL18n")); //Runs after WordPress has finished loading but before any headers are sent.
+
 			if ( is_admin() ) {
 				add_action("init", array($this, "InitOptions")); //Runs after WordPress has finished loading but before any headers are sent.
 				add_action("init", array($this, "InitDeleteExpiredUsers")); //Runs after WordPress has finished loading but before any headers are sent.
 				add_action("admin_menu", array($this, "AddPages") ); //Runs after the basic admin panel menu structure is in place.
 			}
+
+			if ( is_multisite() ) {
+				add_action("signup_extra_fields", array($this, "AlterRegisterSignupForm"));
+				add_filter("wpmu_validate_user_signup", array($this, "filter_wpmu_validate_user_signup"), 10, 1); //applied to the list of registration errors generated while registering a user for a new account. 
+				//add_action("wpmu_activate_user", array($this, "UpdateSignup"), 10, 3);
+			}
+
+			if ( !is_multisite() ) {
+				add_filter("login_headerurl", array($this, "filter_login_headerurl"), 10, 1);
+				add_filter("login_headertitle", array($this, "filter_login_headertitle"), 10, 1);
+				add_action("register_form", array($this, "AlterRegisterSignupForm")); //Runs just before the end of the new user registration form.
+				add_filter("registration_errors", array($this, "filter_registration_errors"), 10, 3); //applied to the list of registration errors generated while registering a user for a new account. 
+				add_filter("registration_redirect", array($this, "filter_registration_redirect"));
+			}
+
 			add_action("login_head", array($this, "LoginHead")); //Runs just before the end of the HTML head section of the login page. 
-			add_action("register_form", array($this, "AlterRegisterSignupForm")); //Runs just before the end of the new user registration form.
-			add_filter("registration_errors", array($this, "filter_registration_errors"), 10, 3); //applied to the list of registration errors generated while registering a user for a new account. 
-			add_action("signup_extra_fields", array($this, "AlterRegisterSignupForm"));
-			add_filter("wpmu_validate_user_signup", array($this, "filter_wpmu_validate_user_signup"), 10, 1); //applied to the list of registration errors generated while registering a user for a new account. 
-			add_filter("registration_redirect", array($this, "filter_registration_redirect"));
-
 			add_action("login_form", array($this, "AlterLoginForm")); //Runs just before the end of the HTML head section of the login page.
-			
-			//add_action("wpmu_activate_user", array($this, "UpdateSignup"), 10, 3);
-			
-
 			add_action("admin_head-profile.php", array($this, "DatepickerHead")); //Runs in the HTML <head> section of the admin panel of a page or a plugin-generated page.
 			add_action("admin_head-user-edit.php", array($this, "DatepickerHead")); //Runs in the HTML <head> section of the admin panel of a page or a plugin-generated page.
 			add_action("show_user_profile", array($this, "ShowCustomFields")); //Runs near the end of the user profile editing screen.
 			add_action("edit_user_profile", array($this, "ShowCustomFields")); //Runs near the end of the user profile editing screen in the admin menus. 
 			add_action("profile_update", array($this, "SaveCustomFields"));	//Runs when a user's profile is updated. Action function argument: user ID.
 			add_action("user_register", array($this, "SaveAddedFields")); //Runs when a user's profile is first created. Action function argument: user ID. 
-			
 			add_filter("allow_password_reset", array($this, "filter_password_reset"), 10, 2);
 
 			if ( $wp_version < 3.0 )
@@ -1291,16 +1296,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		function LoginHead() {
 			$options = get_option("register_plus_redux_options");
 			if ( !empty($options["custom_logo_url"]) ) {
-				if ( empty($jquery_loaded) ) {
-					wp_print_scripts("jquery");
-					$jquery_loaded = true;
-				}
 				if ( empty($options["disable_url_fopen"]) ) list($width, $height, $type, $attr) = getimagesize($options["custom_logo_url"]);
-				$desc = get_option("blogdescription");
-				if ( empty($desc) ) 
-					$title = get_option("blogname") . " - " . $desc;
-				else
-					$title = get_option("blogname");
 				?>
 				<style type="text/css">
 					#login h1 a {
@@ -1310,12 +1306,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						<?php if ( !empty($height) ) echo "height: ", $height, "px;\n"; ?>
 					}
 				</style>
-				<script type="text/javascript">
-				jQuery(document).ready(function() {
-					jQuery("#login h1 a").attr("href", "<?php echo get_option("home"); ?>");
-					jQuery("#login h1 a").attr("title", "<?php echo $title; ?>");
-				});
-				</script>
 				<?php
 			}
 			if ( isset($_GET["checkemail"]) && $_GET["checkemail"] == "registered" && (!empty($options["verify_user_admin"]) || !empty($options["verify_user_email"])) ) {
@@ -2417,6 +2407,44 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			return $key;
 		}
 
+		function filter_admin_message_from( $from_email ) {
+			$options = get_option("register_plus_redux_options");
+			return stripslashes($options["admin_message_from_email"]);
+		}
+
+		function filter_admin_message_from_name( $from_name ) {
+			$options = get_option("register_plus_redux_options");
+			return stripslashes($options["admin_message_from_name"]);
+		}
+
+		function filter_login_headertitle( $title ) {
+			$desc = get_option("blogdescription");
+			if ( empty($desc) ) 
+				$title = get_option("blogname") . " - " . $desc;
+			else
+				$title = get_option("blogname");
+			return $title;
+		}
+
+		function filter_login_headerurl( $href ) {
+			return home_url();
+		}
+
+		function filter_message_content_type_html( $content_type ) {
+			return "text/html";
+		}
+
+		function filter_message_content_type_text( $content_type ) {
+			return "text/plain";
+		}
+
+		function filter_password_reset( $allow, $user_id ) {
+			global $wpdb;
+			$check = $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->usermeta WHERE user_id=\"$user_id\" AND meta_key=\"stored_user_login\"");
+			if ( !empty($check) ) $allow = false;
+			return $allow;
+		}
+
 		function filter_plugin_actions( $actions, $plugin_file, $plugin_data, $context ) {
 			// before other links
 			array_unshift($actions, "<a href=\"options-general.php?page=register-plus-redux\">".__("Settings", "register-plus-redux")."</a>");
@@ -2430,23 +2458,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			//$options = get_option("register_plus_redux_options");
 			//return stripslashes($options["admin_message_from_email"]);
 			return $redirect_to;
-		}
-
-		function filter_password_reset( $allow, $user_id ) {
-			global $wpdb;
-			$check = $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->usermeta WHERE user_id=\"$user_id\" AND meta_key=\"stored_user_login\"");
-			if ( !empty($check) ) $allow = false;
-			return $allow;
-		}
-
-		function filter_admin_message_from( $from_email ) {
-			$options = get_option("register_plus_redux_options");
-			return stripslashes($options["admin_message_from_email"]);
-		}
-
-		function filter_admin_message_from_name( $from_name ) {
-			$options = get_option("register_plus_redux_options");
-			return stripslashes($options["admin_message_from_name"]);
 		}
 
 		function filter_user_message_from( $from_email ) {
@@ -2467,14 +2478,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		function filter_verification_message_from_name( $from_name ) {
 			$options = get_option("register_plus_redux_options");
 			return stripslashes($options["verification_message_from_name"]);
-		}
-
-		function filter_message_content_type_text( $content_type ) {
-			return "text/plain";
-		}
-
-		function filter_message_content_type_html( $content_type ) {
-			return "text/html";
 		}
 
 		function ConflictWarning() {
