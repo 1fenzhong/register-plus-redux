@@ -20,25 +20,27 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 			add_action("login_head", array($this, "LoginHead")); //Runs just before the end of the HTML head section of the login page. 
 			add_action("register_form", array($this, "AlterRegisterForm")); //Runs just before the end of the new user registration form.
-			add_action("register_post", array($this, "CheckRegistration"), 10, 3); //Runs before a new user registration request is processed.
+			add_filter("registration_errors", array($this, "filter_registration_errors"), 10, 3); //applied to the list of registration errors generated while registering a user for a new account. 
+			add_action("signup_extra_fields", array($this, "AlterSignupForm"));
+			add_filter("wpmu_validate_user_signup", array($this, "filter_wpmu_validate_user_signup"), 10, 1); //applied to the list of registration errors generated while registering a user for a new account. 
 			add_filter("registration_redirect", array($this, "filter_registration_redirect"));
 
 			add_action("login_form", array($this, "AlterLoginForm")); //Runs just before the end of the HTML head section of the login page.
 			
 			//add_action("wpmu_activate_user", array($this, "UpdateSignup"), 10, 3);
-			//add_action("signup_extra_fields", array($this, "AlterSignupForm"));
+			
 
-			add_action("admin_head-profile.php", array($this, "DatepickerHead"));
-			add_action("admin_head-user-edit.php", array($this, "DatepickerHead"));
+			add_action("admin_head-profile.php", array($this, "DatepickerHead")); //Runs in the HTML <head> section of the admin panel of a page or a plugin-generated page.
+			add_action("admin_head-user-edit.php", array($this, "DatepickerHead")); //Runs in the HTML <head> section of the admin panel of a page or a plugin-generated page.
 			add_action("show_user_profile", array($this, "ShowCustomFields")); //Runs near the end of the user profile editing screen.
 			add_action("edit_user_profile", array($this, "ShowCustomFields")); //Runs near the end of the user profile editing screen in the admin menus. 
 			add_action("profile_update", array($this, "SaveCustomFields"));	//Runs when a user's profile is updated. Action function argument: user ID.
-			add_action("user_register", array($this, "SaveAddedFields"));
+			add_action("user_register", array($this, "SaveAddedFields")); //Runs when a user's profile is first created. Action function argument: user ID. 
 			
 			add_filter("allow_password_reset", array($this, "filter_password_reset"), 10, 2);
 
 			if ( $wp_version < 3.0 )
-				add_action("admin_notices", array($this, "VersionWarning"));
+				add_action("admin_notices", array($this, "VersionWarning")); //Runs after the admin menu is printed to the screen. 
 		}
 
 		function Initialization() {
@@ -1780,7 +1782,231 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 		}
 
-		function CheckRegistration( $sanitized_user_login, $user_email, $errors ) {
+		function AlterSignupForm() {
+			$options = get_option("register_plus_redux_options");
+			if ( !empty($options["starting_tabindex"]) ) $tabindex = $options["starting_tabindex"];
+			if ( !empty($options["double_check_email"]) ) {
+				if ( isset($_GET["user_email2"]) ) $_POST["user_email2"] = $_GET["user_email2"];
+				echo "\n<p id=\"user_email2-p\"><label id=\"user_email2-label\">";
+				if ( !empty($options["required_fields_asterisk"]) ) echo "*";
+				echo __("Confirm E-mail", "register-plus-redux"), "<br /><input type=\"text\" autocomplete=\"off\" name=\"user_email2\" id=\"user_email2\" class=\"input\" value=\"", $_POST["user_email2"], "\" size=\"25\" ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+				echo "/></label></p>";
+			}
+			if ( !is_array($options["show_fields"]) ) $options["show_fields"] = array();
+			if ( !is_array($options["required_fields"]) ) $options["required_fields"] = array();
+			if ( in_array("first_name", $options["show_fields"]) ) {
+				if ( isset($_GET["first_name"]) ) $_POST["first_name"] = $_GET["first_name"];
+				echo "\n<p id=\"first_name-p\"><label id=\"first_name-label\">";
+				if ( !empty($options["required_fields_asterisk"]) && in_array("first_name", $options["required_fields"]) ) echo "*";
+				echo __("First Name", "register-plus-redux"), "<br /><input type=\"text\" name=\"first_name\" id=\"first_name\" class=\"input\" value=\"", $_POST["first_name"],"\" size=\"25\" ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+				echo "/></label></p>";
+			}
+			if ( in_array("last_name", $options["show_fields"]) ) {
+				if ( isset($_GET["last_name"]) ) $_POST["last_name"] = $_GET["last_name"];
+				echo "\n<p id=\"last_name-p\"><label id=\"last_name-label\">";
+				if ( !empty($options["required_fields_asterisk"]) && in_array("last_name", $options["required_fields"]) ) echo "*";
+				echo __("Last Name", "register-plus-redux"), "<br /><input type=\"text\" name=\"last_name\" id=\"last_name\" class=\"input\" value=\"", $_POST["last_name"], "\" size=\"25\" ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+				echo "/></label></p>";
+			}
+			if ( in_array("user_url", $options["show_fields"]) ) {
+				if ( isset($_GET["url"]) ) $_POST["url"] = $_GET["url"];
+				echo "\n<p id=\"user_url-p\"><label id=\"user_url-label\">";
+				if ( !empty($options["required_fields_asterisk"]) && in_array("user_url", $options["required_fields"]) ) echo "*";
+				echo __("Website", "register-plus-redux"), "<br /><input type=\"text\" name=\"url\" id=\"user_url\" class=\"input\" value=\"", $_POST["url"], "\" size=\"25\" ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+				echo "/></label></p>";
+			}
+			if ( in_array("aim", $options["show_fields"]) ) {
+				if ( isset($_GET["aim"]) ) $_POST["aim"] = $_GET["aim"];
+				echo "\n<p id=\"aim-p\"><label id=\"aim-label\">";
+				if ( !empty($options["required_fields_asterisk"]) && in_array("aim", $options["required_fields"]) ) echo "*";
+				echo __("AIM", "register-plus-redux"), "<br /><input type=\"text\" name=\"aim\" id=\"aim\" class=\"input\" value=\"", $_POST["aim"], "\" size=\"25\" ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+				echo "/></label></p>";
+			}
+			if ( in_array("yahoo", $options["show_fields"]) ) {
+				if ( isset($_GET["yahoo"]) ) $_POST["yahoo"] = $_GET["yahoo"];
+				echo "\n<p id=\"yahoo-p\"><label id=\"yahoo-label\">";
+				if ( !empty($options["required_fields_asterisk"]) && in_array("yahoo", $options["required_fields"]) ) echo "*";
+				echo __("Yahoo IM", "register-plus-redux"), "<br /><input type=\"text\" name=\"yahoo\" id=\"yahoo\" class=\"input\" value=\"", $_POST["yahoo"], "\" size=\"25\" ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+				echo "/></label></p>";
+			}
+			if ( in_array("jabber", $options["show_fields"]) ) {
+				if ( isset($_GET["jabber"]) ) $_POST["jabber"] = $_GET["jabber"];
+				echo "\n<p id=\"jabber-p\"><label id=\"jabber-label\">";
+				if ( !empty($options["required_fields_asterisk"]) && in_array("jabber", $options["required_fields"]) ) echo "*";
+				echo __("Jabber / Google Talk", "register-plus-redux"), "<br /><input type=\"text\" name=\"jabber\" id=\"jabber\" class=\"input\" value=\"", $_POST["jabber"], "\" size=\"25\" ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+				echo "/></label></p>";
+			}
+			if ( in_array("about", $options["show_fields"]) ) {
+				if ( isset($_GET["about"]) ) $_POST["about"] = $_GET["about"];
+				echo "\n<p id=\"about-p\"><label id=\"about-label\" for=\"about\">";
+				if ( !empty($options["required_fields_asterisk"]) && in_array("about", $options["required_fields"]) ) echo "*";
+				echo __("About Yourself", "register-plus-redux"), "</label><br />";
+				echo "\n<small id=\"about_msg\">", __("Share a little biographical information to fill out your profile. This may be shown publicly.", "register-plus-redux"), "</small><br />";
+				echo "\n<textarea name=\"about\" id=\"about\" cols=\"25\" rows=\"5\"";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+				echo ">", stripslashes($_POST["about"]), "</textarea></p>";
+			}
+			$custom_fields = get_option("register_plus_redux_custom_fields");
+			if ( !is_array($custom_fields) ) $custom_fields = array();
+			foreach ( $custom_fields as $k => $v ) {
+				if ( !empty($v["show_on_registration"]) ) {
+					$key = $this->sanitizeText($v["custom_field_name"]);
+					if ( isset($_GET[$key]) ) $_POST[$key] = $_GET[$key];
+					switch ( $v["custom_field_type"] ) {
+						case "text":
+						case "url":
+							echo "\n<p id=\"$key-p\"><label id=\"$key-label\">";
+							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
+							echo stripslashes($v["custom_field_name"]), "<br /><input type=\"text\" name=\"$key\" id=\"$key\" class=\"input\" value=\"", $_POST[$key], "\" size=\"25\" ";
+							if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+							echo "/></label></p>";
+							break;
+						case "select":
+							echo "\n<p id=\"$key-p\"><label id=\"$key-label\">";
+							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
+							echo stripslashes($v["custom_field_name"]), "<br />";
+							echo "\n<select name=\"$key\" id=\"$key\"";
+							if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+							echo ">";
+							$custom_field_options = explode(",", $v["custom_field_options"]);
+							foreach ( $custom_field_options as $custom_field_option ) {
+								$option = $this->sanitizeText($custom_field_option);
+								echo "<option id=\"$option\" value=\"", stripslashes($custom_field_option), "\"";
+								if ( $_POST[$key] == stripslashes($custom_field_option) ) echo " selected=\"selected\"";
+								echo ">", stripslashes($custom_field_option), "</option>";
+							}
+							echo "</select>";
+							echo "\n</label></p>";
+							break;
+						case "checkbox":
+							echo "\n<p id=\"$key-p\" style=\"margin-bottom:16px;\"><label id=\"$key-label\">";
+							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
+							echo stripslashes($v["custom_field_name"]), "</label><br />";
+							$custom_field_options = explode(",", $v["custom_field_options"]);
+							foreach ( $custom_field_options as $custom_field_option ) {
+								$option = $this->sanitizeText($custom_field_option);
+								echo "\n<input type=\"checkbox\" name=\"", $key, "[]\" id=\"$option\" value=\"", stripslashes($custom_field_option), "\" ";
+								if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+								if ( is_array($_POST[$key]) && in_array(stripslashes($custom_field_option), $_POST[$key]) ) echo "checked=\"checked\" ";
+								if ( !is_array($_POST[$key]) && $_POST[$key] == stripslashes($custom_field_option) ) echo "checked=\"checked\" ";
+								echo "/><label id=\"$option-label\" class=\"$key\" for=\"$option\">&nbsp;", stripslashes($custom_field_option), "</label><br />";
+							}
+							echo "\n</p>";
+							break;
+						case "radio":
+							echo "\n<p id=\"$key-p\" style=\"margin-bottom:16px;\"><label id=\"$key-label\">";
+							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
+							echo stripslashes($v["custom_field_name"]), "</label><br />";
+							$custom_field_options = explode(",", $v["custom_field_options"]);
+							foreach ( $custom_field_options as $custom_field_option ) {
+								$option = $this->sanitizeText($custom_field_option);
+								echo "\n<input type=\"radio\" name=\"$key\" id=\"$option\" value=\"", stripslashes($custom_field_option), "\" ";
+								if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+								if ( $_POST[$key] == stripslashes($custom_field_option) ) echo "checked=\"checked\" ";
+								echo "/><label id=\"$option-label\" class=\"$key\" for=\"$option\">&nbsp;", stripslashes($custom_field_option), "</label><br />";
+							}
+							echo "\n</p>";
+							break;
+						case "textarea":
+							echo "\n<p id=\"$key-p\"><label id=\"$key-label\">";
+							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
+							echo stripslashes($v["custom_field_name"]), "<br /><textarea name=\"$key\" id=\"$key\" cols=\"25\" rows=\"5\"";
+							if ( !empty($options["starting_tabindex"]) ) echo " tabindex=\"", $tabindex++, "\" ";
+							echo ">", $_POST[$key], "</textarea></label></p>";
+							break;
+						case "date":
+							echo "\n<p id=\"$key-p\"><label id=\"$key-label\">";
+							if ( !empty($options["required_fields_asterisk"]) && !empty($v["required_on_registration"]) ) echo "*";
+							echo stripslashes($v["custom_field_name"]), "<br /><input type=\"text\" name=\"$key\" id=\"$key\" class=\"datepicker\" value=\"", $_POST[$key], "\" size=\"25\" ";
+							if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+							echo " /></label></p>";
+							break;
+						case "hidden":
+							echo "\n<input type=\"hidden\" name=\"$key\" id=\"$key\" value=\"", $_POST[$key], "\" ";
+							if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+							echo "/>";
+							break;
+						case "static":
+							echo "\n<p id=\"$key-p\"><small id=\"$key-small\">", stripslashes($v["custom_field_options"]), "</small></p>";
+							break;
+					}
+				}
+			}
+			if ( !empty($options["user_set_password"]) ) {
+				if ( isset($_GET["password"]) ) $_POST["password"] = $_GET["password"];
+				echo "\n<p id=\"pass1-p\"><label id=\"pass1-label\">";
+				if ( !empty($options["required_fields_asterisk"]) ) echo "*";
+				echo __("Password", "register-plus-redux"), "<br /><input type=\"password\" autocomplete=\"off\" name=\"pass1\" id=\"pass1\" value=\"", $_POST["password"], "\" size=\"25\" ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+				echo "/></label></p>";
+				echo "\n<p id=\"pass2-p\"><label id=\"pass2-label\">";
+				if ( !empty($options["required_fields_asterisk"]) ) echo "*";
+				echo __("Confirm Password", "register-plus-redux"), "<br /><input type=\"password\" autocomplete=\"off\" name=\"pass2\" id=\"pass2\" value=\"", $_POST["password"], "\" size=\"25\" ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+				echo "/></label></p>";
+				if ( !empty($options["show_password_meter"]) ) {
+					echo "\n<div id=\"pass-strength-result\">", stripslashes($options["message_empty_password"]), "</div>";
+					echo "\n<small id=\"pass_strength_msg\">", sprintf(__("Your password must be at least %d characters long. To make your password stronger, use upper and lower case letters, numbers, and the following symbols !@#$%%^&amp;*()", "register-plus-redux"), $options["min_password_length"]), "</small>";
+				}
+			}
+			if ( !empty($options["enable_invitation_code"]) ) {
+				if ( isset($_GET["invitation_code"]) ) $_POST["invitation_code"] = $_GET["invitation_code"];
+				echo "\n<p id=\"invitation_code-p\"><label id=\"invitation_code-label\">";
+				if ( !empty($options["required_fields_asterisk"]) && !empty($options["require_invitation_code"]) ) echo "*";
+				echo __("Invitation Code", "register-plus-redux"), "<br /><input type=\"text\" name=\"invitation_code\" id=\"invitation_code\" class=\"input\" value=\"", $_POST["invitation_code"], "\" size=\"25\" ";
+				if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+				echo "/></label></p>";
+				if ( !empty($options["require_invitation_code"]) )
+					echo "\n<small id=\"invitation_code_msg\">", __("This website is currently closed to public registrations. You will need an invitation code to register.", "register-plus-redux"), "</small>";
+				else
+					echo "\n<small id=\"invitation_code_msg\">", __("Have an invitation code? Enter it here. (This is not required)", "register-plus-redux"), "</small>";
+			}
+			if ( !empty($options["show_disclaimer"]) ) {
+				if ( isset($_GET["accept_disclaimer"]) ) $_POST["accept_disclaimer"] = $_GET["accept_disclaimer"];
+				echo "\n<p id=\"disclaimer-p\">";
+				echo "\n	<label id=\"disclaimer_title\">", stripslashes($options["message_disclaimer_title"]), "</label><br />";
+				echo "\n	<span name=\"disclaimer\" id=\"disclaimer\">", stripslashes($options["message_disclaimer"]), "</span>";
+				if ( !empty($options["require_disclaimer_agree"]) ) {
+					echo "\n	<label id=\"accept_disclaimer-label\" class=\"accept_check\"><input type=\"checkbox\" name=\"accept_disclaimer\" id=\"accept_disclaimer\" value=\"1\""; if ( !empty($_POST["accept_disclaimer"]) ) echo " checked=\"checked\"";
+					if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+					echo "/>&nbsp;", stripslashes($options["message_disclaimer_agree"]), "</label>";
+				}
+				echo "\n</p>";
+			}
+			if ( !empty($options["show_license"]) ) {
+				if ( isset($_GET["accept_license"]) ) $_POST["accept_license"] = $_GET["accept_license"];
+				echo "\n<p id=\"license-p\">";
+				echo "\n	<label id=\"license_title\">", stripslashes($options["message_license_title"]), "</label><br />";
+				echo "\n	<span name=\"license\" id=\"license\">", stripslashes($options["message_license"]), "</span>";
+				if ( !empty($options["require_license_agree"]) ) {
+					echo "\n	<label id=\"accept_license-label\" class=\"accept_check\"><input type=\"checkbox\" name=\"accept_license\" id=\"accept_license\" value=\"1\""; if ( !empty($_POST["accept_license"]) ) echo " checked=\"checked\"";
+					if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+					echo "/>&nbsp;", stripslashes($options["message_license_agree"]), "</label>";
+				}
+				echo "\n</p>";
+			}
+			if ( !empty($options["show_privacy_policy"]) ) {
+				if ( isset($_GET["accept_privacy_policy"]) ) $_POST["accept_privacy_policy"] = $_GET["accept_privacy_policy"];
+				echo "\n<p id=\"privacy_policy-p\">";
+				echo "\n	<label id=\"privacy_policy_title\">", stripslashes($options["message_privacy_policy_title"]), "</label><br />";
+				echo "\n	<span name=\"privacy_policy\" id=\"privacy_policy\">", stripslashes($options["message_privacy_policy"]), "</span>";
+				if ( !empty($options["require_privacy_policy_agree"]) ) {
+					echo "\n	<label id=\"accept_privacy_policy-label\" class=\"accept_check\"><input type=\"checkbox\" name=\"accept_privacy_policy\" id=\"accept_privacy_policy\" value=\"1\""; if ( !empty($_POST["accept_privacy_policy"]) ) echo " checked=\"checked\"";
+					if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
+					echo "/>&nbsp;", stripslashes($options["message_privacy_policy_agree"]), "</label>";
+				}
+				echo "\n</p>";
+			}
+		}
+
+		function filter_registration_errors( $errors, $sanitized_user_login, $user_email ) {
 			$options = get_option("register_plus_redux_options");
 			if ( !empty($sanitized_user_login) ) {
 				global $wpdb;
@@ -1886,6 +2112,116 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					$errors->add("accept_privacy_policy", sprintf(__("<strong>ERROR</strong>: Please accept the %s", "register-plus-redux"), stripslashes($options["message_privacy_policy_title"])) . ".");
 				}
 			}
+			return $errors;
+		}
+
+		function filter_wpmu_validate_user_signup( $result ) {
+			$options = get_option("register_plus_redux_options");
+			if ( !empty($result["orig_username"]) ) {
+				global $wpdb;
+				if ( $wpdb->get_var($wpdb->prepare("SELECT user_id FROM $wpdb->usermeta WHERE meta_key=\"stored_user_login\" AND meta_value=\"%s\"", $result["orig_username"])) ) {
+					$result['errors']->add("username_exists", __("<strong>ERROR</strong>: This username is already registered, please choose another one.", "register-plus-redux"));
+				}
+			}
+			if ( !empty($options["double_check_email"]) ) {
+				if ( empty($_POST["user_email"]) || empty($_POST["user_email2"]) ) {
+					$result['errors']->add("empty_email", __("<strong>ERROR</strong>: Please confirm your e-mail address.", "register-plus-redux"));
+				} elseif ( $_POST["user_email"] != $_POST["user_email2"] ) {
+					$result['errors']->add("email_mismatch", __("<strong>ERROR</strong>: Your e-mail address does not match.", "register-plus-redux"));
+				}
+			}
+			if ( !is_array($options["show_fields"]) ) $options["show_fields"] = array();
+			if ( !is_array($options["required_fields"]) ) $options["required_fields"] = array();
+			if ( in_array("first_name", $options["show_fields"]) && in_array("first_name", $options["required_fields"]) ) {
+				if ( empty($_POST["first_name"]) ) {
+					$result['errors']->add("empty_first_name", __("<strong>ERROR</strong>: Please enter your first name.", "register-plus-redux"));
+				}
+			}
+			if ( in_array("last_name", $options["show_fields"]) && in_array("last_name", $options["required_fields"]) ) {
+				if ( empty($_POST["last_name"]) ) {
+					$result['errors']->add("empty_last_name", __("<strong>ERROR</strong>: Please enter your last name.", "register-plus-redux"));
+				}
+			}
+			if ( in_array("user_url", $options["show_fields"]) && in_array("user_url", $options["required_fields"]) ) {
+				if ( empty($_POST["url"]) ) {
+					$result['errors']->add("empty_user_url", __("<strong>ERROR</strong>: Please enter your website URL.", "register-plus-redux"));
+				}
+			}
+			if ( in_array("aim", $options["show_fields"]) && in_array("aim", $options["required_fields"]) ) {
+				if ( empty($_POST["aim"]) ) {
+					$result['errors']->add("empty_aim", __("<strong>ERROR</strong>: Please enter your AIM username.", "register-plus-redux"));
+				}
+			}
+			if ( in_array("yahoo", $options["show_fields"]) && in_array("yahoo", $options["required_fields"]) ) {
+				if ( empty($_POST["yahoo"]) ) {
+					$result['errors']->add("empty_yahoo", __("<strong>ERROR</strong>: Please enter your Yahoo IM username.", "register-plus-redux"));
+				}
+			}
+			if ( in_array("jabber", $options["show_fields"]) && in_array("jabber", $options["required_fields"]) ) {
+				if ( empty($_POST["jabber"]) ) {
+					$result['errors']->add("empty_jabber", __("<strong>ERROR</strong>: Please enter your Jabber / Google Talk username.", "register-plus-redux"));
+				}
+			}
+			if ( in_array("about", $options["show_fields"]) && in_array("about", $options["required_fields"]) ) {
+				if ( empty($_POST["about"]) ) {
+					$result['errors']->add("empty_about", __("<strong>ERROR</strong>: Please enter some information about yourself.", "register-plus-redux"));
+				}
+			}
+			$custom_fields = get_option("register_plus_redux_custom_fields");
+			if ( !is_array($custom_fields) ) $custom_fields = array();
+			foreach ( $custom_fields as $k => $v ) {
+				$key = $this->sanitizeText($v["custom_field_name"]);
+				if ( !empty($v["show_on_registration"]) && !empty($v["required_on_registration"]) && empty($_POST[$key]) ) {
+					$result['errors']->add("empty_$key", sprintf(__("<strong>ERROR</strong>: Please complete %s.", "register-plus-redux"), $v["custom_field_name"]));
+				}
+				if ( !empty($v["show_on_registration"]) && $v["custom_field_type"] == "text" && !empty($v["custom_field_options"]) && !preg_match($v["custom_field_options"], $_POST[$key]) ) {
+					$result['errors']->add("invalid_$key", sprintf(__("<strong>ERROR</strong>: Please enter new value for %s, value specified is not in the correct format.", "register-plus-redux"), $v["custom_field_name"]));
+				}
+			}
+			if ( !empty($options["user_set_password"]) ) {
+				if ( empty($_POST["pass1"]) || empty($_POST["pass2"]) ) {
+					$result['errors']->add("empty_password", __("<strong>ERROR</strong>: Please enter a password.", "register-plus-redux"));
+				} elseif ( $_POST["pass1"] != $_POST["pass2"] ) {
+					$result['errors']->add("password_mismatch", __("<strong>ERROR</strong>: Your password does not match.", "register-plus-redux"));
+				} elseif ( strlen($_POST["pass1"]) < $options["min_password_length"] ) {
+					$result['errors']->add("password_length", sprintf(__("<strong>ERROR</strong>: Your password must be at least %d characters in length.", "register-plus-redux"), $options["min_password_length"]));
+				} else {
+					$_POST["password"] = $_POST["pass1"];
+				}
+			}
+			if ( !empty($options["enable_invitation_code"]) ) {
+				if ( empty($_POST["invitation_code"]) && !empty($options["require_invitation_code"]) ) {
+					$result['errors']->add("empty_invitation_code", __("<strong>ERROR</strong>: Please enter an invitation code.", "register-plus-redux"));
+				} elseif ( !empty($_POST["invitation_code"]) ) {
+					$invitation_code = $_POST["invitation_code"];
+					$invitation_code_bank = $options["invitation_code_bank"];
+					if ( empty($options["invitation_code_case_sensitive"]) ) {
+						$invitation_code = strtolower($_POST["invitation_code"]);
+						if ( !is_array($invitation_code_bank) ) $invitation_code_bank = array();
+						foreach ( $invitation_code_bank as $k => $v )
+							$invitation_code_bank[$k] = strtolower($v);
+					}
+					if ( !in_array($invitation_code, $invitation_code_bank) ) {
+						$result['errors']->add("invitation_code_mismatch", __("<strong>ERROR</strong>: That invitation code is invalid.", "register-plus-redux"));
+					}
+				}
+			}
+			if ( !empty($options["show_disclaimer"]) && !empty($options["require_disclaimer_agree"]) ) {
+				if ( empty($_POST["accept_disclaimer"]) ) {
+					$result['errors']->add("accept_disclaimer", sprintf(__("<strong>ERROR</strong>: Please accept the %s", "register-plus-redux"), stripslashes($options["message_disclaimer_title"])) . ".");
+				}
+			}
+			if ( !empty($options["show_license"]) && !empty($options["require_license_agree"]) ) {
+				if ( empty($_POST["accept_license"]) ) {
+					$result['errors']->add("accept_license", sprintf(__("<strong>ERROR</strong>: Please accept the %s", "register-plus-redux"), stripslashes($options["message_license_title"])) . ".");
+				}
+			}
+			if ( !empty($options["show_privacy_policy"]) && !empty($options["require_privacy_policy_agree"]) ) {
+				if ( empty($_POST["accept_privacy_policy"]) ) {
+					$result['errors']->add("accept_privacy_policy", sprintf(__("<strong>ERROR</strong>: Please accept the %s", "register-plus-redux"), stripslashes($options["message_privacy_policy_title"])) . ".");
+				}
+			}
+			return $result;
 		}
 
 		function AlterLoginForm() {
