@@ -524,7 +524,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						<th scope="row"><?php _e("Registration Redirect", "register-plus-redux"); ?></th>
 						<td>
 							<input type="text" name="registration_redirect" id="registration_redirect" value="<?php echo $options["registration_redirect"]; ?>" style="width: 60%;" /><br />
-							<?php echo sprintf(__("By default, after registering, users will be sent to %s/wp-login.php?checkemail=registered, leave this value empty if you do not wish to change this behavior. You may enter another address here, however, if that addresses is not on the same domain, Wordpress will ignore the redirect.", "register-plus-redux"), home_url()); ?><br />
+							<?php echo sprintf(__("By default, after registering, users will be sent to %s/wp-login.php?checkemail=registered, leave this value empty if you do not wish to change this behavior. You may enter another address here, however, if that address is not on the same domain, Wordpress will ignore the redirect.", "register-plus-redux"), home_url()); ?><br />
 						</td>
 					</tr>
 					<tr valign="top" class="disabled">
@@ -2375,7 +2375,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$message = str_replace("%aim%", get_user_meta($user_info->ID, "aim", true), $message);
 			$message = str_replace("%yahoo%", get_user_meta($user_info->ID, "yahoo", true), $message);
 			$message = str_replace("%jabber%", get_user_meta($user_info->ID, "jabber", true), $message);
-			$message = str_replace("%about%", stripslashes(get_user_meta($user_info->ID, "about", true)), $message);
+			$message = str_replace("%about%", stripslashes(get_user_meta($user_info->ID, "description", true)), $message);
 			$message = str_replace("%invitation_code%", get_user_meta($user_info->ID, "invitation_code", true), $message);
 			$custom_fields = get_option("register_plus_redux_custom_fields");
 			if ( !is_array($custom_fields) ) $custom_fields = array();
