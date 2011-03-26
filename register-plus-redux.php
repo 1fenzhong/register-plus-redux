@@ -39,6 +39,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			add_action("login_head", array($this, "LoginHead"), 10, 1); //Runs just before the end of the HTML head section of the login page. 
 			add_filter("login_message", array($this, "filter_login_message"), 10, 1);
 			add_filter("login_messages", array($this, "filter_login_messages"), 10, 1);
+			add_filter("random_password", array($this, "filter_random_password"), 10, 1);
 			add_action("admin_head-profile.php", array($this, "DatepickerHead"), 10, 1); //Runs in the HTML <head> section of the admin panel of a page or a plugin-generated page.
 			add_action("admin_head-user-edit.php", array($this, "DatepickerHead"), 10, 1); //Runs in the HTML <head> section of the admin panel of a page or a plugin-generated page.
 			add_action("show_user_profile", array($this, "ShowCustomFields"), 10, 1); //Runs near the end of the user profile editing screen.
@@ -48,6 +49,21 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			add_filter("allow_password_reset", array($this, "filter_password_reset"), 10, 2);
 			add_filter("update_user_metadata", array($this, "filter_update_user_metadata"), 10, 5);
 			
+//add_action ("delete_user", "c_ws_plugin__s2member_user_deletions::handle_user_deletions");
+//add_action ("wpmu_delete_user", "c_ws_plugin__s2member_user_deletions::handle_ms_user_deletions");
+//add_action ("remove_user_from_blog", "c_ws_plugin__s2member_user_deletions::handle_ms_user_deletions", 10, 2);
+
+//add_filter ("add_signup_meta", "c_ws_plugin__s2member_registrations::ms_process_signup_meta");
+//add_filter ("bp_signup_usermeta", "c_ws_plugin__s2member_registrations::ms_process_signup_meta");
+//add_filter ("wpmu_validate_user_signup", "c_ws_plugin__s2member_registrations::ms_validate_user_signup");
+//add_action ("signup_hidden_fields", "c_ws_plugin__s2member_registrations::ms_process_signup_hidden_fields");
+//add_filter ("registration_errors", "c_ws_plugin__s2member_registrations::ms_register_existing_user", 11, 3);
+//add_filter ("wpmu_signup_user_notification_email", "c_ws_plugin__s2member_email_configs::ms_nice_email_roles", 11);
+//add_filter ("_wpmu_activate_existing_error_", "c_ws_plugin__s2member_registrations::ms_activate_existing_user", 10, 2);
+//add_action ("wpmu_activate_user", "c_ws_plugin__s2member_registrations::configure_user_on_ms_user_activation", 10, 3);
+//add_action ("wpmu_activate_blog", "c_ws_plugin__s2member_registrations::configure_user_on_ms_blog_activation", 10, 5);
+//add_action ("signup_extra_fields", "c_ws_plugin__s2member_custom_reg_fields::ms_custom_registration_fields");
+
 			if ( $wp_version < 3.0 )
 				add_action("admin_notices", array($this, "VersionWarning"), 10, 1); //Runs after the admin menu is printed to the screen. 
 		}
@@ -2497,6 +2513,14 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$options = get_option("register_plus_redux_options");
 			if ( !empty($options["username_is_email"]) && !empty($_POST['user_email']) ) $user_login = strtolower(sanitize_user($_POST['user_email']));
 			return $user_login;
+		}
+
+		function filter_random_password( $password ) {
+			//$options = get_option("register_plus_redux_options");
+			//$ref = explode("?", $_SERVER["HTTP_REFERER"]);
+			//( $ref[0] == site_url("wp-admin/user-new.php")
+			//if ( !empty($options["registration_redirect"]) ) $password = stripslashes($options["registration_redirect"]);
+			return $password;
 		}
 
 		function filter_registration_redirect( $redirect_to ) {
