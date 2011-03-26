@@ -2516,6 +2516,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function filter_random_password( $password ) {
+			//$_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]
+			//password length + Get?
 			//$options = get_option("register_plus_redux_options");
 			//$ref = explode("?", $_SERVER["HTTP_REFERER"]);
 			//( $ref[0] == site_url("wp-admin/user-new.php")
