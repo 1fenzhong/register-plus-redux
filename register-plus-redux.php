@@ -232,11 +232,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					);
 			}
 
-			function addCustomField() {
-				jQuery("#custom_fields").find("tbody")
+			function addField() {
+				jQuery("#redux_fields").find("tbody")
 					.append(jQuery("<tr>")
 						.attr("valign", "center")
-						.attr("class", "custom_field")
+						.attr("class", "redux_field")
 						.append(jQuery("<td>")
 							.attr("style", "padding-top: 0px; padding-bottom: 0px;")
 							.append(jQuery("<select>")
@@ -492,8 +492,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						jQuery(this).parent().parent().next().find("input").attr("readonly", "readonly");
 				});
 
-				jQuery("#addCustomField").bind("click", function() {
-					addCustomField();
+				jQuery("#addField").bind("click", function() {
+					addField();
 				});
 
 				jQuery(".removeCustomField").live("click", function() {
@@ -853,7 +853,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				</table>
 				<h3 class="title"><?php _e("Additional Fields", "register-plus-redux"); ?></h3>
 				<p><?php _e("Enter additional fields to show on the User Profile and/or Registration Pages. Additional fields will be shown after existing profile fields on User Profile, and after selected profile fields on Registration Page but before Password, Invitation Code, Disclaimer, License Agreement, or Privacy Policy (if any of those fields are enabled). Options must be entered for Select, Checkbox, and Radio fields. Options should be entered with commas separating each possible value. For example, a Radio field named \"Gender\" could have the following options, \"Male,Female\".", "register-plus-redux"); ?></p>
-				<table id="custom_fields" style="width: 80%;">
+				<table id="redux_fields" style="width: 80%;">
 					<thead valign="top">
 						<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><?php _e("Type", "register-plus-redux"); ?></td>
 						<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Label", "register-plus-redux"); ?></td>
@@ -870,7 +870,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
 						if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 						foreach ( $redux_usermeta as $k => $redux_field ) {
-							echo "\n<tr valign=\"center\" class=\"custom_field\">";
+							echo "\n<tr valign=\"center\" class=\"redux_field\">";
 							echo "\n	<td style=\"padding-top: 0px; padding-bottom: 0px;\">";
 							echo "\n		<select name=\"field_type[$k]\" class=\"enableDisableOptions\" style=\"width: 100%;\">";
 							echo "\n			<option value=\"text\""; if ( $redux_field["type"] == "text" ) echo " selected=\"selected\""; echo ">", __("Text Field", "register-plus-redux"), "</option>";
@@ -885,7 +885,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo "\n		</select>";
 							echo "\n	</td>";
 							echo "\n	<td style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"text\" name=\"field_label[$k]\" value=\"", stripslashes($redux_field["label"]), "\" style=\"width: 100%;\" /></td>";
-							echo "\n	<td style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"text\" name=\"field_meta_key[$k]\" value=\"", stripslashes($redux_field["custom_field_meta_key"]), "\" style=\"width: 100%;\" /></td>";
+							echo "\n	<td style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"text\" name=\"field_meta_key[$k]\" value=\"", stripslashes($redux_field["meta_key"]), "\" style=\"width: 100%;\" /></td>";
 							echo "\n	<td style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"text\" name=\"field_options[$k]\" value=\"", stripslashes($redux_field["options"]), "\""; if ( $redux_field["type"] != "text" && $redux_field["type"] != "select" && $redux_field["type"] != "checkbox" && $redux_field["type"] != "radio" && $redux_field["type"] != "static" ) echo " readonly=\"readonly\""; echo " style=\"width: 100%;\" /></td>";
 							echo "\n	<td align=\"center\" style=\"padding-top: 0px; padding-bottom: 0px;\"><img src=\"", plugins_url("images\help.png", __FILE__), "\" title=\"", __("No help available", "register-plus-redux"), "\" class=\"helpCustomField\" /></td>";
 							echo "\n	<td align=\"center\" style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"checkbox\" name=\"show_on_profile[$k]\" value=\"1\""; if ( !empty($redux_field["show_on_profile"]) ) echo " checked=\"checked\""; echo " /></td>";
@@ -901,7 +901,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						?>
 					</tbody>
 				</table>
-				<img src="<?php echo plugins_url("images\add.png", __FILE__); ?>" alt="<?php esc_attr_e("Add Field", "register-plus-redux") ?>" title="<?php esc_attr_e("Add Field", "register-plus-redux") ?>" id="addCustomField" style="cursor: pointer;" />&nbsp;<?php _e("Add a new custom field.", "register-plus-redux") ?>
+				<img src="<?php echo plugins_url("images\add.png", __FILE__); ?>" alt="<?php esc_attr_e("Add Field", "register-plus-redux") ?>" title="<?php esc_attr_e("Add Field", "register-plus-redux") ?>" id="addField" style="cursor: pointer;" />&nbsp;<?php _e("Add a new custom field.", "register-plus-redux") ?>
 				<table class="form-table">
 					<tr valign="top" class="disabled">
 						<th scope="row"><?php _e("Date Field Settings", "register-plus-redux"); ?></th>
@@ -1460,10 +1460,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								$show_custom_date_fields .= ", #".$redux_field["meta_key"];
 						}
 						if ( !empty($redux_field["require_on_registration"]) ) {
-							if ( empty($required_custom_fields) )
-								$required_custom_fields = "#".$redux_field["meta_key"];
+							if ( empty($required_redux_fields) )
+								$required_redux_fields = "#".$redux_field["meta_key"];
 							else
-								$required_custom_fields .= ", #".$redux_field["meta_key"];
+								$required_redux_fields .= ", #".$redux_field["meta_key"];
 						}
 					}
 				}
@@ -1500,7 +1500,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					echo "\n#user_login, #user_email { ", $options["required_fields_style"], "} ";
 					if ( !empty($options["double_check_email"]) ) echo "\n#user_email2 { ", $options["required_fields_style"], " }";
 					if ( !empty($required_fields) ) echo "\n$required_fields { ", $options["required_fields_style"], " }";
-					if ( !empty($required_custom_fields) ) echo "\n$required_custom_fields { ", $options["required_fields_style"], " }";
+					if ( !empty($required_redux_fields) ) echo "\n$required_redux_fields { ", $options["required_fields_style"], " }";
 					if ( !empty($options["user_set_password"]) ) echo "\n#pass1, #pass2 { ", $options["required_fields_style"], " }";
 					if ( !empty($options["require_invitation_code"]) ) echo "\n#invitation_code { ", $options["required_fields_style"], " }";
 				}
