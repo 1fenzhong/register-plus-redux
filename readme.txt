@@ -102,6 +102,7 @@ HTML attributes should go in the following order name -> id -> class
 * Can now specify database key for additional fields
 * Remove hack to workaround non-english custom fields
 * Improved CSS of Checkbox and Radio fields on standard Wordpress registration page
+* Converted jQuery for Email Address as Username option to JavaScript DOM commands
 
 = 3.7.2 =
 March 23, 2011 by radiok

@@ -13,6 +13,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 	class RegisterPlusReduxPlugin {
 		function RegisterPlusReduxPlugin() {
 			global $wp_version;
+			$options = get_option("register_plus_redux_options");
+
 			add_action("plugins_loaded", array($this, "PluginsLoaded"), 10, 1);
 			add_action("init", array($this, "InitL18n"), 10, 1); //Runs after WordPress has finished loading but before any headers are sent.
 
@@ -37,11 +39,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				add_filter("registration_errors", array($this, "CheckRegistrationForm"), 10, 3); //applied to the list of registration errors generated while registering a user for a new account. 
 				add_filter("registration_redirect", array($this, "filter_registration_redirect"), 10, 1);
 				add_filter("pre_user_login", array($this, "filter_pre_user_login"), 10, 1); //Changes user_login to user_email
+				add_action("login_head", array($this, "LoginHead"), 10, 1); //Runs just before the end of the HTML head section of the login page.
+				add_filter("login_messages", array($this, "filter_login_messages"), 10, 1);
+				if ( !empty($options["username_is_email"]) ) {
+					add_action("login_footer", array($this, "LoginFooter"), 10, 1);
+				}
 			}
 
-			add_action("login_head", array($this, "LoginHead"), 10, 1); //Runs just before the end of the HTML head section of the login page. 
-			add_filter("login_message", array($this, "filter_login_message"), 10, 1);
-			add_filter("login_messages", array($this, "filter_login_messages"), 10, 1);
 			add_action("admin_head-profile.php", array($this, "DatepickerHead"), 10, 1); //Runs in the HTML <head> section of the admin panel of a page or a plugin-generated page.
 			add_action("admin_head-user-edit.php", array($this, "DatepickerHead"), 10, 1); //Runs in the HTML <head> section of the admin panel of a page or a plugin-generated page.
 			add_action("show_user_profile", array($this, "ShowCustomFields"), 10, 1); //Runs near the end of the user profile editing screen.
@@ -94,11 +98,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				update_user_option( $user_id, "default_password_nag", false, true );
 				wp_set_password($plaintext_pass, $user_id);
 			}
-			$created_by = "user";
-			$ref = explode("?", $_SERVER["HTTP_REFERER"]);
-			if ( $ref[0] == site_url("wp-admin/user-new.php") )
-				$created_by = "admin";
-			if ( $created_by == "admin" && !empty($meta["pass1"]) ) {
+			global $pagenow;
+			if ( $pagenow == "user-new.php" && !empty($meta["pass1"]) ) {
 				$plaintext_pass = $wpdb->prepare($meta["pass1"]);
 				update_user_option( $user_id, "default_password_nag", false, true );
 				wp_set_password($plaintext_pass, $user_id);
@@ -1357,6 +1358,17 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			<?php
 		}
 
+		function LoginFooter() {
+			if ( isset($_GET["action"]) && $_GET["action"] == "register" ) {
+				?>
+				<script type="text/javascript">
+				user_login = document.getElementById("registerform").childNodes[1];
+				document.getElementById("registerform").removeChild(user_login);
+				</script>
+				<?php
+			}
+		}
+		
 		function LoginHead() {
 			$options = get_option("register_plus_redux_options");
 			if ( !empty($options["custom_logo_url"]) ) {
@@ -1383,16 +1395,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				
 			}
 			if ( isset($_GET["action"]) && $_GET["action"] == "register" ) {
-				if ( !empty($options["username_is_email"]) ) {
-					wp_enqueue_script("jquery");
-					?>
-					<script type="text/javascript">
-					jQuery(document).ready(function() {
-						jQuery("#user_login").parent().parent().hide();
-					});
-					</script>
-					<?php
-				}
 				if ( isset($_GET["user_login"]) ) $_POST["user_login"] = $_GET["user_login"];
 				if ( isset($_GET["user_email"]) ) $_POST["user_email"] = $_GET["user_email"];
 				if ( !empty($_POST["user_login"]) || !empty($_POST["user_email"]) ) {
@@ -2059,8 +2061,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function DatepickerHead() {
-			//global $pagenow;
-			//echo $pagenow;
 			$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
 			if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 			foreach ( $redux_usermeta as $k => $meta_field ) {
@@ -2189,7 +2189,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function SaveAddedFields ( $user_id ) {
-			global $wpdb;
+			global $wpdb, $pagenow;
 			$options = get_option("register_plus_redux_options");
 			if ( !is_array($options["show_fields"]) ) $options["show_fields"] = array();
 			if ( in_array("first_name", $options["show_fields"]) && !empty($_POST["first_name"]) ) update_user_meta($user_id, "first_name", $wpdb->prepare($_POST["first_name"]));
@@ -2211,11 +2211,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				update_user_option( $user_id, "default_password_nag", false, true );
 				wp_set_password($plaintext_pass, $user_id);
 			}
-			$created_by = "user";
-			$ref = explode("?", $_SERVER["HTTP_REFERER"]);
-			if ( $ref[0] == site_url("wp-admin/user-new.php") )
-				$created_by = "admin";
-			if ( $created_by == "admin" && !empty($_POST["pass1"]) ) {
+			if ( $pagenow == "user-new.php" && !empty($_POST["pass1"]) ) {
 				$plaintext_pass = $wpdb->prepare($_POST["pass1"]);
 				update_user_option( $user_id, "default_password_nag", false, true );
 				wp_set_password($plaintext_pass, $user_id);
@@ -2223,7 +2219,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( !empty($options["enable_invitation_code"]) && !empty($_POST["invitation_code"]) )
 				update_user_meta($user_id, "invitation_code", $wpdb->prepare($_POST["invitation_code"]));
 			$user_info = get_userdata($user_id);
-			if ( $created_by == "user" && (!empty($options["verify_user_email"]) || !empty($options["verify_user_admin"])) ) {
+			if ( $pagenow != "user-new.php" && (!empty($options["verify_user_email"]) || !empty($options["verify_user_admin"])) ) {
 				update_user_meta($user_id, "stored_user_login", $wpdb->prepare($user_info->user_login));
 				update_user_meta($user_id, "stored_user_password", $wpdb->prepare($plaintext_pass));
 				$temp_user_login = $wpdb->prepare("unverified_".wp_generate_password(7, false));
@@ -2584,10 +2580,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 		function filter_random_password( $password ) {
 			global $pagenow;
-			//TODO
-			$basename = wp_basename($_SERVER["REQUEST_URI"]);
-			if ( strpos($basename, "?") !== false ) $basename = reset(explode("?", $basename));
-			if ( $basename = "wp-activate.php" && !empty($_GET["key"]) ) {
+			if ( $pagenow == "wp-activate.php" && !empty($_GET["key"]) ) {
 				global $wpdb;
 				$signup = $wpdb->get_row($wpdb->prepare("SELECT * FROM $wpdb->signups WHERE activation_key = %s", $_GET["key"]));
 				$meta = unserialize($signup->meta);
@@ -2682,30 +2675,26 @@ if ( create_wp_new_user_notification() == true ) {
 	// Called after admin creates user from wp-admin/network/edit.php (MS)
 	if ( !function_exists("wp_new_user_notification") ) {
 		function wp_new_user_notification($user_id, $plaintext_pass = "") {
-			global $wpdb, $registerPlusRedux;
-			$created_by = "user";
-			$ref = explode("?", $_SERVER["HTTP_REFERER"]);
-			if ( $ref[0] == site_url("wp-admin/user-new.php") )
-				$created_by = "admin";
+			global $wpdb, $pagenow, $registerPlusRedux;
 			$options = get_option("register_plus_redux_options");
 			if ( !empty($options["user_set_password"]) && !empty($_POST["password"]) )
 				$plaintext_pass = $wpdb->prepare($_POST["password"]);
-			if ( $created_by == "admin" && !empty($_POST["pass1"]) )
+			if ( $pagenow == "user-new.php" && !empty($_POST["pass1"]) )
 				$plaintext_pass = $wpdb->prepare($_POST["pass1"]);
-			if ( $created_by == "user" && !empty($options["verify_user_email"]) ) {
+			if ( $pagenow != "user-new.php" && !empty($options["verify_user_email"]) ) {
 				$verification_code = wp_generate_password(20, false);
 				update_user_meta($user_id, "email_verification_code", $verification_code);
 				update_user_meta($user_id, "email_verification_sent", gmdate("Y-m-d H:i:s"));
 				$registerPlusRedux->sendVerificationMessage($user_id, $verification_code);
 			}
-			if ( $created_by == "user" && empty($options["disable_user_message_registered"]) || 
-				$created_by == "admin" && empty($options["disable_user_message_created"]) ) {
+			if ( $pagenow != "user-new.php" && empty($options["disable_user_message_registered"]) || 
+				$pagenow == "user-new.php" && empty($options["disable_user_message_created"]) ) {
 				if ( empty($options["verify_user_email"]) && empty($options["verify_user_admin"]) ) {
 					$registerPlusRedux->sendUserMessage($user_id, $plaintext_pass);
 				}
 			}
-			if ( $created_by == "user" && empty($options["disable_admin_message_registered"]) || 
-				$created_by == "admin" && empty($options["disable_admin_message_created"]) ) {
+			if ( $pagenow != "user-new.php" && empty($options["disable_admin_message_registered"]) || 
+				$pagenow == "user-new.php" && empty($options["disable_admin_message_created"]) ) {
 				$registerPlusRedux->sendAdminMessage($user_id, $plaintext_pass, $verification_code);
 			}
 		}
