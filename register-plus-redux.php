@@ -1423,22 +1423,30 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								$show_custom_select_fields .= ", #".$meta_field["meta_key"];
 						}
 						if ( $meta_field["type"] == "checkbox" ) {
-							if ( empty($show_custom_checkbox_fields) )
-								$show_custom_checkbox_fields = ".".$meta_field["meta_key"];
-							else
-								$show_custom_checkbox_fields .= ", .".$meta_field["meta_key"];
+							$field_options = explode(",", $meta_field["options"]);
+							foreach ( $field_options as $field_option ) {
+								$option = $this->sanitizeText($field_option);
+								if ( empty($show_custom_checkbox_fields) )
+									$show_custom_checkbox_fields = "#".$meta_field["meta_key"]."-".$option.", #".$meta_field["meta_key"]."-".$option."-label";
+								else
+									$show_custom_checkbox_fields .= ", #".$meta_field["meta_key"]."-".$option.", #".$meta_field["meta_key"]."-".$option."-label";
+							}
 						}
 						if ( $meta_field["type"] == "radio" ) {
-							if ( empty($show_custom_radio_fields) )
-								$show_custom_radio_fields = ".".$meta_field["meta_key"];
-							else
-								$show_custom_radio_fields .= ", .".$meta_field["meta_key"];
+							$field_options = explode(",", $meta_field["options"]);
+							foreach ( $field_options as $field_option ) {
+								$option = $this->sanitizeText($field_option);
+								if ( empty($show_custom_radio_fields) )
+									$show_custom_radio_fields = "#".$meta_field["meta_key"]."-".$option.", #".$meta_field["meta_key"]."-".$option."-label";
+								else
+									$show_custom_radio_fields .= ", #".$meta_field["meta_key"]."-".$option.", #".$meta_field["meta_key"]."-".$option."-label";
+							}
 						}
 						if ( $meta_field["type"] == "textarea" ) {
 							if ( empty($show_custom_textarea_fields) )
-								$show_custom_textarea_fields = "#".$meta_field["meta_key"];
+								$show_custom_textarea_fields = "#".$meta_field["meta_key"]."-label";
 							else
-								$show_custom_textarea_fields .= ", #".$meta_field["meta_key"];
+								$show_custom_textarea_fields .= ", #".$meta_field["meta_key"]."-label";
 						}
 						if ( $meta_field["type"] == "date" ) {
 							if ( empty($show_custom_date_fields) )
@@ -1710,11 +1718,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							$field_options = explode(",", $meta_field["options"]);
 							foreach ( $field_options as $field_option ) {
 								$option = $this->sanitizeText($field_option);
-								echo "\n<input type=\"checkbox\" name=\"", $key, "[]\" id=\"$option\" value=\"", stripslashes($field_option), "\" ";
+								echo "\n<input type=\"checkbox\" name=\"", $key, "[]\" id=\"$key-$option\" value=\"", stripslashes($field_option), "\" ";
 								if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
 								if ( is_array($_POST[$key]) && in_array(stripslashes($field_option), $_POST[$key]) ) echo "checked=\"checked\" ";
 								if ( !is_array($_POST[$key]) && $_POST[$key] == stripslashes($field_option) ) echo "checked=\"checked\" ";
-								echo "/><label id=\"$option-label\" class=\"$key\" for=\"$option\">&nbsp;", stripslashes($field_option), "</label><br />";
+								echo "/><label id=\"$key-$option-label\" class=\"$key\" for=\"$key-$option\">&nbsp;", stripslashes($field_option), "</label><br />";
 							}
 							echo "\n</p>";
 							break;
@@ -1725,10 +1733,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							$field_options = explode(",", $meta_field["options"]);
 							foreach ( $field_options as $field_option ) {
 								$option = $this->sanitizeText($field_option);
-								echo "\n<input type=\"radio\" name=\"$key\" id=\"$option\" value=\"", stripslashes($field_option), "\" ";
+								echo "\n<input type=\"radio\" name=\"$key\" id=\"$key-$option\" value=\"", stripslashes($field_option), "\" ";
 								if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
 								if ( $_POST[$key] == stripslashes($field_option) ) echo "checked=\"checked\" ";
-								echo "/><label id=\"$option-label\" class=\"$key\" for=\"$option\">&nbsp;", stripslashes($field_option), "</label><br />";
+								echo "/><label id=\"$key-$option-label\" class=\"$key\" for=\"$key-$option\">&nbsp;", stripslashes($field_option), "</label><br />";
 							}
 							echo "\n</p>";
 							break;
@@ -1789,10 +1797,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( !empty($options["show_disclaimer"]) ) {
 				if ( isset($_GET["accept_disclaimer"]) ) $_POST["accept_disclaimer"] = $_GET["accept_disclaimer"];
 				echo "\n<p id=\"disclaimer-p\">";
-				echo "\n	<label id=\"disclaimer_title\">", stripslashes($options["message_disclaimer_title"]), "</label><br />";
-				echo "\n	<span name=\"disclaimer\" id=\"disclaimer\">", stripslashes($options["message_disclaimer"]), "</span>";
+				echo "\n\t<label id=\"disclaimer_title\">", stripslashes($options["message_disclaimer_title"]), "</label><br />";
+				echo "\n\t<span name=\"disclaimer\" id=\"disclaimer\">", stripslashes($options["message_disclaimer"]), "</span>";
 				if ( !empty($options["require_disclaimer_agree"]) ) {
-					echo "\n	<label id=\"accept_disclaimer-label\" class=\"accept_check\"><input type=\"checkbox\" name=\"accept_disclaimer\" id=\"accept_disclaimer\" value=\"1\""; if ( !empty($_POST["accept_disclaimer"]) ) echo " checked=\"checked\"";
+					echo "\n\t<label id=\"accept_disclaimer-label\" class=\"accept_check\"><input type=\"checkbox\" name=\"accept_disclaimer\" id=\"accept_disclaimer\" value=\"1\""; if ( !empty($_POST["accept_disclaimer"]) ) echo " checked=\"checked\"";
 					if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
 					echo "/>&nbsp;", stripslashes($options["message_disclaimer_agree"]), "</label>";
 				}
@@ -1801,10 +1809,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( !empty($options["show_license"]) ) {
 				if ( isset($_GET["accept_license"]) ) $_POST["accept_license"] = $_GET["accept_license"];
 				echo "\n<p id=\"license-p\">";
-				echo "\n	<label id=\"license_title\">", stripslashes($options["message_license_title"]), "</label><br />";
-				echo "\n	<span name=\"license\" id=\"license\">", stripslashes($options["message_license"]), "</span>";
+				echo "\n\t<label id=\"license_title\">", stripslashes($options["message_license_title"]), "</label><br />";
+				echo "\n\t<span name=\"license\" id=\"license\">", stripslashes($options["message_license"]), "</span>";
 				if ( !empty($options["require_license_agree"]) ) {
-					echo "\n	<label id=\"accept_license-label\" class=\"accept_check\"><input type=\"checkbox\" name=\"accept_license\" id=\"accept_license\" value=\"1\""; if ( !empty($_POST["accept_license"]) ) echo " checked=\"checked\"";
+					echo "\n\t<label id=\"accept_license-label\" class=\"accept_check\"><input type=\"checkbox\" name=\"accept_license\" id=\"accept_license\" value=\"1\""; if ( !empty($_POST["accept_license"]) ) echo " checked=\"checked\"";
 					if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
 					echo "/>&nbsp;", stripslashes($options["message_license_agree"]), "</label>";
 				}
@@ -1813,10 +1821,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( !empty($options["show_privacy_policy"]) ) {
 				if ( isset($_GET["accept_privacy_policy"]) ) $_POST["accept_privacy_policy"] = $_GET["accept_privacy_policy"];
 				echo "\n<p id=\"privacy_policy-p\">";
-				echo "\n	<label id=\"privacy_policy_title\">", stripslashes($options["message_privacy_policy_title"]), "</label><br />";
-				echo "\n	<span name=\"privacy_policy\" id=\"privacy_policy\">", stripslashes($options["message_privacy_policy"]), "</span>";
+				echo "\n\t<label id=\"privacy_policy_title\">", stripslashes($options["message_privacy_policy_title"]), "</label><br />";
+				echo "\n\t<span name=\"privacy_policy\" id=\"privacy_policy\">", stripslashes($options["message_privacy_policy"]), "</span>";
 				if ( !empty($options["require_privacy_policy_agree"]) ) {
-					echo "\n	<label id=\"accept_privacy_policy-label\" class=\"accept_check\"><input type=\"checkbox\" name=\"accept_privacy_policy\" id=\"accept_privacy_policy\" value=\"1\""; if ( !empty($_POST["accept_privacy_policy"]) ) echo " checked=\"checked\"";
+					echo "\n\t<label id=\"accept_privacy_policy-label\" class=\"accept_check\"><input type=\"checkbox\" name=\"accept_privacy_policy\" id=\"accept_privacy_policy\" value=\"1\""; if ( !empty($_POST["accept_privacy_policy"]) ) echo " checked=\"checked\"";
 					if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
 					echo "/>&nbsp;", stripslashes($options["message_privacy_policy_agree"]), "</label>";
 				}
@@ -2085,29 +2093,29 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo "<h3>", __("Additional Information", "register-plus-redux"), "</h3>";
 				echo "<table class=\"form-table\">";
 				if ( !empty($options["enable_invitation_code"]) ) {
-					echo "\n	<tr>";
-					echo "\n		<th><label for=\"invitation_code\">", __("Invitation Code", "register-plus-redux"), "</label></th>";
-					echo "\n		<td><input type=\"text\" name=\"invitation_code\" id=\"invitation_code\" value=\"$profileuser->invitation_code\" class=\"regular-text\" readonly=\"readonly\" /></td>";
-					echo "\n	</tr>";
+					echo "\n\t<tr>";
+					echo "\n\t\t<th><label for=\"invitation_code\">", __("Invitation Code", "register-plus-redux"), "</label></th>";
+					echo "\n\t\t<td><input type=\"text\" name=\"invitation_code\" id=\"invitation_code\" value=\"$profileuser->invitation_code\" class=\"regular-text\" readonly=\"readonly\" /></td>";
+					echo "\n\t</tr>";
 				}
 				if ( is_array($redux_usermeta) ) {
 					foreach ( $redux_usermeta as $k => $meta_field ) {
 						if ( current_user_can("edit_users") || !empty($meta_field["show_on_profile"]) ) {
 							$key = $meta_field["meta_key"];
 							$value = get_user_meta($profileuser->ID, $key, true);
-							echo "\n	<tr>";
-							echo "\n		<th><label for=\"$key\">", stripslashes($meta_field["label"]);
+							echo "\n\t<tr>";
+							echo "\n\t\t<th><label for=\"$key\">", stripslashes($meta_field["label"]);
 							if ( empty($meta_field["show_on_profile"]) ) echo " <span class=\"description\">(hidden)</span>";
 							if ( !empty($meta_field["require_on_registration"]) ) echo " <span class=\"description\">(required)</span>";
 							echo "</label></th>";
 							switch ( $meta_field["type"] ) {
 								case "text":
 								case "url":
-									echo "\n		<td><input type=\"text\" name=\"$key\" id=\"$key\" value=\"$value\" class=\"regular-text\" /></td>";
+									echo "\n\t\t<td><input type=\"text\" name=\"$key\" id=\"$key\" value=\"$value\" class=\"regular-text\" /></td>";
 									break;
 								case "select":
-									echo "\n		<td>";
-									echo "\n			<select name=\"$key\" id=\"$key\" style=\"width: 15em;\">";
+									echo "\n\t\t<td>";
+									echo "\n\t\t\t<select name=\"$key\" id=\"$key\" style=\"width: 15em;\">";
 									$field_options = explode(",", $meta_field["options"]);
 									foreach ( $field_options as $field_option ) {
 										echo "<option value=\"", stripslashes($field_option), "\"";
@@ -2115,43 +2123,43 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 										echo ">", stripslashes($field_option), "</option>";
 									}
 									echo "</select>";
-									echo "\n		</td>";
+									echo "\n\t\t</td>";
 									break;
 								case "checkbox":
-									echo "\n		<td>";
+									echo "\n\t\t<td>";
 									$field_options = explode(",", $meta_field["options"]);
 									$values = explode(",", $value);
 									foreach ( $field_options as $field_option ) {
-										echo "\n			<label><input type=\"checkbox\" name=\"$key", "[]\" value=\"", stripslashes($field_option), "\"";
+										echo "\n\t\t\t<label><input type=\"checkbox\" name=\"$key", "[]\" value=\"", stripslashes($field_option), "\"";
 										if ( in_array(stripslashes($field_option), $values) ) echo " checked=\"checked\"";
 										echo " />&nbsp;", stripslashes($field_option), "</label><br />";
 									}
-									echo "\n		</td>";
+									echo "\n\t\t</td>";
 									break;
 								case "radio":
-									echo "\n		<td>";
+									echo "\n\t\t<td>";
 									$field_options = explode(",", $meta_field["options"]);
 									foreach ( $field_options as $field_option ) {
-										echo "\n			<label><input type=\"radio\" name=\"$key\" value=\"", stripslashes($field_option), "\"";
+										echo "\n\t\t\t<label><input type=\"radio\" name=\"$key\" value=\"", stripslashes($field_option), "\"";
 										if ( $value == stripslashes($field_option) ) echo " checked=\"checked\"";
 										echo " class=\"tog\">&nbsp;", stripslashes($field_option), "</label><br />";
 									}
-									echo "\n		</td>";
+									echo "\n\t\t</td>";
 									break;
 								case "textarea":
-									echo "\n		<td><textarea name=\"$key\" id=\"$key\" cols=\"25\" rows=\"5\">", stripslashes($value), "</textarea></td>";
+									echo "\n\t\t<td><textarea name=\"$key\" id=\"$key\" cols=\"25\" rows=\"5\">", stripslashes($value), "</textarea></td>";
 									break;
 								case "date":
-									echo "\n		<td><input type=\"text\" name=\"$key\" id=\"$key\" class=\"datepicker\" value=\"$value\" /></td>";
+									echo "\n\t\t<td><input type=\"text\" name=\"$key\" id=\"$key\" class=\"datepicker\" value=\"$value\" /></td>";
 									break;
 								case "hidden":
-									echo "\n		<td><input type=\"text\" disabled=\"disabled\" name=\"$key\" id=\"$key\" value=\"$value\" /></td>";
+									echo "\n\t\t<td><input type=\"text\" disabled=\"disabled\" name=\"$key\" id=\"$key\" value=\"$value\" /></td>";
 									break;
 								case "static":
-									echo "\n		<td><span class=\"description\">", stripslashes($meta_field["options"]), "</span></td>";
+									echo "\n\t\t<td><span class=\"description\">", stripslashes($meta_field["options"]), "</span></td>";
 									break;
 							}
-							echo "\n	</tr>";
+							echo "\n\t</tr>";
 						}
 					}
 				}

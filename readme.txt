@@ -96,6 +96,13 @@ HTML attributes should go in the following order name -> id -> class
 4. Unverified User Management
 
 == Changelog ==
+= 3.7.3 =
+
+* Converted custom_fields to redux_usermeta
+* Can now specify database key for additional fields
+* Remove hack to workaround non-english custom fields
+* Improved CSS of Checkbox and Radio fields on standard Wordpress registration page
+
 = 3.7.2 =
 March 23, 2011 by radiok
 
@@ -475,3 +482,6 @@ Major change to avoid conflicts
 
 = 3.7.2 =
 New featues, can use email address as username and validate text fields with regex
+
+= 3.7.3 =
+Notice: Custom CSS on Checkbox and Radio fields may need to be reviewed
