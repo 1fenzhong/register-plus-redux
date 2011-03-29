@@ -27,7 +27,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 
 			if ( is_multisite() ) {
-				add_action("signup_extra_fields", array($this, "AlterRegisterSignupForm"), 10, 1);
+				add_action("signup_extra_fields", array($this, "AlterRegisterSignupForm"), 9, 1);
 				add_filter("wpmu_validate_user_signup", array($this, "CheckSignupForm"), 10, 1); //applied to the list of registration errors generated while registering a user for a new account. 
 				add_filter("signup_user_init", array($this, "filter_signup_user_init"), 10, 1); //Changes user_name to user_email
 				add_filter("add_signup_meta", array($this, "filter_add_signup_meta"), 10, 1); //Preserve metadata for after user is activated
@@ -37,7 +37,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( !is_multisite() ) {
 				add_filter("login_headerurl", array($this, "filter_login_headerurl"), 10, 1);
 				add_filter("login_headertitle", array($this, "filter_login_headertitle"), 10, 1);
-				add_action("register_form", array($this, "AlterRegisterSignupForm"), 10, 1); //Runs just before the end of the new user registration form.
+				add_action("register_form", array($this, "AlterRegisterSignupForm"), 9, 1); //Runs just before the end of the new user registration form.
 				add_filter("registration_errors", array($this, "CheckRegistrationForm"), 10, 3); //applied to the list of registration errors generated while registering a user for a new account. 
 				add_filter("registration_redirect", array($this, "filter_registration_redirect"), 10, 1);
 				add_action("login_head", array($this, "LoginHead"), 10, 1); //Runs just before the end of the HTML head section of the login page.
@@ -546,23 +546,23 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				<?php wp_nonce_field("register-plus-redux-update-settings"); ?>
 				<?php $options = get_option("register_plus_redux_options"); ?>
 				<table class="form-table">
-					<tr valign="top">
-						<th scope="row"><?php _e("Custom Logo URL", "register-plus-redux"); ?></th>
-						<td>
-							<input type="text" name="custom_logo_url" id="custom_logo_url" value="<?php echo $options["custom_logo_url"]; ?>" style="width: 60%;" /><br />
-							<?php _e("Upload a new logo:", "register-plus-redux"); ?>&nbsp;<input type="file" name="upload_custom_logo" id="upload_custom_logo" value="1" /><br />
-							<?php _e("You must Save Changes to upload logo.", "register-plus-redux"); ?><br />
-							<?php _e("Custom Logo will be shown on Registration and Login Forms in place of the default Wordpress logo. For the best results custom logo should not exceed 350px width.", "register-plus-redux"); ?>
-							<?php if ( !empty($options["custom_logo_url"]) ) { ?>
-								<br /><img src="<?php echo $options["custom_logo_url"]; ?>" /><br />
-								<?php if ( empty($options["disable_url_fopen"]) ) list($custom_logo_width, $custom_logo_height) = getimagesize($options["custom_logo_url"]); ?>
-								<?php if ( empty($options["disable_url_fopen"]) ) echo $custom_logo_width, "x", $custom_logo_height, "<br />\n"; ?>
-								<label><input type="checkbox" name="remove_logo" value="1" />&nbsp;<?php _e("Remove Logo", "register-plus-redux"); ?></label><br />
-								<?php _e("You must Save Changes to remove logo.", "register-plus-redux"); ?>
-							<?php } ?>
-						</td>
-					</tr>
 					<?php if ( !is_multisite() ) { ?>
+						<tr valign="top">
+							<th scope="row"><?php _e("Custom Logo URL", "register-plus-redux"); ?></th>
+							<td>
+								<input type="text" name="custom_logo_url" id="custom_logo_url" value="<?php echo $options["custom_logo_url"]; ?>" style="width: 60%;" /><br />
+								<?php _e("Upload a new logo:", "register-plus-redux"); ?>&nbsp;<input type="file" name="upload_custom_logo" id="upload_custom_logo" value="1" /><br />
+								<?php _e("You must Save Changes to upload logo.", "register-plus-redux"); ?><br />
+								<?php _e("Custom Logo will be shown on Registration and Login Forms in place of the default Wordpress logo. For the best results custom logo should not exceed 350px width.", "register-plus-redux"); ?>
+								<?php if ( !empty($options["custom_logo_url"]) ) { ?>
+									<br /><img src="<?php echo $options["custom_logo_url"]; ?>" /><br />
+									<?php if ( empty($options["disable_url_fopen"]) ) list($custom_logo_width, $custom_logo_height) = getimagesize($options["custom_logo_url"]); ?>
+									<?php if ( empty($options["disable_url_fopen"]) ) echo $custom_logo_width, "x", $custom_logo_height, "<br />\n"; ?>
+									<label><input type="checkbox" name="remove_logo" value="1" />&nbsp;<?php _e("Remove Logo", "register-plus-redux"); ?></label><br />
+									<?php _e("You must Save Changes to remove logo.", "register-plus-redux"); ?>
+								<?php } ?>
+							</td>
+						</tr>
 						<tr valign="top">
 							<th scope="row"><?php _e("Email Verification", "register-plus-redux"); ?></th>
 							<td>
@@ -604,7 +604,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						<th scope="row"><?php _e("Verification Redirect", "register-plus-redux"); ?></th>
 						<td>
 							<input type="text" name="verification_redirect" id="verification_redirect" value="<?php echo $options["verification_redirect"]; ?>" style="width: 60%;" /><br />
-							<?php echo sprintf(__("By default, after verifing, users will be sent to %s/wp-login.php, leave this value empty if you do not wish to change this behavior. You may enter another address here, however, if that addresses is not on the same domain, Wordpress will ignore the redirect.", "register-plus-redux"), home_url()); ?><br />
+							<?php echo sprintf(__("By default, after verifying, users will be sent to %s/wp-login.php, leave this value empty if you do not wish to change this behavior. You may enter another address here, however, if that addresses is not on the same domain, Wordpress will ignore the redirect.", "register-plus-redux"), home_url()); ?><br />
 						</td>
 					</tr>
 				</table>
