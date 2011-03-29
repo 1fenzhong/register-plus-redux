@@ -5,7 +5,7 @@ Plugin Name: Register Plus Redux
 Author URI: http://radiok.info/
 Plugin URI: http://radiok.info/category/register-plus-redux/
 Description: Enhances the user registration process with complete customization and additional administration options.
-Version: 3.7.2.1
+Version: 3.7.3.1
 Text Domain: register-plus-redux
 */
 
@@ -138,7 +138,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !empty($update) ) update_option("register_plus_redux_options", $options);
 			}
 
-			// Added 03/28/11 in 3.7.2 converting custom fields
+			// Added 03/28/11 in 3.7.4 converting custom fields
 			$custom_fields = get_option("register_plus_redux_custom_fields");
 			if ( !empty($custom_fields) ) {
 				$redux_usermeta = array();
@@ -153,7 +153,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					$meta_field["show_on_profile"] = $custom_field["show_on_profile"];
 					$meta_field["show_on_registration"] = $custom_field["show_on_registration"];
 					$meta_field["require_on_registration"] = $custom_field["required_on_registration"];
-					$meta_field["source"] = "register plus redux/3.7.2";
+					$meta_field["source"] = "register plus redux/3.7.4";
 					$redux_usermeta[$index++] = $meta_field;
 				}
 				//delete_option("register_plus_redux_custom_fields");
@@ -1171,7 +1171,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					$meta_field["show_on_profile"] = isset($_POST["show_on_profile"][$k]) ? $_POST["show_on_profile"][$k] : "";
 					$meta_field["show_on_registration"] = isset($_POST["show_on_registration"][$k]) ? $_POST["show_on_registration"][$k] : "";
 					$meta_field["require_on_registration"] = isset($_POST["require_on_registration"][$k]) ? $_POST["require_on_registration"][$k] : "";
-					$meta_field["source"] = "register plus redux/3.7.2";
+					$meta_field["source"] = "register plus redux/3.7.4";
 					if ( empty($meta_field["meta_key"]) ) $meta_field["meta_key"] = $this->sanitizeText($_POST["field_label"][$k]);
 					$redux_usermeta[$k] = $meta_field;
 				}
