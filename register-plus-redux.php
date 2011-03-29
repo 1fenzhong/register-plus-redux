@@ -20,8 +20,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 			if ( is_admin() ) {
 				add_action("init", array($this, "InitOptions"), 10, 1); //Runs after WordPress has finished loading but before any headers are sent.
-				add_action("init", array($this, "InitDeleteExpiredUsers"), 10, 1); //Runs after WordPress has finished loading but before any headers are sent.
 				add_action("admin_menu", array($this, "AddPages"), 10, 1); //Runs after the basic admin panel menu structure is in place.
+				if ( !empty($options["delete_unverified_users_after"]) ) {
+					add_action("init", array($this, "InitDeleteExpiredUsers"), 10, 1); //Runs after WordPress has finished loading but before any headers are sent.
+				}
 			}
 
 			if ( is_multisite() ) {
@@ -38,11 +40,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				add_action("register_form", array($this, "AlterRegisterSignupForm"), 10, 1); //Runs just before the end of the new user registration form.
 				add_filter("registration_errors", array($this, "CheckRegistrationForm"), 10, 3); //applied to the list of registration errors generated while registering a user for a new account. 
 				add_filter("registration_redirect", array($this, "filter_registration_redirect"), 10, 1);
-				add_filter("pre_user_login", array($this, "filter_pre_user_login"), 10, 1); //Changes user_login to user_email
 				add_action("login_head", array($this, "LoginHead"), 10, 1); //Runs just before the end of the HTML head section of the login page.
 				add_filter("login_messages", array($this, "filter_login_messages"), 10, 1);
 				if ( !empty($options["username_is_email"]) ) {
-					add_action("login_footer", array($this, "LoginFooter"), 10, 1);
+					add_action("login_footer", array($this, "LoginFooter"), 10, 1); //Hides user_login
+					add_filter("pre_user_login", array($this, "filter_pre_user_login"), 10, 1); //Changes user_login to user_email
 				}
 			}
 
@@ -55,7 +57,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			add_filter("allow_password_reset", array($this, "filter_password_reset"), 10, 2);
 			add_filter("update_user_metadata", array($this, "filter_update_user_metadata"), 10, 5);
 			
-			if ( $wp_version < 3.1 )
+			if ( $wp_version < 3.0 )
 				add_action("admin_notices", array($this, "VersionWarning"), 10, 1); //Runs after the admin menu is printed to the screen. 
 		}
 
@@ -160,31 +162,28 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function InitDeleteExpiredUsers() {
-			$options = get_option("register_plus_redux_options");
-			if ( !empty($options["delete_unverified_users_after"]) ) {
-				global $wpdb;
-				$unverified_users = $wpdb->get_results("SELECT user_id FROM $wpdb->usermeta WHERE meta_key = \"stored_user_login\"");
-				if ( !empty($unverified_users) ) {
-					$options = get_option("register_plus_redux_options");
-					$expirationdate = date("Ymd", strtotime("-".$options["delete_unverified_users_after"]." days"));
-					if (!function_exists("wp_delete_user")) require_once(ABSPATH."/wp-admin/includes/user.php");
-					foreach ( $unverified_users as $unverified_user ) {
-						$user_info = get_userdata($unverified_user->user_id);
-						if ( !empty($user_info->stored_user_login) && substr($user_info->user_login, 0, 11) == "unverified_") {
-							if ( date("Ymd", strtotime($user_info->user_registered)) < $expirationdate ) {
-								if ( !empty($user_info->email_verification_sent) ) {
-									if ( date("Ymd", strtotime($user_info->email_verification_sent)) < $expirationdate ) {
-										if ( !empty($user_info->email_verified) ) {
-											if ( date("Ymd", strtotime($user_info->email_verified)) < $expirationdate ) {
-												wp_delete_user($unverified_user->user_id);
-											}
-										} else {
+			global $wpdb;
+			$unverified_users = $wpdb->get_results("SELECT user_id FROM $wpdb->usermeta WHERE meta_key = \"stored_user_login\"");
+			if ( !empty($unverified_users) ) {
+				$options = get_option("register_plus_redux_options");
+				$expirationdate = date("Ymd", strtotime("-".$options["delete_unverified_users_after"]." days"));
+				if (!function_exists("wp_delete_user")) require_once(ABSPATH."/wp-admin/includes/user.php");
+				foreach ( $unverified_users as $unverified_user ) {
+					$user_info = get_userdata($unverified_user->user_id);
+					if ( !empty($user_info->stored_user_login) && substr($user_info->user_login, 0, 11) == "unverified_") {
+						if ( date("Ymd", strtotime($user_info->user_registered)) < $expirationdate ) {
+							if ( !empty($user_info->email_verification_sent) ) {
+								if ( date("Ymd", strtotime($user_info->email_verification_sent)) < $expirationdate ) {
+									if ( !empty($user_info->email_verified) ) {
+										if ( date("Ymd", strtotime($user_info->email_verified)) < $expirationdate ) {
 											wp_delete_user($unverified_user->user_id);
 										}
+									} else {
+										wp_delete_user($unverified_user->user_id);
 									}
-								} else {
-									wp_delete_user($unverified_user->user_id);
 								}
+							} else {
+								wp_delete_user($unverified_user->user_id);
 							}
 						}
 					}
@@ -1398,7 +1397,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( isset($_GET["user_login"]) ) $_POST["user_login"] = $_GET["user_login"];
 				if ( isset($_GET["user_email"]) ) $_POST["user_email"] = $_GET["user_email"];
 				if ( !empty($_POST["user_login"]) || !empty($_POST["user_email"]) ) {
-					wp_enqueue_script("jquery");
+					if ( empty($jquery_loaded) ) {
+						wp_print_scripts("jquery");
+						$jquery_loaded = true;
+					}
 					?>
 					<script type="text/javascript">
 					jQuery(document).ready(function() {
@@ -1505,8 +1507,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo "\n</style>";
 
 				if ( !empty($show_custom_date_fields) ) {
-					wp_enqueue_script("jquery");
-					wp_enqueue_script("jquery-ui-core");
+					if ( empty($jquery_loaded) ) {
+						wp_print_scripts("jquery");
+						$jquery_loaded = true;
+					}
+					wp_print_scripts("jquery-ui-core");
 					?>
 					<link type="text/css" rel="stylesheet" href="<?php echo plugins_url("js/theme/jquery.ui.all.css", __FILE__); ?>" />
 					<script type="text/javascript" src="<?php echo plugins_url("js/jquery.ui.datepicker.min.js", __FILE__); ?>"></script>
@@ -1518,7 +1523,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					<?php
 				}
 				if ( !empty($options["required_fields_asterisk"]) ) {
-					wp_enqueue_script("jquery");
+					if ( empty($jquery_loaded) ) {
+						wp_print_scripts("jquery");
+						$jquery_loaded = true;
+					}
 					?>
 					<script type="text/javascript">
 					jQuery(document).ready(function() {
@@ -1529,7 +1537,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					<?php
 				}
 				if ( !empty($options["user_set_password"]) && !empty($options["show_password_meter"]) ) {
-					wp_enqueue_script("jquery");
+					if ( empty($jquery_loaded) ) {
+						wp_print_scripts("jquery");
+						$jquery_loaded = true;
+					}
 					?>
 					<script type="text/javascript">
 						/* <![CDATA[ */
@@ -2072,8 +2083,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				}
 			}
 			if ( !empty($show_custom_date_fields) ) {
-				wp_enqueue_script("jquery");
-				wp_enqueue_script("jquery-ui-core");
+				if ( empty($jquery_loaded) ) {
+					wp_print_scripts("jquery");
+					$jquery_loaded = true;
+				}
+				wp_print_scripts("jquery-ui-core");
 				?>
 				<link type="text/css" rel="stylesheet" href="<?php echo plugins_url("js/theme/jquery.ui.all.css", __FILE__); ?>" />
 				<script type="text/javascript" src="<?php echo plugins_url("js/jquery.ui.datepicker.min.js", __FILE__); ?>"></script>
@@ -2087,8 +2101,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function ShowCustomFields( $profileuser ) {
+			$options = get_option("register_plus_redux_options");
 			$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
-			
 			if ( !empty($options["enable_invitation_code"]) || is_array($redux_usermeta) ) {
 				echo "<h3>", __("Additional Information", "register-plus-redux"), "</h3>";
 				echo "<table class=\"form-table\">";
@@ -2429,7 +2443,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function sanitizeText( $key ) {
-			$options = get_option("register_plus_redux_options");
 			$key = str_replace(" ", "_", $key);
 			$key = strtolower($key);
 			return $key;
@@ -2499,7 +2512,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 		function filter_login_message( $message ) {
 			//Throw an error otherwise login_messages filter will not trigger
-			$options = get_option("register_plus_redux_options");
 			if ( isset($_GET["verification_code"]) ) {
 				global $errors;
 				$errors->add('invalidverificationcode', __('Invalid verification code.'), 'message');
@@ -2573,8 +2585,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function filter_pre_user_login( $user_login ) {
-			$options = get_option("register_plus_redux_options");
-			if ( !empty($options["username_is_email"]) && !empty($_POST['user_email']) ) $user_login = strtolower(sanitize_user($_POST['user_email']));
+			if ( !empty($_POST['user_email']) ) $user_login = strtolower(sanitize_user($_POST['user_email']));
 			return $user_login;
 		}
 
@@ -2608,6 +2619,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function filter_update_user_metadata( $check, $object_id, $meta_key, $meta_value, $prev_value ) {
+			global $pagenow;
+			//TODO
 			if ( $meta_key == "default_password_nag" ) {
 				$options = get_option("register_plus_redux_options");
 				if ( !empty($options["user_set_password"]) ) $check = true;
@@ -2642,7 +2655,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 		function VersionWarning() {
 			global $wp_version;
-			echo "\n<div id=\"register-plus-redux-warning\" class=\"updated fade-ff0000\"><p><strong>", sprintf(__("Register Plus Redux requires WordPress 3.1 or greater. You are currently using WordPress %s, please upgrade or deactivate Register Plus Redux.", "register-plus-redux"), $wp_version), "</strong></p></div>";
+			echo "\n<div id=\"register-plus-redux-warning\" class=\"updated fade-ff0000\"><p><strong>", sprintf(__("Register Plus Redux requires WordPress 3.0 or greater. You are currently using WordPress %s, please upgrade or deactivate Register Plus Redux.", "register-plus-redux"), $wp_version), "</strong></p></div>";
 		}
 	}
 }

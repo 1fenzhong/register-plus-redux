@@ -3,7 +3,7 @@ Contributors: skullbit, radiok
 Donate link: http://radiok.info/donate/
 Tags: registration, register, plus, redux, password, invitation, code, email, verification, disclaimer, license, agreement, privacy, policy, logo, moderation, user
 Requires at least: 3.1
-Tested up to: 3.1
+Tested up to: 3.0
 Stable tag: 3.7.2
 
 Enhances the user registration process with complete customization and additional administration options.
