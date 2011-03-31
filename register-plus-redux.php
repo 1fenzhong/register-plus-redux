@@ -2111,7 +2111,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !empty($options["enable_invitation_code"]) ) {
 					echo "\n\t<tr>";
 					echo "\n\t\t<th><label for=\"invitation_code\">", __("Invitation Code", "register-plus-redux"), "</label></th>";
-					echo "\n\t\t<td><input type=\"text\" name=\"invitation_code\" id=\"invitation_code\" value=\"$profileuser->invitation_code\" class=\"regular-text\" readonly=\"readonly\" /></td>";
+					echo "\n\t\t<td><input type=\"text\" name=\"invitation_code\" id=\"invitation_code\" value=\"", esc_attr($profileuser->invitation_code), "\" class=\"regular-text\" readonly=\"readonly\" /></td>";
 					echo "\n\t</tr>";
 				}
 				if ( is_array($redux_usermeta) ) {
@@ -2127,7 +2127,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							switch ( $meta_field["type"] ) {
 								case "text":
 								case "url":
-									echo "\n\t\t<td><input type=\"text\" name=\"$key\" id=\"$key\" value=\"$value\" class=\"regular-text\" /></td>";
+									echo "\n\t\t<td><input type=\"text\" name=\"$key\" id=\"$key\" value=\"", esc_attr($value), "\" class=\"regular-text\" /></td>";
 									break;
 								case "select":
 									echo "\n\t\t<td>";
@@ -2166,10 +2166,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									echo "\n\t\t<td><textarea name=\"$key\" id=\"$key\" cols=\"25\" rows=\"5\">", $value, "</textarea></td>";
 									break;
 								case "date":
-									echo "\n\t\t<td><input type=\"text\" name=\"$key\" id=\"$key\" class=\"datepicker\" value=\"$value\" /></td>";
+									echo "\n\t\t<td><input type=\"text\" name=\"$key\" id=\"$key\" class=\"datepicker\" value=\"", esc_attr($value), "\" /></td>";
 									break;
 								case "hidden":
-									echo "\n\t\t<td><input type=\"text\" disabled=\"disabled\" name=\"$key\" id=\"$key\" value=\"$value\" /></td>";
+									echo "\n\t\t<td><input type=\"text\" disabled=\"disabled\" name=\"$key\" id=\"$key\" value=\"", esc_attr($value), "\" /></td>";
 									break;
 								case "static":
 									echo "\n\t\t<td><span class=\"description\">", esc_html($meta_field["options"]), "</span></td>";
