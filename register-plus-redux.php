@@ -29,23 +29,24 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( is_multisite() ) {
 				add_action("signup_extra_fields", array($this, "AlterRegisterSignupForm"), 9, 1);
 				add_filter("wpmu_validate_user_signup", array($this, "CheckSignupForm"), 10, 1); //applied to the list of registration errors generated while registering a user for a new account. 
-				add_filter("signup_user_init", array($this, "filter_signup_user_init"), 10, 1); //Changes user_name to user_email
+				//add_filter("signup_user_init", array($this, "filter_signup_user_init"), 10, 1); //Changes user_name to user_email
 				add_filter("add_signup_meta", array($this, "filter_add_signup_meta"), 10, 1); //Preserve metadata for after user is activated
-				add_action("wpmu_activate_user", array($this, "UpdateSignup"), 10, 3); //Add stored metadata for new user to database
+				add_action("wpmu_activate_user", array($this, "SaveAddedFieldsV2"), 10, 3); //Add stored metadata for new user to database
 			}
 
 			if ( !is_multisite() ) {
 				add_filter("login_headerurl", array($this, "filter_login_headerurl"), 10, 1);
 				add_filter("login_headertitle", array($this, "filter_login_headertitle"), 10, 1);
+				add_action("login_head", array($this, "LoginHead"), 10, 1); //Runs just before the end of the HTML head section of the login page.
 				add_action("register_form", array($this, "AlterRegisterSignupForm"), 9, 1); //Runs just before the end of the new user registration form.
 				add_filter("registration_errors", array($this, "CheckRegistrationForm"), 10, 3); //applied to the list of registration errors generated while registering a user for a new account. 
-				add_filter("registration_redirect", array($this, "filter_registration_redirect"), 10, 1);
-				add_action("login_head", array($this, "LoginHead"), 10, 1); //Runs just before the end of the HTML head section of the login page.
 				add_filter("login_messages", array($this, "filter_login_messages"), 10, 1);
 				if ( !empty($options["username_is_email"]) ) {
 					add_action("login_footer", array($this, "LoginFooter"), 10, 1); //Hides user_login
 					add_filter("pre_user_login", array($this, "filter_pre_user_login"), 10, 1); //Changes user_login to user_email
 				}
+				add_action("user_register", array($this, "SaveAddedFieldsV2"), 10, 1); //Runs when a user's profile is first created. Action function argument: user ID. 
+				add_filter("registration_redirect", array($this, "filter_registration_redirect"), 10, 1);
 			}
 
 			add_action("admin_head-profile.php", array($this, "DatepickerHead"), 10, 1); //Runs in the HTML <head> section of the admin panel of a page or a plugin-generated page.
@@ -53,7 +54,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			add_action("show_user_profile", array($this, "ShowCustomFields"), 10, 1); //Runs near the end of the user profile editing screen.
 			add_action("edit_user_profile", array($this, "ShowCustomFields"), 10, 1); //Runs near the end of the user profile editing screen in the admin menus. 
 			add_action("profile_update", array($this, "SaveCustomFields"), 10, 1);	//Runs when a user's profile is updated. Action function argument: user ID.
-			add_action("user_register", array($this, "SaveAddedFields"), 10, 1); //Runs when a user's profile is first created. Action function argument: user ID. 
 			add_filter("allow_password_reset", array($this, "filter_password_reset"), 10, 2);
 			add_filter("update_user_metadata", array($this, "filter_update_user_metadata"), 10, 5);
 			
@@ -110,7 +110,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function PluginsLoaded() {
-			add_filter("random_password", array($this, "filter_random_password"), 10, 1); //Replace random password with user set password
 		}
 
 		function InitL18n() {
@@ -2203,7 +2202,69 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 		}
 
-		function SaveAddedFields ( $user_id ) {
+		function SaveAddedFieldsV2 ( $user_id, $password = "", $meta = array() ) {
+			echo "this should break";
+			global $wpdb, $pagenow;
+			$source = $meta;
+			if ( empty($source) ) $source = $_POST;
+
+			$options = get_option("register_plus_redux_options");
+			if ( !is_array($options["show_fields"]) ) $options["show_fields"] = array();
+			if ( in_array("first_name", $options["show_fields"]) && !empty($source["first_name"]) ) update_user_meta($user_id, "first_name", sanitize_text_field($source["first_name"]));
+			if ( in_array("last_name", $options["show_fields"]) && !empty($source["last_name"]) ) update_user_meta($user_id, "last_name", sanitize_text_field($source["last_name"]));
+			if ( in_array("url", $options["show_fields"]) && !empty($source["url"]) ) {
+				$user_url = esc_url_raw( $source["url"] );
+				$user_url = preg_match("/^(https?|ftps?|mailto|news|irc|gopher|nntp|feed|telnet):/is", $user_url) ? $user_url : "http://".$user_url;
+				wp_update_user(array("ID" => $user_id, "user_url" => sanitize_text_field($user_url)));
+			}
+			if ( in_array("aim", $options["show_fields"]) && !empty($source["aim"]) ) update_user_meta($user_id, "aim", sanitize_text_field($source["aim"]));
+			if ( in_array("yahoo", $options["show_fields"]) && !empty($source["yahoo"]) ) update_user_meta($user_id, "yim", sanitize_text_field($source["yahoo"]));
+			if ( in_array("jabber", $options["show_fields"]) && !empty($source["jabber"]) ) update_user_meta($user_id, "jabber", sanitize_text_field($source["jabber"]));
+			if ( in_array("about", $options["show_fields"]) && !empty($source["description"]) ) update_user_meta($user_id, "description", trim($source["description"]));
+
+			$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
+			if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
+			foreach ( $redux_usermeta as $k => $meta_field ) {
+				if ( current_user_can("edit_users") || !empty($meta_field["show_on_profile"]) ) {
+					$key = $meta_field["meta_key"];
+					if ( is_array($source[$key]) ) $source[$key] = implode(",", $source[$key]);
+					if ( $meta_field["type"] == "url" ) {
+						$source[$key] = esc_url_raw( $source[$key] );
+						$source[$key] = preg_match("/^(https?|ftps?|mailto|news|irc|gopher|nntp|feed|telnet):/is", $source[$key]) ? $source[$key] : "http://".$source[$key];
+					}
+					
+					$valid_value = true;
+					if ( !empty($meta_field["require_on_registration"]) && empty($source[$key]) ) $valid_value = false;
+					if ( $meta_field["type"] == "text" && !empty($meta_field["options"]) && !preg_match($meta_field["options"], $source[$key]) ) $valid_value = false;
+					if ( $valid_value ) update_user_meta($user_id, $key, stripslashes( sanitize_text_field($source[$key]) ) );
+				}
+			}
+
+			if ( !empty($options["enable_invitation_code"]) && !empty($source["invitation_code"]) ) update_user_meta($user_id, "invitation_code", sanitize_text_field($source["invitation_code"]));
+
+			if ( !empty($meta) ) {
+				if ( !empty($options["user_set_password"]) && !empty($source["password"]) ) {
+					$plaintext_pass = sanitize_text_field($source["password"]);
+					update_user_option( $user_id, "default_password_nag", false, true );
+					wp_set_password($plaintext_pass, $user_id);
+				}
+				if ( $pagenow == "user-new.php" && !empty($source["pass1"]) ) {
+					$plaintext_pass = sanitize_text_field($source["pass1"]);
+					update_user_option( $user_id, "default_password_nag", false, true );
+					wp_set_password($plaintext_pass, $user_id);
+				}
+	
+				$user_info = get_userdata($user_id);
+				if ( $pagenow != "user-new.php" && (!empty($options["verify_user_email"]) || !empty($options["verify_user_admin"])) ) {
+					update_user_meta($user_id, "stored_user_login", sanitize_text_field($user_info->user_login));
+					update_user_meta($user_id, "stored_user_password", sanitize_text_field($plaintext_pass));
+					$temp_user_login = "unverified_".wp_generate_password(7, false);
+					$wpdb->query( $wpdb->prepare("UPDATE $wpdb->users SET user_login = %s WHERE ID = %d", $temp_user_login, $user_id) );
+				}
+			}
+		}
+
+		function SaveAddedFields ( $user_id, $password = "", $meta = array() ) {
 			global $wpdb, $pagenow;
 			$options = get_option("register_plus_redux_options");
 			if ( !is_array($options["show_fields"]) ) $options["show_fields"] = array();
@@ -2408,38 +2469,21 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function replaceKeywords ( $message, $user_info, $plaintext_pass = "", $verification_code = "" ) {
-			$blogname = wp_specialchars_decode(get_option("blogname"), ENT_QUOTES);
-			$message = str_replace("%blogname%", $blogname, $message);
+			$message = str_replace("%blogname%", wp_specialchars_decode(get_option("blogname"), ENT_QUOTES), $message);
 			$message = str_replace("%site_url%", site_url(), $message);
+			$message = str_replace("%user_login%", $user_info->user_login, $message);
+			$message = str_replace("%user_email%", $user_info->user_email, $message);
+			$message = str_replace("%$key%", get_user_meta($user_info->ID, $key, true), $message);
+			if ( !empty($_SERVER) ) {
+				$message = str_replace("%http_referer%", $_SERVER["HTTP_REFERER"], $message);
+				$message = str_replace("%http_user_agent%", $_SERVER["HTTP_USER_AGENT"], $message);
+				$message = str_replace("%registered_from_ip%", $_SERVER["REMOTE_ADDR"], $message);
+				$message = str_replace("%registered_from_host%", gethostbyaddr($_SERVER["REMOTE_ADDR"]), $message);
+			}
 			$message = str_replace("%user_password%", $plaintext_pass, $message);
 			$message = str_replace("%verification_code%", $verification_code, $message);
 			$message = str_replace("%verification_link%", wp_login_url()."?verification_code=".$verification_code, $message);
 			$message = str_replace("%verification_url%", wp_login_url()."?verification_code=".$verification_code, $message);
-			if ( !empty($_SERVER) ) {
-				$message = str_replace("%registered_from_ip%", $_SERVER["REMOTE_ADDR"], $message);
-				$message = str_replace("%registered_from_host%", gethostbyaddr($_SERVER["REMOTE_ADDR"]), $message);
-				$message = str_replace("%http_referer%", $_SERVER["HTTP_REFERER"], $message);
-				$message = str_replace("%http_user_agent%", $_SERVER["HTTP_USER_AGENT"], $message);
-			}
-			$message = str_replace("%user_login%", $user_info->user_login, $message);
-			$message = str_replace("%user_email%", $user_info->user_email, $message);
-			$message = str_replace("%stored_user_login%", get_user_meta($user_info->ID, "stored_user_login", true), $message);
-			$message = str_replace("%first_name%", get_user_meta($user_info->ID, "first_name", true), $message);
-			$message = str_replace("%last_name%", get_user_meta($user_info->ID, "last_name", true), $message);
-			$message = str_replace("%user_url%", get_user_meta($user_info->ID, "user_url", true), $message);
-			$message = str_replace("%aim%", get_user_meta($user_info->ID, "aim", true), $message);
-			$message = str_replace("%yahoo%", get_user_meta($user_info->ID, "yahoo", true), $message);
-			$message = str_replace("%jabber%", get_user_meta($user_info->ID, "jabber", true), $message);
-			$message = str_replace("%about%", get_user_meta($user_info->ID, "description", true), $message);
-			$message = str_replace("%description%", get_user_meta($user_info->ID, "description", true), $message);
-			$message = str_replace("%invitation_code%", get_user_meta($user_info->ID, "invitation_code", true), $message);
-			$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
-			if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
-			foreach ( $redux_usermeta as $k => $meta_field ) {
-				$key = $meta_field["meta_key"];
-				if ( !empty($meta_field["show_on_registration"]) )
-					$message = str_replace("%$key%", get_user_meta($user_info->ID, $key, true), $message);
-			}
 			return $message;
 		}
 
@@ -2450,6 +2494,12 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function filter_add_signup_meta( $meta ) {
+			foreach ($_POST as $name => $value) {
+				$meta[$name] = $value;
+			}
+			return $meta;
+
+			/*
 			$options = get_option("register_plus_redux_options");
 			if ( !is_array($options["show_fields"]) ) $options["show_fields"] = array();
 			if ( in_array("first_name", $options["show_fields"]) && !empty($_POST["first_name"]) ) $meta["first_name"] = stripslashes( sanitize_text_field($_POST["first_name"]) );
@@ -2485,6 +2535,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( !empty($options["user_set_password"]) && !empty($_POST["password"]) ) $meta["password"] = stripslashes( sanitize_text_field($_POST["password"]) );
 			if ( !empty($options["enable_invitation_code"]) && !empty($_POST["invitation_code"]) ) $meta["invitation_code"] = stripslashes( sanitize_text_field($_POST["invitation_code"]) );
 			return $meta;
+			*/
 		}
 
 		function filter_admin_message_from( $from_email ) {
@@ -2589,23 +2640,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			return $user_login;
 		}
 
-		function filter_random_password( $password ) {
-			global $pagenow;
-			if ( $pagenow == "wp-activate.php" && !empty($_GET["key"]) ) {
-				global $wpdb;
-				$signup = $wpdb->get_row( $wpdb->prepare("SELECT * FROM $wpdb->signups WHERE activation_key = %s", $_GET["key"]) );
-				$meta = unserialize($signup->meta);
-				$user_password = $meta["password"];
-				unset($meta["password"]);
-				$meta = serialize($meta);
-				//pushing %meta out of query into prepare parameters, unlike wp-email-login where I learned this
-				$wpdb->query( $wpdb->prepare("UPDATE $wpdb->signups SET meta = %s WHERE activation_key = %s", $meta, $_GET["key"]) );
-			}
-			//$user_password = "12345678";
-			if ( !empty($user_password) ) $password = $user_password;
-			return $password;
-		}
-
 		function filter_registration_redirect( $redirect_to ) {
 			//default: 'wp-login.php?checkemail=registered'
 			$options = get_option("register_plus_redux_options");
@@ -2663,6 +2697,30 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 if ( class_exists("RegisterPlusReduxPlugin") )
 	$registerPlusRedux = new RegisterPlusReduxPlugin();
+
+add_filter("random_password", "redux_filter_random_password", 2, 1); //Replace random password with user set password
+
+function redux_filter_random_password( $password ) {
+	global $pagenow;
+	echo "this should break";
+	if ( !is_multisite() && $pagenow == "wp-activate.php" ) {
+		$key = $_GET['key'];
+		if ( empty($key) ) $key = $_POST['key'];
+		if ( empty($key) ) {
+			global $wpdb;
+			$signup = $wpdb->get_row( $wpdb->prepare("SELECT * FROM $wpdb->signups WHERE activation_key = %s", $key) );
+			$meta = unserialize($signup->meta);
+			$user_password = $meta["password"];
+			unset($meta["password"]);
+			$meta = serialize($meta);
+			//pushing %meta out of query into prepare parameters, unlike wp-email-login where I learned this
+			$wpdb->query( $wpdb->prepare("UPDATE $wpdb->signups SET meta = %s WHERE activation_key = %s", $meta, $key) );
+		}
+	}
+	$user_password = "12345678";
+	if ( !empty($user_password) ) $password = $user_password;
+	return $password;
+}
 
 function create_wp_new_user_notification() {
 	$options = get_option("register_plus_redux_options");
