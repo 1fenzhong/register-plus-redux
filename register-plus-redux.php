@@ -1637,7 +1637,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo "\n<style type=\"text/css\">";
 				if ( !empty($options["default_css"]) ) {
 					if ( !empty($options[".mu_register double_check_email"]) ) echo "\n#user_email2 { width:100%; font-size: 24px; margin:5px 0; }";
-					if ( !empty($show_fields) ) echo "\n.mu_register $show_fields { width:100%; font-size: 24px; margin:5px 0; }";
+					if ( !empty($show_fields) ) echo "\n$show_fields { width:100%; font-size: 24px; margin:5px 0; }";
 					if ( in_array("about", $options["show_fields"]) ) echo "\n.mu_register #description { width:100%; font-size:24px; height: 60px; margin:5px 0; }";
 					if ( !empty($show_custom_text_fields) ) echo "\n$show_custom_text_fields { width:100%; font-size: 24px; margin:5px 0; }";
 					if ( !empty($show_custom_select_fields) ) echo "\n$show_custom_select_fields { width:100%; font-size:24px; margin:5px 0; }";
@@ -1657,8 +1657,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !empty($options["required_fields_style"]) ) {
 					echo "\n.mu_register #user_login, .mu_register #user_email { ", $options["required_fields_style"], "} ";
 					if ( !empty($options["double_check_email"]) ) echo "\n.mu_register #user_email2 { ", $options["required_fields_style"], " }";
-					if ( !empty($required_fields) ) echo "\n.mu_register $required_fields { ", $options["required_fields_style"], " }";
-					if ( !empty($required_meta_fields) ) echo "\n.mu_register $required_meta_fields { ", $options["required_fields_style"], " }";
+					if ( !empty($required_fields) ) echo "\n$required_fields { ", $options["required_fields_style"], " }";
+					if ( !empty($required_meta_fields) ) echo "\n$required_meta_fields { ", $options["required_fields_style"], " }";
 					if ( !empty($options["user_set_password"]) ) echo "\n.mu_register #pass1, .mu_register #pass2 { ", $options["required_fields_style"], " }";
 					if ( !empty($options["require_invitation_code"]) ) echo "\n.mu_register #invitation_code { ", $options["required_fields_style"], " }";
 				}
