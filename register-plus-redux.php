@@ -27,8 +27,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 
 			if ( is_multisite() ) {
-				add_action("signup_extra_fields", array($this, "AlterSignupForm_wpmu"), 9, 1);
 				add_action("wpmu_activate_user", array($this, "SaveRegisterSignupFields"), 10, 3); //Add stored metadata for new user to database
+
+				add_action("signup_extra_fields", array($this, "AlterSignupForm_wpmu"), 9, 1);
 				add_action("signup_header", array($this, "SignupHeader_wpmu"), 10, 1);
 				add_filter("wpmu_validate_user_signup", array($this, "CheckSignupForm_wpmu"), 10, 1); //applied to the list of registration errors generated while registering a user for a new account. 
 				//add_filter("signup_user_init", array($this, "filter_signup_user_init_wpmu"), 10, 1); //Changes user_name to user_email
@@ -37,9 +38,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 
 			if ( !is_multisite() ) {
-				add_action("register_form", array($this, "AlterRegisterSignupForm"), 9, 1); //Runs just before the end of the new user registration form.
 				add_action("user_register", array($this, "SaveRegisterSignupFields"), 10, 1); //Runs when a user's profile is first created. Action function argument: user ID. 
 
+				add_action("register_form", array($this, "AlterRegisterForm_swp"), 9, 1); //Runs just before the end of the new user registration form.
 				add_filter("login_headerurl", array($this, "filter_login_headerurl_swp"), 10, 1);
 				add_filter("login_headertitle", array($this, "filter_login_headertitle_swp"), 10, 1);
 				add_action("login_head", array($this, "LoginHead_swp"), 10, 1); //Runs just before the end of the HTML head section of the login page.
@@ -1779,7 +1780,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				}
 		}
 
-		function AlterRegisterSignupForm() {
+		function AlterRegisterForm_swp() {
 			$options = get_option("register_plus_redux_options");
 			if ( !empty($options["starting_tabindex"]) ) $tabindex = $options["starting_tabindex"];
 			if ( !empty($options["double_check_email"]) ) {
@@ -1854,7 +1855,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 			foreach ( $redux_usermeta as $k => $meta_field ) {
 				if ( !empty($meta_field["show_on_registration"]) ) {
-					$key = $meta_field["meta_key"];
+					$key = esc_attr($meta_field["meta_key"]);
 					if ( isset($_GET[$key]) ) $_POST[$key] = $_GET[$key];
 					switch ( $meta_field["type"] ) {
 						case "text":
@@ -1874,9 +1875,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo ">";
 							$field_options = explode(",", $meta_field["options"]);
 							foreach ( $field_options as $field_option ) {
-								$option = $this->cleanupText($field_option);
-								echo "<option id=\"$option\" value=\"", esc_attr($field_option), "\"";
-								if ( $_POST[$key] == $field_option ) echo " selected=\"selected\"";
+								$option = esc_attr($this->cleanupText($field_option));
+								echo "<option id=\"$key-$field_option\" value=\"$option\"";
+								if ( $_POST[$key] == $option ) echo " selected=\"selected\"";
 								echo ">", esc_html($field_option), "</option>";
 							}
 							echo "</select>";
@@ -1888,11 +1889,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo esc_html($meta_field["label"]), "</label><br />";
 							$field_options = explode(",", $meta_field["options"]);
 							foreach ( $field_options as $field_option ) {
-								$option = $this->cleanupText($field_option);
-								echo "\n<input type=\"checkbox\" name=\"", $key, "[]\" id=\"$key-$option\" value=\"", esc_attr($field_option), "\" ";
+								$option = esc_attr($this->cleanupText($field_option));
+								echo "\n<input type=\"checkbox\" name=\"", $key, "[]\" id=\"$key-$option\" value=\"$option\" ";
 								if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
-								if ( is_array($_POST[$key]) && in_array($field_option, $_POST[$key]) ) echo "checked=\"checked\" ";
-								if ( !is_array($_POST[$key]) && ($_POST[$key] == $field_option) ) echo "checked=\"checked\" ";
+								if ( is_array($_POST[$key]) && in_array($option, $_POST[$key]) ) echo "checked=\"checked\" ";
+								if ( !is_array($_POST[$key]) && ($_POST[$key] == $option) ) echo "checked=\"checked\" ";
 								echo "/><label id=\"$key-$option-label\" class=\"$key\" for=\"$key-$option\">&nbsp;", esc_html($field_option), "</label><br />";
 							}
 							echo "\n</p>";
@@ -1903,10 +1904,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo esc_html($meta_field["label"]), "</label><br />";
 							$field_options = explode(",", $meta_field["options"]);
 							foreach ( $field_options as $field_option ) {
-								$option = $this->cleanupText($field_option);
-								echo "\n<input type=\"radio\" name=\"$key\" id=\"$key-$option\" value=\"", esc_attr($field_option), "\" ";
+								$option = esc_attr($this->cleanupText($field_option));
+								echo "\n<input type=\"radio\" name=\"$key\" id=\"$key-$option\" value=\"$option\" ";
 								if ( !empty($options["starting_tabindex"]) ) echo "tabindex=\"", $tabindex++, "\" ";
-								if ( $_POST[$key] == $field_option ) echo "checked=\"checked\" ";
+								if ( $_POST[$key] == $option ) echo "checked=\"checked\" ";
 								echo "/><label id=\"$key-$option-label\" class=\"$key\" for=\"$key-$option\">&nbsp;", esc_html($field_option), "</label><br />";
 							}
 							echo "\n</p>";
@@ -2068,7 +2069,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 			foreach ( $redux_usermeta as $k => $meta_field ) {
 				if ( !empty($meta_field["show_on_registration"]) ) {
-					$key = $meta_field["meta_key"];
+					$key = esc_attr($meta_field["meta_key"]);
 					if ( isset($_GET[$key]) ) $_POST[$key] = $_GET[$key];
 					if ( ($meta_field["type"] != "hidden") && ($meta_field["type"] != "static" ) ) {
 						echo "\n\t\t<label id=\"$key-label\" for=\"$key\">";
@@ -2084,9 +2085,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							echo "\n\t\t<select name=\"$key\" id=\"$key\">";
 							$field_options = explode(",", $meta_field["options"]);
 							foreach ( $field_options as $field_option ) {
-								$option = $this->cleanupText($field_option);
-								echo "n\t\t\t<option id=\"$option\" value=\"", esc_attr($field_option), "\"";
-								if ( $_POST[$key] == $field_option ) echo " selected=\"selected\"";
+								$option = esc_attr($this->cleanupText($field_option));
+								echo "n\t\t\t<option id=\"$key-$option\" value=\"$option\"";
+								if ( $_POST[$key] == $option ) echo " selected=\"selected\"";
 								echo ">", esc_html($field_option), "</option>";
 							}
 							echo "n\t\t</select>";
@@ -2094,19 +2095,19 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						case "checkbox":
 							$field_options = explode(",", $meta_field["options"]);
 							foreach ( $field_options as $field_option ) {
-								$option = $this->cleanupText($field_option);
-								echo "\n\t\t<input type=\"checkbox\" name=\"", $key, "[]\" id=\"$key-$option\" value=\"", esc_attr($field_option), "\" ";
-								if ( is_array($_POST[$key]) && in_array($field_option, $_POST[$key]) ) echo "checked=\"checked\" ";
-								if ( !is_array($_POST[$key]) && ($_POST[$key] == $field_option) ) echo "checked=\"checked\" ";
+								$option = esc_attr($this->cleanupText($field_option));
+								echo "\n\t\t<input type=\"checkbox\" name=\"", $key, "[]\" id=\"$key-$option\" value=\"$option\" ";
+								if ( is_array($_POST[$key]) && in_array($option, $_POST[$key]) ) echo "checked=\"checked\" ";
+								if ( !is_array($_POST[$key]) && ($_POST[$key] == $option) ) echo "checked=\"checked\" ";
 								echo "/><label id=\"$key-$option-label\" class=\"$key\" for=\"$key-$option\">&nbsp;", esc_html($field_option), "</label>";
 							}
 							break;
 						case "radio":
 							$field_options = explode(",", $meta_field["options"]);
 							foreach ( $field_options as $field_option ) {
-								$option = $this->cleanupText($field_option);
-								echo "\n\t\t<input type=\"radio\" name=\"$key\" id=\"$key-$option\" value=\"", esc_attr($field_option), "\" ";
-								if ( $_POST[$key] == $field_option ) echo "checked=\"checked\" ";
+								$option = esc_attr($this->cleanupText($field_option));
+								echo "\n\t\t<input type=\"radio\" name=\"$key\" id=\"$key-$option\" value=\"$option\" ";
+								if ( $_POST[$key] == $option ) echo "checked=\"checked\" ";
 								echo "/><label id=\"$key-$option-label\" class=\"$key\" for=\"$key-$option\">&nbsp;", esc_html($field_option), "</label>";
 							}
 							break;
@@ -2783,7 +2784,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function cleanupText( $key ) {
+			//replace spaces
 			$key = str_replace(" ", "_", $key);
+			$key = str_replace('"', "", $key);
+			$key = str_replace("'", "", $key);
 			$key = strtolower($key);
 			return $key;
 		}
