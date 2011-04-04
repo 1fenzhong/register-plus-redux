@@ -15,7 +15,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			global $wp_version;
 			$options = get_option("register_plus_redux_options");
 
-			add_action("plugins_loaded", array($this, "PluginsLoaded"), 10, 1);
 			add_action("init", array($this, "InitL18n"), 10, 1); //Runs after WordPress has finished loading but before any headers are sent.
 
 			if ( is_admin() ) {
@@ -64,9 +63,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			
 			if ( $wp_version < 3.0 )
 				add_action("admin_notices", array($this, "VersionWarning"), 10, 1); //Runs after the admin menu is printed to the screen. 
-		}
-
-		function PluginsLoaded() {
 		}
 
 		function InitL18n() {
@@ -1374,55 +1370,56 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 				foreach ( $redux_usermeta as $k => $meta_field ) {
 					if ( !empty($meta_field["show_on_registration"]) ) {
+						$key = esc_attr($meta_field["meta_key"]);
 						if ( ($meta_field["type"] == "text") || ($meta_field["type"] == "url") ) {
 							if ( empty($show_custom_text_fields) )
-								$show_custom_text_fields = "#".$meta_field["meta_key"];
+								$show_custom_text_fields = "#".$key;
 							else
-								$show_custom_text_fields .= ", #".$meta_field["meta_key"];
+								$show_custom_text_fields .= ", #".$key;
 						}
 						if ( $meta_field["type"] == "select" ) {
 							if ( empty($show_custom_select_fields) )
-								$show_custom_select_fields = "#".$meta_field["meta_key"];
+								$show_custom_select_fields = "#".$key;
 							else
-								$show_custom_select_fields .= ", #".$meta_field["meta_key"];
+								$show_custom_select_fields .= ", #".$key;
 						}
 						if ( $meta_field["type"] == "checkbox" ) {
 							$field_options = explode(",", $meta_field["options"]);
 							foreach ( $field_options as $field_option ) {
-								$option = $this->cleanupText($field_option);
+								$option = esc_attr($this->cleanupText($field_option));
 								if ( empty($show_custom_checkbox_fields) )
-									$show_custom_checkbox_fields = "#".$meta_field["meta_key"]."-".$option.", #".$meta_field["meta_key"]."-".$option."-label";
+									$show_custom_checkbox_fields = "#".$key."-".$option.", #".$key."-".$option."-label";
 								else
-									$show_custom_checkbox_fields .= ", #".$meta_field["meta_key"]."-".$option.", #".$meta_field["meta_key"]."-".$option."-label";
+									$show_custom_checkbox_fields .= ", #".$key."-".$option.", #".$key."-".$option."-label";
 							}
 						}
 						if ( $meta_field["type"] == "radio" ) {
 							$field_options = explode(",", $meta_field["options"]);
 							foreach ( $field_options as $field_option ) {
-								$option = $this->cleanupText($field_option);
+								$option = esc_attr($this->cleanupText($field_option));
 								if ( empty($show_custom_radio_fields) )
-									$show_custom_radio_fields = "#".$meta_field["meta_key"]."-".$option.", #".$meta_field["meta_key"]."-".$option."-label";
+									$show_custom_radio_fields = "#".$key."-".$option.", #".$key."-".$option."-label";
 								else
-									$show_custom_radio_fields .= ", #".$meta_field["meta_key"]."-".$option.", #".$meta_field["meta_key"]."-".$option."-label";
+									$show_custom_radio_fields .= ", #".$key."-".$option.", #".$key."-".$option."-label";
 							}
 						}
 						if ( $meta_field["type"] == "textarea" ) {
 							if ( empty($show_custom_textarea_fields) )
-								$show_custom_textarea_fields = "#".$meta_field["meta_key"]."-label";
+								$show_custom_textarea_fields = "#".$key."-label";
 							else
-								$show_custom_textarea_fields .= ", #".$meta_field["meta_key"]."-label";
+								$show_custom_textarea_fields .= ", #".$key."-label";
 						}
 						if ( $meta_field["type"] == "date" ) {
 							if ( empty($show_custom_date_fields) )
-								$show_custom_date_fields = "#".$meta_field["meta_key"];
+								$show_custom_date_fields = "#".$key;
 							else
-								$show_custom_date_fields .= ", #".$meta_field["meta_key"];
+								$show_custom_date_fields .= ", #".$key;
 						}
 						if ( !empty($meta_field["require_on_registration"]) ) {
 							if ( empty($required_meta_fields) )
-								$required_meta_fields = "#".$meta_field["meta_key"];
+								$required_meta_fields = "#".$key;
 							else
-								$required_meta_fields .= ", #".$meta_field["meta_key"];
+								$required_meta_fields .= ", #".$key;
 						}
 					}
 				}
@@ -1585,49 +1582,50 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 				foreach ( $redux_usermeta as $k => $meta_field ) {
 					if ( !empty($meta_field["show_on_registration"]) ) {
+						$key = esc_attr($meta_field["meta_key"]);
 						if ( ($meta_field["type"] == "text") || ($meta_field["type"] == "url") || ($meta_field["type"] == "date") ) {
 							if ( empty($show_custom_text_fields) )
-								$show_custom_text_fields = "#".$meta_field["meta_key"];
+								$show_custom_text_fields = ".mu_register #".$key;
 							else
-								$show_custom_text_fields .= ", #".$meta_field["meta_key"];
+								$show_custom_text_fields .= ", .mu_register #".$key;
 						}
 						if ( $meta_field["type"] == "select" ) {
 							if ( empty($show_custom_select_fields) )
-								$show_custom_select_fields = "#".$meta_field["meta_key"];
+								$show_custom_select_fields = ".mu_register #".$key;
 							else
-								$show_custom_select_fields .= ", #".$meta_field["meta_key"];
+								$show_custom_select_fields .= ", .mu_register #".$key;
 						}
 						if ( $meta_field["type"] == "checkbox" ) {
 							$field_options = explode(",", $meta_field["options"]);
 							foreach ( $field_options as $field_option ) {
-								$option = $this->cleanupText($field_option);
+								$option = esc_attr($this->cleanupText($field_option));
 								if ( empty($show_custom_checkbox_fields) )
-									$show_custom_checkbox_fields = ".mu_register #".$meta_field["meta_key"]."-".$option.", .mu_register #".$meta_field["meta_key"]."-".$option."-label";
+									$show_custom_checkbox_fields = ".mu_register #".$key."-".$option.", .mu_register #".$key."-".$option."-label";
 								else
-									$show_custom_checkbox_fields .= ", .mu_register #".$meta_field["meta_key"]."-".$option.", .mu_register #".$meta_field["meta_key"]."-".$option."-label";
+									$show_custom_checkbox_fields .= ", .mu_register #".$key."-".$option.", .mu_register #".$key."-".$option."-label";
 							}
 						}
 						if ( $meta_field["type"] == "radio" ) {
 							$field_options = explode(",", $meta_field["options"]);
 							foreach ( $field_options as $field_option ) {
-								$option = $this->cleanupText($field_option);
+								$option = esc_attr($this->cleanupText($field_option));
 								if ( empty($show_custom_radio_fields) )
-									$show_custom_radio_fields = ".mu_register #".$meta_field["meta_key"]."-".$option.", .mu_register #".$meta_field["meta_key"]."-".$option."-label";
+									$show_custom_radio_fields = ".mu_register #".$key."-".$option.", .mu_register #".$key."-".$option."-label";
 								else
-									$show_custom_radio_fields .= ", .mu_register #".$meta_field["meta_key"]."-".$option.", .mu_register #".$meta_field["meta_key"]."-".$option."-label";
+									$show_custom_radio_fields .= ", .mu_register #".$key."-".$option.", .mu_register #".$key."-".$option."-label";
 							}
 						}
 						if ( $meta_field["type"] == "textarea" ) {
 							if ( empty($show_custom_textarea_fields) )
-								$show_custom_textarea_fields = ".mu_register #".$meta_field["meta_key"]."-label";
+								$show_custom_textarea_fields = ".mu_register #".$key."-label";
 							else
-								$show_custom_textarea_fields .= ", .mu_register #".$meta_field["meta_key"]."-label";
+								$show_custom_textarea_fields .= ", .mu_register #".$key."-label";
 						}
 						if ( !empty($meta_field["require_on_registration"]) ) {
 							if ( empty($required_meta_fields) )
-								$required_meta_fields = ".mu_register #".$meta_field["meta_key"];
+								$required_meta_fields = ".mu_register #".$key;
 							else
-								$required_meta_fields .= ", .mu_register #".$meta_field["meta_key"];
+								$required_meta_fields .= ", .mu_register #".$key;
 						}
 					}
 				}
@@ -1876,7 +1874,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							$field_options = explode(",", $meta_field["options"]);
 							foreach ( $field_options as $field_option ) {
 								$option = esc_attr($this->cleanupText($field_option));
-								echo "<option id=\"$key-$field_option\" value=\"$option\"";
+								echo "<option id=\"$key-$option\" value=\"$option\"";
 								if ( $_POST[$key] == $option ) echo " selected=\"selected\"";
 								echo ">", esc_html($field_option), "</option>";
 							}
@@ -2448,7 +2446,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( is_array($redux_usermeta) ) {
 					foreach ( $redux_usermeta as $k => $meta_field ) {
 						if ( current_user_can("edit_users") || !empty($meta_field["show_on_profile"]) ) {
-							$key = $meta_field["meta_key"];
+							$key = esc_attr($meta_field["meta_key"]);
 							$value = get_user_meta($profileuser->ID, $key, true);
 							echo "\n\t<tr>";
 							echo "\n\t\t<th><label for=\"$key\">", esc_html($meta_field["label"]);
@@ -2465,11 +2463,12 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									echo "\n\t\t\t<select name=\"$key\" id=\"$key\" style=\"width: 15em;\">";
 									$field_options = explode(",", $meta_field["options"]);
 									foreach ( $field_options as $field_option ) {
-										echo "<option value=\"", esc_attr($field_option), "\"";
-										if ( $value == $field_option ) echo " selected=\"selected\"";
+										$option = esc_attr($this->cleanupText($field_option));
+										echo "n\t\t\t\t<option value=\"$option\"";
+										if ( $value == $option ) echo " selected=\"selected\"";
 										echo ">", esc_html($field_option), "</option>";
 									}
-									echo "</select>";
+									echo "\n\t\t\t</select>";
 									echo "\n\t\t</td>";
 									break;
 								case "checkbox":
@@ -2477,9 +2476,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									$field_options = explode(",", $meta_field["options"]);
 									$values = explode(",", $value);
 									foreach ( $field_options as $field_option ) {
-										echo "\n\t\t\t<label><input type=\"checkbox\" name=\"$key", "[]\" value=\"", esc_attr($field_option), "\"";
-										if ( in_array($field_option, $values) ) echo " checked=\"checked\"";
-										echo " />&nbsp;", esc_html($field_option), "</label><br />";
+										$option = esc_attr($this->cleanupText($field_option));
+										echo "\n\t\t\t<label><input type=\"checkbox\" name=\"", $key, "[]\" value=\"$option\" ";
+										if ( is_array($values) && in_array($option, $values) ) echo "checked=\"checked\" ";
+										if ( !is_array($values) && ($value == $option) ) echo "checked=\"checked\" ";
+										echo "/>&nbsp;", esc_html($field_option), "</label><br />";
 									}
 									echo "\n\t\t</td>";
 									break;
@@ -2487,9 +2488,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									echo "\n\t\t<td>";
 									$field_options = explode(",", $meta_field["options"]);
 									foreach ( $field_options as $field_option ) {
-										echo "\n\t\t\t<label><input type=\"radio\" name=\"$key\" value=\"", esc_attr($field_option), "\"";
-										if ( $value == $field_option ) echo " checked=\"checked\"";
-										echo " class=\"tog\">&nbsp;", esc_html($field_option), "</label><br />";
+										$option = esc_attr($this->cleanupText($field_option));
+										echo "\n\t\t\t<label><input type=\"radio\" name=\"$key\" value=\"$option\" ";
+										if ( $value == $option ) echo "checked=\"checked\" ";
+										echo "class=\"tog\">&nbsp;", esc_html($field_option), "</label><br />";
 									}
 									echo "\n\t\t</td>";
 									break;
