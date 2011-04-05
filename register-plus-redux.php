@@ -114,6 +114,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				//delete_option("register_plus_redux_custom_fields");
 				if ( !empty($redux_usermeta) ) update_option("register_plus_redux_usermeta-rv1", $redux_usermeta);
 			}
+
+			// Added 03/28/11 in 3.7.4 converting invitation_code_bank to own option
+			$options = get_option("register_plus_redux_options");
+			$invitation_code_bank = $options["invitation_code_bank"];
+			if ( !empty($options["invitation_code_bank"]) ) update_option("register_plus_redux_invitation_code_bank-rv1", $options["invitation_code_bank"]);
 		}
 
 		function InitDeleteExpiredUsers() {
@@ -427,6 +432,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						jQuery(this).parent().nextAll("div").first().hide();
 				});
 
+				jQuery("#showHiddenInvitationCodes").bind("click", function() {
+					jQuery(this).parent().children().show();
+					jQuery(this).remove();
+				});
+
 				jQuery("#addInvitationCode").bind("click", function() {
 					addInvitationCode();
 				});
@@ -682,13 +692,18 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								<label><input type="checkbox" name="require_invitation_code" value="1" <?php if ( !empty($options["require_invitation_code"]) ) echo "checked=\"checked\""; ?> />&nbsp;<?php _e("Require new user enter one of the following invitation codes to register.", "register-plus-redux"); ?></label><br />
 								<label><input type="checkbox" name="invitation_code_case_sensitive" value="1" <?php if ( !empty($options["invitation_code_case_sensitive"]) ) echo "checked=\"checked\""; ?> />&nbsp;<?php _e("Enforce case-sensitivity of invitation codes.", "register-plus-redux"); ?></label><br />
 								<label><input type="checkbox" name="invitation_code_unique" value="1" <?php if ( !empty($options["invitation_code_unique"]) ) echo "checked=\"checked\""; ?> />&nbsp;<?php _e("Each invitation code may only be used once.", "register-plus-redux"); ?></label><br />
-								<label><input type="checkbox" name="enable_invitation_tracking_widget" value="1" <?php if ( !empty($options["enable_invitation_tracking_widget"]) ) echo "checked=\"checked\""; ?> />&nbsp;<?php _e("Show Invitation Code Tracking widget on Dashboard.", "register-plus-redux"); ?></label>
+								<label><input type="checkbox" name="enable_invitation_tracking_widget" value="1" <?php if ( !empty($options["enable_invitation_tracking_widget"]) ) echo "checked=\"checked\""; ?> />&nbsp;<?php _e("Show Invitation Code Tracking widget on Dashboard.", "register-plus-redux"); ?></label><br />
 								<div id="invitation_code_bank">
 								<?php
-									$invitation_codes = $options["invitation_code_bank"];
-									if ( !is_array($options["invitation_code_bank"]) ) $options["invitation_code_bank"] = array();
-									foreach ( $options["invitation_code_bank"] as $invitation_code )
-										echo "\n<div class=\"invitation_code\"><input type=\"text\" name=\"invitation_code_bank[]\" value=\"$invitation_code\" />&nbsp;<img src=\"", plugins_url("images\delete.png", __FILE__), "\" alt=\"", esc_attr__("Remove Code", "register-plus-redux"), "\" title=\"", esc_attr__("Remove Code", "register-plus-redux"), "\" class=\"removeInvitationCode\" style=\"cursor: pointer;\" /></div>";
+									$invitation_code_bank = get_option("register_plus_redux_invitation_code_bank-rv1");
+									if ( !is_array($invitation_code_bank) ) $invitation_code_bank = array();
+									for ( $count = 0 ; $count < count($invitation_code_bank) ; $count++ ) {
+										echo "\n<div class=\"invitation_code\"";
+										if ( $count > 5 ) echo " style=\"display: none;\"";
+										echo "><input type=\"text\" name=\"invitation_code_bank[]\" value=\"$invitation_code_bank[$count]\" />&nbsp;<img src=\"", plugins_url("images\delete.png", __FILE__), "\" alt=\"", esc_attr__("Remove Code", "register-plus-redux"), "\" title=\"", esc_attr__("Remove Code", "register-plus-redux"), "\" class=\"removeInvitationCode\" style=\"cursor: pointer;\" /></div>";
+									}
+									if ( $count > 5 )
+										echo "<div id=\"showHiddenInvitationCodes\" style=\"cursor: pointer;\">", sprintf(__("Show %d hidden invitation codes", "register-plus-redux"), ($count-5)), "</div>";
 								?>
 								</div>
 								<img src="<?php echo plugins_url("images\add.png", __FILE__); ?>" alt="<?php esc_attr_e("Add Code", "register-plus-redux") ?>" title="<?php esc_attr_e("Add Code", "register-plus-redux") ?>" id="addInvitationCode" style="cursor: pointer;" />&nbsp;<?php _e("Add a new invitation code", "register-plus-redux") ?><br />
@@ -1095,7 +1110,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( isset($_POST["invitation_code_case_sensitive"]) ) $options["invitation_code_case_sensitive"] = stripslashes( sanitize_text_field($_POST["invitation_code_case_sensitive"]) );
 			if ( isset($_POST["invitation_code_unique"]) ) $options["invitation_code_unique"] = stripslashes( sanitize_text_field($_POST["invitation_code_unique"]) );
 			if ( isset($_POST["enable_invitation_tracking_widget"]) ) $options["enable_invitation_tracking_widget"] = stripslashes( sanitize_text_field($_POST["enable_invitation_tracking_widget"]) );
-			if ( isset($_POST["invitation_code_bank"]) ) $options["invitation_code_bank"] = stripslashes_deep( $_POST["invitation_code_bank"] );
+
 			if ( isset($_POST["show_disclaimer"]) ) $options["show_disclaimer"] = stripslashes( sanitize_text_field($_POST["show_disclaimer"]) );
 			if ( isset($_POST["message_disclaimer_title"]) ) $options["message_disclaimer_title"] = stripslashes( sanitize_text_field($_POST["message_disclaimer_title"]) );
 			if ( isset($_POST["message_disclaimer"]) ) $options["message_disclaimer"] = stripslashes( sanitize_text_field($_POST["message_disclaimer"]) );
@@ -1116,24 +1131,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( isset($_POST["required_fields_asterisk"]) ) $options["required_fields_asterisk"] = stripslashes( sanitize_text_field($_POST["required_fields_asterisk"]) );
 			if ( isset($_POST["starting_tabindex"]) ) $options["starting_tabindex"] = stripslashes( sanitize_text_field($_POST["starting_tabindex"]) );
 
-			if ( isset($_POST["field_type"]) ) {
-				foreach ( $_POST["field_type"] as $index => $v ) {
-					$meta_field = array();
-					if ( !empty($_POST["field_label"][$index]) ) {
-						$meta_field["type"] = isset($_POST["field_type"][$index]) ? stripslashes( sanitize_text_field($_POST["field_type"][$index]) ) : "";
-						$meta_field["label"] = isset($_POST["field_label"][$index]) ? stripslashes( sanitize_text_field($_POST["field_label"][$index]) ) : "";
-						$meta_field["meta_key"] = isset($_POST["field_meta_key"][$index]) ? stripslashes( sanitize_text_field($_POST["field_meta_key"][$index]) ) : "";
-						$meta_field["options"] = isset($_POST["field_options"][$index]) ? stripslashes( sanitize_text_field($_POST["field_options"][$index]) ) : "";
-						$meta_field["show_on_profile"] = isset($_POST["show_on_profile"][$index]) ? stripslashes( sanitize_text_field($_POST["show_on_profile"][$index]) ) : "";
-						$meta_field["show_on_registration"] = isset($_POST["show_on_registration"][$index]) ? stripslashes( sanitize_text_field($_POST["show_on_registration"][$index]) ) : "";
-						$meta_field["require_on_registration"] = isset($_POST["require_on_registration"][$index]) ? stripslashes( sanitize_text_field($_POST["require_on_registration"][$index]) ) : "";
-						$meta_field["source"] = "register plus redux/3.7.4";
-						if ( empty($meta_field["meta_key"]) ) $meta_field["meta_key"] = $_POST["field_label"][$index];
-						$meta_field["meta_key"] = stripslashes( sanitize_text_field( $this->cleanupText($meta_field["meta_key"]) ) );
-					}
-					$redux_usermeta[$index] = $meta_field;
-				}
-			}
 			if ( isset($_POST["datepicker_firstdayofweek"]) ) $options["datepicker_firstdayofweek"] = stripslashes( sanitize_text_field($_POST["datepicker_firstdayofweek"]) );
 			if ( isset($_POST["datepicker_dateformat"]) ) $options["datepicker_dateformat"] = stripslashes( sanitize_text_field($_POST["datepicker_dateformat"]) );
 			if ( isset($_POST["datepicker_startdate"]) ) $options["datepicker_startdate"] = stripslashes( sanitize_text_field($_POST["datepicker_startdate"]) );
@@ -1175,7 +1172,29 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 			$options["disable_url_fopen"] = isset($_POST["disable_url_fopen"]) ? stripslashes( sanitize_text_field($_POST["disable_url_fopen"]) ) : "";
 
+			if ( isset($_POST["invitation_code_bank"]) ) $invitation_code_bank = stripslashes_deep( $_POST["invitation_code_bank"] );
+
+			if ( isset($_POST["field_type"]) ) {
+				foreach ( $_POST["field_type"] as $index => $v ) {
+					$meta_field = array();
+					if ( !empty($_POST["field_label"][$index]) ) {
+						$meta_field["type"] = isset($_POST["field_type"][$index]) ? stripslashes( sanitize_text_field($_POST["field_type"][$index]) ) : "";
+						$meta_field["label"] = isset($_POST["field_label"][$index]) ? stripslashes( sanitize_text_field($_POST["field_label"][$index]) ) : "";
+						$meta_field["meta_key"] = isset($_POST["field_meta_key"][$index]) ? stripslashes( sanitize_text_field($_POST["field_meta_key"][$index]) ) : "";
+						$meta_field["options"] = isset($_POST["field_options"][$index]) ? stripslashes( sanitize_text_field($_POST["field_options"][$index]) ) : "";
+						$meta_field["show_on_profile"] = isset($_POST["show_on_profile"][$index]) ? stripslashes( sanitize_text_field($_POST["show_on_profile"][$index]) ) : "";
+						$meta_field["show_on_registration"] = isset($_POST["show_on_registration"][$index]) ? stripslashes( sanitize_text_field($_POST["show_on_registration"][$index]) ) : "";
+						$meta_field["require_on_registration"] = isset($_POST["require_on_registration"][$index]) ? stripslashes( sanitize_text_field($_POST["require_on_registration"][$index]) ) : "";
+						$meta_field["source"] = "register plus redux/3.7.4";
+						if ( empty($meta_field["meta_key"]) ) $meta_field["meta_key"] = $_POST["field_label"][$index];
+						$meta_field["meta_key"] = stripslashes( sanitize_text_field( $this->cleanupText($meta_field["meta_key"]) ) );
+					}
+					$redux_usermeta[$index] = $meta_field;
+				}
+			}
+
 			update_option("register_plus_redux_options", $options);
+			if ( !empty($invitation_code_bank) ) update_option("register_plus_redux_invitation_code_bank-rv1", $invitation_code_bank);
 			if ( !empty($redux_usermeta) ) update_option("register_plus_redux_usermeta-rv1", $redux_usermeta);
 		}
 
@@ -2263,7 +2282,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( empty($_POST["invitation_code"]) && !empty($options["require_invitation_code"]) ) {
 					$errors->add("empty_invitation_code", __("<strong>ERROR</strong>: Please enter an invitation code.", "register-plus-redux"));
 				} elseif ( !empty($_POST["invitation_code"]) ) {
-					$invitation_code_bank = $options["invitation_code_bank"];
+					$invitation_code_bank = get_option("register_plus_redux_invitation_code_bank-rv1");
 					if ( !is_array($invitation_code_bank) ) $invitation_code_bank = array();
 					if ( empty($options["invitation_code_case_sensitive"]) ) {
 						$_POST["invitation_code"] = strtolower($_POST["invitation_code"]);
@@ -2274,7 +2293,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						$errors->add("invitation_code_mismatch", __("<strong>ERROR</strong>: That invitation code is invalid.", "register-plus-redux"));
 					} else {
 						$key = array_search($_POST["invitation_code"], $invitation_code_bank);
-						$invitation_code_bank = $options["invitation_code_bank"];
+						$invitation_code_bank = get_option("register_plus_redux_invitation_code_bank-rv1");
 						$_POST["invitation_code"] = $invitation_code_bank[$key];
 						if ( !empty($options["invitation_code_unique"]) ) {
 							global $wpdb;
@@ -2381,7 +2400,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( empty($_POST["invitation_code"]) && !empty($options["require_invitation_code"]) ) {
 					$result["errors"]->add("empty_invitation_code", __("<strong>ERROR</strong>: Please enter an invitation code.", "register-plus-redux"));
 				} elseif ( !empty($_POST["invitation_code"]) ) {
-					$invitation_code_bank = $options["invitation_code_bank"];
+					$invitation_code_bank = get_option("register_plus_redux_invitation_code_bank-rv1");
 					if ( !is_array($invitation_code_bank) ) $invitation_code_bank = array();
 					if ( empty($options["invitation_code_case_sensitive"]) ) {
 						$_POST["invitation_code"] = strtolower($_POST["invitation_code"]);
@@ -2392,7 +2411,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						$result["errors"]->add("invitation_code_mismatch", __("<strong>ERROR</strong>: That invitation code is invalid.", "register-plus-redux"));
 					} else {
 						$key = array_search($_POST["invitation_code"], $invitation_code_bank);
-						$invitation_code_bank = $options["invitation_code_bank"];
+						$invitation_code_bank = get_option("register_plus_redux_invitation_code_bank-rv1");
 						$_POST["invitation_code"] = $invitation_code_bank[$key];
 						if ( !empty($options["invitation_code_unique"]) ) {
 							global $wpdb;
@@ -2649,7 +2668,6 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				"invitation_code_case_sensitive" => "0",
 				"invitation_code_unique" => "0",
 				"enable_invitation_tracking_widget" => "0",
-				"invitation_code_bank" => array(),
 				"show_disclaimer" => "0",
 				"message_disclaimer_title" => "Disclaimer",
 				"message_disclaimer" => "",
