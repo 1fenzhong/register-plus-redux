@@ -2521,17 +2521,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 			foreach ( $redux_usermeta as $k => $meta_field ) {
 				if ( current_user_can("edit_users") || !empty($meta_field["show_on_profile"]) ) {
-					$key = $meta_field["meta_key"];
-					if ( is_array($_POST[$key]) ) $_POST[$key] = implode(",", $_POST[$key]);
-					if ( $meta_field["type"] == "url" ) {
-						$_POST[$key] = esc_url_raw($_POST[$key]);
-						$_POST[$key] = preg_match("/^(https?|ftps?|mailto|news|irc|gopher|nntp|feed|telnet):/is", $_POST[$key]) ? $_POST[$key] : "http://".$_POST[$key];
-					}
-					
-					$valid_value = true;
-					if ( !empty($meta_field["require_on_registration"]) && empty($_POST[$key]) ) $valid_value = false;
-					if ( ($meta_field["type"] == "text") && !empty($meta_field["options"]) && !preg_match($meta_field["options"], $_POST[$key]) ) $valid_value = false;
-					if ( $valid_value ) update_user_meta($user_id, $key, stripslashes( sanitize_text_field($_POST[$key]) ) );
+					$this->SaveMetaField($meta_field, $user_id, $_POST[$key]);
 				}
 			}
 		}
@@ -2558,18 +2548,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
 			if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 			foreach ( $redux_usermeta as $k => $meta_field ) {
-				if ( current_user_can("edit_users") || !empty($meta_field["show_on_profile"]) ) {
-					$key = $meta_field["meta_key"];
-					if ( is_array($source[$key]) ) $source[$key] = implode(",", $source[$key]);
-					if ( $meta_field["type"] == "url" ) {
-						$source[$key] = esc_url_raw( $source[$key] );
-						$source[$key] = preg_match("/^(https?|ftps?|mailto|news|irc|gopher|nntp|feed|telnet):/is", $source[$key]) ? $source[$key] : "http://".$source[$key];
-					}
-					
-					$valid_value = true;
-					if ( !empty($meta_field["require_on_registration"]) && empty($source[$key]) ) $valid_value = false;
-					if ( ($meta_field["type"] == "text") && !empty($meta_field["options"]) && !preg_match($meta_field["options"], $source[$key]) ) $valid_value = false;
-					if ( $valid_value ) update_user_meta($user_id, $key, stripslashes( sanitize_text_field($source[$key]) ) );
+				if ( current_user_can("edit_users") || !empty($meta_field["show_on_registration"]) ) {
+					$this->SaveMetaField($meta_field, $user_id, $source[$key]);
 				}
 			}
 
@@ -2597,6 +2577,26 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 		}
 
+		function SaveMetaField( $meta_field, $user_id, $value ) {
+			//convert array to string
+			if ( is_array($value) ) $value = implode(",", $value);
+			//santize url
+			if ( $meta_field["type"] == "url" ) {
+				$value = esc_url_raw($value);
+				$value = preg_match("/^(https?|ftps?|mailto|news|irc|gopher|nntp|feed|telnet):/is", $value) ? $value : "http://".$value;
+			}
+			
+			$valid_value = true;
+			//poor man's way to ensure required fields aren't blanked out, really should have a seperate config per field
+			if ( !empty($meta_field["require_on_registration"]) && empty($value) ) $valid_value = false;
+			//check text field against regex if specified
+			if ( ($meta_field["type"] == "text") && !empty($meta_field["options"]) && !preg_match($meta_field["options"], $value) ) $valid_value = false;
+			//santize text for database, skip textarea as this removes linebreaks
+			if ( ($meta_field["type"] != "textarea") $value = sanitize_text_field($value);
+			
+			if ( $valid_value ) update_user_meta($user_id, $meta_field["meta_key"], stripslashes($value));
+		}
+		
 		function PushSaveRegisterSignupFields_wpmu($blog_id, $user_id, $password, $signup, $meta) {
 			SaveRegisterSignupFields($user_id, $password, $meta);
 		}
