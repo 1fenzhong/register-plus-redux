@@ -154,20 +154,20 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		function AddPages() {
 			global $wpdb;
 			$options = get_option("register_plus_redux_options");
-			$hookname = add_submenu_page("options-general.php", __("Register Plus Redux Settings", "register-plus-redux"), "Register Plus Redux", "manage_options", "register-plus-redux", array($this, "OptionsPage"));
+			$hookname = add_submenu_page("options-general.php", __("Register Plus Redux Settings", "register-plus-redux"), "Register Plus Redux", "manage_options", "register-plus-redux", array($this, "ReduxOptionsPage"));
 			//$hookname = settings_page_register-plus-redux 
-			add_action("admin_head-$hookname", array($this, "OptionsHead"), 10, 1);
-			add_action("admin_footer-$hookname", array($this, "OptionsFoot"), 10, 1);
+			add_action("admin_head-$hookname", array($this, "ReduxAdminHead"), 10, 1);
+			add_action("admin_footer-$hookname", array($this, "ReduxAdminFoot"), 10, 1);
 			add_filter("plugin_action_links_".plugin_basename(__FILE__), array($this, "filter_plugin_actions"), 10, 4);
 			if ( !empty($options["verify_user_email"]) || !empty($options["verify_user_admin"]) || $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_key = \"stored_user_login\"") )
 				add_submenu_page("users.php", __("Unverified Users", "register-plus-redux"), __("Unverified Users", "register-plus-redux"), "promote_users", "unverified-users", array($this, "UnverifiedUsersPage"));
 		}
 
-		function OptionsHead() {
+		function ReduxAdminHead() {
 			wp_enqueue_script("jquery");
 		}
 
-		function OptionsFoot() {
+		function ReduxAdminFoot() {
 			$options = get_option("register_plus_redux_options");
 			?>
 			<script type="text/javascript">
@@ -488,7 +488,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			<?php
 		}
 
-		function OptionsPage() {
+		function ReduxOptionsPage() {
 			if ( isset($_POST["update_settings"]) ) {
 				check_admin_referer("register-plus-redux-update-settings");
 				$this->UpdateSettings();
@@ -2462,7 +2462,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( !empty($options["enable_invitation_code"]) ) {
 					echo "\n\t<tr>";
 					echo "\n\t\t<th><label for=\"invitation_code\">", __("Invitation Code", "register-plus-redux"), "</label></th>";
-					echo "\n\t\t<td><input type=\"text\" name=\"invitation_code\" id=\"invitation_code\" value=\"", esc_attr($profileuser->invitation_code), "\" class=\"regular-text\" readonly=\"readonly\" /></td>";
+					echo "\n\t\t<td><input type=\"text\" name=\"invitation_code\" id=\"invitation_code\" value=\"", esc_attr($profileuser->invitation_code), "\" class=\"regular-text\" ";
+					if ( !current_user_can("edit_users") ) echo "readonly=\"readonly\" ";
+					echo "/></td>";
 					echo "\n\t</tr>";
 				}
 				if ( is_array($redux_usermeta) ) {
@@ -2539,11 +2541,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function SaveCustomFields( $user_id ) {
+			//TODO: Error check invitation code?
+			update_user_meta($user_id, "invitation_code", sanitize_text_field($_POST["invitation_code"]));
 			$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
 			if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 			foreach ( $redux_usermeta as $index => $meta_field ) {
 				if ( current_user_can("edit_users") || !empty($meta_field["show_on_profile"]) ) {
-					$this->SaveMetaField($meta_field, $user_id, $_POST[$key]);
+					$this->SaveMetaField($meta_field, $user_id, $_POST[$meta_field["meta_key"]]);
 				}
 			}
 		}
