@@ -101,6 +101,7 @@ HTML attributes should go in the following order name -> id -> class
 * Converted custom_fields to redux_usermeta
 * Can now specify database key for meta fields
 * Remove hack to workaround non-english custom fields
+* Added option for unique invitation codes
 * Improved CSS of Checkbox and Radio fields on standard Wordpress registration page
 * Converted jQuery for Email Address as Username option to JavaScript DOM commands
 * Added help feature (in progress) for meta fields
