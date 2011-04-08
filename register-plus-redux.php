@@ -164,25 +164,38 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 
 			// Added 03/28/11 in 3.7.4 converting custom fields
-			$custom_fields = get_option("register_plus_redux_custom_fields");
-			if ( !empty($custom_fields) ) {
-				$redux_usermeta = array();
-				$index = 0;
-				if ( !is_array($custom_fields) ) $custom_fields = array();
-				foreach ( $custom_fields as $k => $custom_field ) {
-					$meta_field = array();
-					$meta_field["control"] = $custom_field["custom_field_type"];
-					$meta_field["label"] = $custom_field["custom_field_name"];
-					$meta_field["meta_key"] = $this->cleanupText($custom_field["custom_field_name"]);
-					$meta_field["options"] = $custom_field["custom_field_options"];
-					$meta_field["show_on_profile"] = $custom_field["show_on_profile"];
-					$meta_field["show_on_registration"] = $custom_field["show_on_registration"];
-					$meta_field["require_on_registration"] = $custom_field["required_on_registration"];
-					$meta_field["source"] = "register plus redux/3.7.4";
-					$redux_usermeta[$index++] = $meta_field;
+			$redux_usermeta = get_option("register_plus_redux_usermeta-rv2");
+			if ( empty($redux_usermeta) ) {
+				$custom_fields = get_option("register_plus_redux_custom_fields");
+				if ( !empty($custom_fields) ) {
+					$redux_usermeta = array();
+					if ( !is_array($custom_fields) ) $custom_fields = array();
+					foreach ( $custom_fields as $k => $custom_field ) {
+						$meta_field = array();
+						$meta_field["label"] = $custom_field["custom_field_name"];
+						$meta_field["meta_key"] = $this->cleanupText($custom_field["custom_field_name"]);
+						$meta_field["display"] = $custom_field["custom_field_type"];
+						$meta_field["options"] = $custom_field["custom_field_options"];
+						$meta_field["show_datepicker"] = "0";
+						$meta_field["escape_url"] = "0";
+						$meta_field["show_on_profile"] = $custom_field["show_on_profile"];
+						$meta_field["profile_order"] = $k;
+						$meta_field["show_on_registration"] = $custom_field["show_on_registration"];
+						$meta_field["registration_order"] = $k;
+						$meta_field["require_on_registration"] = $custom_field["required_on_registration"];
+						if ( $meta_field["display"] == "text" ) $meta_field["display"] = "textbox";
+						elseif ( $meta_field["display"] == "date" ) {
+							$meta_field["display"] = "text";
+							$meta_field["show_datepicker"] = "1";
+						} elseif ( $meta_field["display"] == "url" ) {
+							$meta_field["display"] = "text";
+							$meta_field["escape_url"] = "1";
+						} elseif ( $meta_field["display"] == "static" ) $meta_field["display"] = "text";
+						$redux_usermeta[$k] = $meta_field;
+					}
+					//delete_option("register_plus_redux_custom_fields");
+					if ( !empty($redux_usermeta) ) update_option("register_plus_redux_usermeta-rv2", $redux_usermeta);
 				}
-				//delete_option("register_plus_redux_custom_fields");
-				if ( !empty($redux_usermeta) ) update_option("register_plus_redux_usermeta-rv1", $redux_usermeta);
 			}
 		}
 
@@ -262,9 +275,17 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						.attr("valign", "center")
 						.attr("class", "meta_field")
 						.append(jQuery("<td>")
+							.attr("style", "padding-top: 0px; padding-bottom: 0px; padding-left: 0px;")
+							.append(jQuery("<input>")
+								.attr("type", "text")
+								.attr("name", "label[]")
+								.attr("style", "width: 100%;")
+							)
+						)
+						.append(jQuery("<td>")
 							.attr("style", "padding-top: 0px; padding-bottom: 0px;")
 							.append(jQuery("<select>")
-								.attr("name", "field_control[]")
+								.attr("name", "display[]")
 								.attr("class", "enableDisableOptions")
 								.attr("style", "width: 100%;")
 								.append("<option value=\"text\"><?php _e("Text Field", "register-plus-redux"); ?></option>")
@@ -279,18 +300,10 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							)
 						)
 						.append(jQuery("<td>")
-							.attr("style", "padding-top: 0px; padding-bottom: 0px; padding-left: 0px;")
-							.append(jQuery("<input>")
-								.attr("type", "text")
-								.attr("name", "field_label[]")
-								.attr("style", "width: 100%;")
-							)
-						)
-						.append(jQuery("<td>")
 							.attr("style", "padding-top: 0px; padding-bottom: 0px;")
 							.append(jQuery("<input>")
 								.attr("type", "text")
-								.attr("name", "field_options[]")
+								.attr("name", "options[]")
 								.attr("style", "width: 100%;")
 							)
 						)
@@ -298,7 +311,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							.attr("style", "padding-top: 0px; padding-bottom: 0px; padding-left: 0px;")
 							.append(jQuery("<input>")
 								.attr("type", "text")
-								.attr("name", "field_meta_key[]")
+								.attr("name", "meta_key[]")
 								.attr("style", "width: 100%;")
 								.attr("readonly", "readonly")
 							)
@@ -514,7 +527,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				});
 
 				jQuery(".enableDisableOptions").live("change", function() {
-					if ( jQuery(this).val() == "text" || jQuery(this).val() == "select" || jQuery(this).val() == "checkbox" || jQuery(this).val() == "radio" || jQuery(this).val() == "static" )
+					if ( jQuery(this).val() == "textbox" || jQuery(this).val() == "select" || jQuery(this).val() == "checkbox" || jQuery(this).val() == "radio" || jQuery(this).val() == "text" )
 						jQuery(this).parent().next().next().find("input").removeAttr("readonly");
 					else
 						jQuery(this).parent().next().next().find("input").attr("readonly", "readonly");
@@ -879,8 +892,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				<p><?php _e("Enter additional fields to show on the User Profile and/or Registration Pages. Additional fields will be shown after existing profile fields on User Profile, and after selected profile fields on Registration Page but before Password, Invitation Code, Disclaimer, License Agreement, or Privacy Policy (if any of those fields are enabled). Options must be entered for Select, Checkbox, and Radio fields. Options should be entered with commas separating each possible value. For example, a Radio field named \"Gender\" could have the following options, \"Male,Female\".", "register-plus-redux"); ?></p>
 				<table id="meta_fields" style="width: 90%;">
 					<thead valign="top">
-						<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><?php _e("Control", "register-plus-redux"); ?></td>
-						<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Label", "register-plus-redux"); ?></td>
+						<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><?php _e("Label", "register-plus-redux"); ?></td>
+						<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Display As", "register-plus-redux"); ?></td>
 						<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Options", "register-plus-redux"); ?></td>
 						<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Database Key", "register-plus-redux"); ?></td>
 						<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Profile", "register-plus-redux"); ?></td>
@@ -890,26 +903,24 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					</thead>
 					<tbody>
 						<?php
-						$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
+						$redux_usermeta = get_option("register_plus_redux_usermeta-rv2");
 						if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 						foreach ( $redux_usermeta as $index => $meta_field ) {
 							echo "\n<tr valign=\"center\" class=\"meta_field\">";
+							echo "\n\t<td style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"text\" name=\"label[$index]\" value=\"", esc_attr($meta_field["label"]), "\" style=\"width: 100%;\" /></td>";
 							echo "\n\t<td style=\"padding-top: 0px; padding-bottom: 0px;\">";
-							echo "\n\t\t<select name=\"field_control[$index]\" class=\"enableDisableOptions\" style=\"width: 100%;\">";
-							echo "\n\t\t\t<option value=\"text\""; if ( $meta_field["control"] == "text" ) echo " selected=\"selected\""; echo ">", __("Text Field", "register-plus-redux"), "</option>";
-							echo "\n\t\t\t<option value=\"select\""; if ( $meta_field["control"] == "select" ) echo " selected=\"selected\""; echo ">", __("Select Field", "register-plus-redux"), "</option>";
-							echo "\n\t\t\t<option value=\"checkbox\""; if ( $meta_field["control"] == "checkbox" ) echo " selected=\"selected\""; echo ">", __("Checkbox Fields", "register-plus-redux"), "</option>";
-							echo "\n\t\t\t<option value=\"radio\""; if ( $meta_field["control"] == "radio" ) echo " selected=\"selected\""; echo ">", __("Radio Fields", "register-plus-redux"), "</option>";
-							echo "\n\t\t\t<option value=\"textarea\""; if ( $meta_field["control"] == "textarea" ) echo " selected=\"selected\""; echo ">", __("Text Area", "register-plus-redux"), "</option>";
-							echo "\n\t\t\t<option value=\"date\""; if ( $meta_field["control"] == "date" ) echo " selected=\"selected\""; echo ">", __("Date Field", "register-plus-redux"), "</option>";
-							echo "\n\t\t\t<option value=\"url\""; if ( $meta_field["control"] == "url" ) echo " selected=\"selected\""; echo ">", __("URL Field", "register-plus-redux"), "</option>";
-							echo "\n\t\t\t<option value=\"hidden\""; if ( $meta_field["control"] == "hidden" ) echo " selected=\"selected\""; echo ">", __("Hidden Field", "register-plus-redux"), "</option>";
-							echo "\n\t\t\t<option value=\"static\""; if ( $meta_field["control"] == "static" ) echo " selected=\"selected\""; echo ">", __("Static Text", "register-plus-redux"), "</option>";
+							echo "\n\t\t<select name=\"display[$index]\" class=\"enableDisableOptions\" style=\"width: 100%;\">";
+							echo "\n\t\t\t<option value=\"textbox\""; if ( $meta_field["display"] == "textbox" ) echo " selected=\"selected\""; echo ">", __("Textbox Field", "register-plus-redux"), "</option>";
+							echo "\n\t\t\t<option value=\"select\""; if ( $meta_field["display"] == "select" ) echo " selected=\"selected\""; echo ">", __("Select Field", "register-plus-redux"), "</option>";
+							echo "\n\t\t\t<option value=\"checkbox\""; if ( $meta_field["display"] == "checkbox" ) echo " selected=\"selected\""; echo ">", __("Checkbox Fields", "register-plus-redux"), "</option>";
+							echo "\n\t\t\t<option value=\"radio\""; if ( $meta_field["display"] == "radio" ) echo " selected=\"selected\""; echo ">", __("Radio Fields", "register-plus-redux"), "</option>";
+							echo "\n\t\t\t<option value=\"textarea\""; if ( $meta_field["display"] == "textarea" ) echo " selected=\"selected\""; echo ">", __("Text Area", "register-plus-redux"), "</option>";
+							echo "\n\t\t\t<option value=\"hidden\""; if ( $meta_field["display"] == "hidden" ) echo " selected=\"selected\""; echo ">", __("Hidden Field", "register-plus-redux"), "</option>";
+							echo "\n\t\t\t<option value=\"text\""; if ( $meta_field["display"] == "text" ) echo " selected=\"selected\""; echo ">", __("Static Text", "register-plus-redux"), "</option>";
 							echo "\n\t\t</select>";
 							echo "\n\t</td>";
-							echo "\n\t<td style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"text\" name=\"field_label[$index]\" value=\"", esc_attr($meta_field["label"]), "\" style=\"width: 100%;\" /></td>";
-							echo "\n\t<td style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"text\" name=\"field_options[$index]\" value=\"", esc_attr($meta_field["options"]), "\""; if ( $meta_field["control"] != "text" && $meta_field["control"] != "select" && $meta_field["control"] != "checkbox" && $meta_field["control"] != "radio" && $meta_field["control"] != "static" ) echo " readonly=\"readonly\""; echo " style=\"width: 100%;\" /></td>";
-							echo "\n\t<td style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"text\" name=\"field_meta_key[$index]\" value=\"", esc_attr($meta_field["meta_key"]), "\" style=\"width: 100%;\" /></td>";
+							echo "\n\t<td style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"text\" name=\"options[$index]\" value=\"", esc_attr($meta_field["options"]), "\""; if ( $meta_field["display"] != "textbox" && $meta_field["display"] != "select" && $meta_field["display"] != "checkbox" && $meta_field["display"] != "radio" ) echo " readonly=\"readonly\""; echo " style=\"width: 100%;\" /></td>";
+							echo "\n\t<td style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"text\" name=\"meta_key[$index]\" value=\"", esc_attr($meta_field["meta_key"]), "\" style=\"width: 100%;\" /></td>";
 							echo "\n\t<td align=\"center\" style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"checkbox\" name=\"show_on_profile[$index]\" value=\"1\""; if ( !empty($meta_field["show_on_profile"]) ) echo " checked=\"checked\""; echo " /></td>";
 							echo "\n\t<td align=\"center\" style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"checkbox\" name=\"show_on_registration[$index]\" value=\"1\""; if ( !empty($meta_field["show_on_registration"]) ) echo " checked=\"checked\""; echo " class=\"modifyNextCellInput\" /></td>";
 							echo "\n\t<td align=\"center\" style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"checkbox\" name=\"require_on_registration[$index]\" value=\"1\""; if ( !empty($meta_field["require_on_registration"]) ) echo " checked=\"checked\""; if ( empty($meta_field["show_on_registration"]) ) echo " disabled=\"disabled\""; echo " /></td>";
@@ -1221,19 +1232,25 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 			if ( isset($_POST["invitation_code_bank"]) ) $invitation_code_bank = stripslashes_deep( $_POST["invitation_code_bank"] );
 
-			if ( isset($_POST["field_control"]) ) {
-				foreach ( $_POST["field_control"] as $index => $v ) {
+			if ( isset($_POST["label"]) ) {
+				foreach ( $_POST["label"] as $index => $v ) {
 					$meta_field = array();
-					if ( !empty($_POST["field_label"][$index]) ) {
-						$meta_field["control"] = isset($_POST["field_control"][$index]) ? stripslashes( sanitize_text_field($_POST["field_control"][$index]) ) : "";
-						$meta_field["label"] = isset($_POST["field_label"][$index]) ? stripslashes( sanitize_text_field($_POST["field_label"][$index]) ) : "";
-						$meta_field["meta_key"] = isset($_POST["field_meta_key"][$index]) ? stripslashes( sanitize_text_field($_POST["field_meta_key"][$index]) ) : "";
-						$meta_field["options"] = isset($_POST["field_options"][$index]) ? stripslashes( sanitize_text_field($_POST["field_options"][$index]) ) : "";
+					if ( !empty($_POST["label"][$index]) ) {
+						$meta_field["label"] = isset($_POST["label"][$index]) ? stripslashes( sanitize_text_field($_POST["label"][$index]) ) : "";
+						$meta_field["meta_key"] = isset($_POST["meta_key"][$index]) ? stripslashes( sanitize_text_field($_POST["meta_key"][$index]) ) : "";
+						$meta_field["display"] = isset($_POST["display"][$index]) ? stripslashes( sanitize_text_field($_POST["display"][$index]) ) : "";
+						$meta_field["options"] = isset($_POST["options"][$index]) ? stripslashes( sanitize_text_field($_POST["options"][$index]) ) : "";
+						$meta_field["show_datepicker"] = "0";
+						$meta_field["escape_url"] = "0";
 						$meta_field["show_on_profile"] = isset($_POST["show_on_profile"][$index]) ? stripslashes( sanitize_text_field($_POST["show_on_profile"][$index]) ) : "";
+						$meta_field["profile_order"] = $index;
 						$meta_field["show_on_registration"] = isset($_POST["show_on_registration"][$index]) ? stripslashes( sanitize_text_field($_POST["show_on_registration"][$index]) ) : "";
+						$meta_field["registration_order"] = $index;
 						$meta_field["require_on_registration"] = isset($_POST["require_on_registration"][$index]) ? stripslashes( sanitize_text_field($_POST["require_on_registration"][$index]) ) : "";
-						$meta_field["source"] = "register plus redux/3.7.4";
-						if ( empty($meta_field["meta_key"]) ) $meta_field["meta_key"] = $_POST["field_label"][$index];
+						if ( empty($meta_field["meta_key"]) ) {
+							if ($meta_field["display"])
+							$meta_field["meta_key"] = "rpr_".$_POST["label"][$index];
+						}
 						$meta_field["meta_key"] = stripslashes( sanitize_text_field( $this->cleanupText($meta_field["meta_key"]) ) );
 					}
 					$redux_usermeta[$index] = $meta_field;
@@ -1242,7 +1259,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 			$this->SaveReduxOptions($options);
 			if ( !empty($invitation_code_bank) ) update_option("register_plus_redux_invitation_code_bank-rv1", $invitation_code_bank);
-			if ( !empty($redux_usermeta) ) update_option("register_plus_redux_usermeta-rv1", $redux_usermeta);
+			if ( !empty($redux_usermeta) ) update_option("register_plus_redux_usermeta-rv2", $redux_usermeta);
 		}
 
 		function UnverifiedUsersPage() {
@@ -1433,24 +1450,24 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					</script>
 					<?php
 				}
-				$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
+				$redux_usermeta = get_option("register_plus_redux_usermeta-rv2");
 				if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 				foreach ( $redux_usermeta as $index => $meta_field ) {
 					if ( !empty($meta_field["show_on_registration"]) ) {
 						$key = esc_attr($meta_field["meta_key"]);
-						if ( ($meta_field["control"] == "text") || ($meta_field["control"] == "url") ) {
+						if ( ($meta_field["display"] == "textbox") ) {
 							if ( empty($show_custom_text_fields) )
 								$show_custom_text_fields = "#".$key;
 							else
 								$show_custom_text_fields .= ", #".$key;
 						}
-						if ( $meta_field["control"] == "select" ) {
+						if ( $meta_field["display"] == "select" ) {
 							if ( empty($show_custom_select_fields) )
 								$show_custom_select_fields = "#".$key;
 							else
 								$show_custom_select_fields .= ", #".$key;
 						}
-						if ( $meta_field["control"] == "checkbox" ) {
+						if ( $meta_field["display"] == "checkbox" ) {
 							$field_options = explode(",", $meta_field["options"]);
 							foreach ( $field_options as $field_option ) {
 								$option = esc_attr( $this->cleanupText($field_option) );
@@ -1460,7 +1477,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									$show_custom_checkbox_fields .= ", #".$key."-".$option.", #".$key."-".$option."-label";
 							}
 						}
-						if ( $meta_field["control"] == "radio" ) {
+						if ( $meta_field["display"] == "radio" ) {
 							$field_options = explode(",", $meta_field["options"]);
 							foreach ( $field_options as $field_option ) {
 								$option = esc_attr( $this->cleanupText($field_option) );
@@ -1470,17 +1487,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									$show_custom_radio_fields .= ", #".$key."-".$option.", #".$key."-".$option."-label";
 							}
 						}
-						if ( $meta_field["control"] == "textarea" ) {
+						if ( $meta_field["display"] == "textarea" ) {
 							if ( empty($show_custom_textarea_fields) )
 								$show_custom_textarea_fields = "#".$key."-label";
 							else
 								$show_custom_textarea_fields .= ", #".$key."-label";
-						}
-						if ( $meta_field["control"] == "date" ) {
-							if ( empty($show_custom_date_fields) )
-								$show_custom_date_fields = "#".$key;
-							else
-								$show_custom_date_fields .= ", #".$key;
 						}
 						if ( !empty($meta_field["require_on_registration"]) ) {
 							if ( empty($required_meta_fields) )
@@ -1644,24 +1655,24 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function SignupHeader_wpmu() {
-				$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
+				$redux_usermeta = get_option("register_plus_redux_usermeta-rv2");
 				if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 				foreach ( $redux_usermeta as $index => $meta_field ) {
 					if ( !empty($meta_field["show_on_registration"]) ) {
 						$key = esc_attr($meta_field["meta_key"]);
-						if ( ($meta_field["control"] == "text") || ($meta_field["control"] == "url") || ($meta_field["control"] == "date") ) {
+						if ( ($meta_field["display"] == "textbox") ) {
 							if ( empty($show_custom_text_fields) )
 								$show_custom_text_fields = ".mu_register #".$key;
 							else
 								$show_custom_text_fields .= ", .mu_register #".$key;
 						}
-						if ( $meta_field["control"] == "select" ) {
+						if ( $meta_field["display"] == "select" ) {
 							if ( empty($show_custom_select_fields) )
 								$show_custom_select_fields = ".mu_register #".$key;
 							else
 								$show_custom_select_fields .= ", .mu_register #".$key;
 						}
-						if ( $meta_field["control"] == "checkbox" ) {
+						if ( $meta_field["display"] == "checkbox" ) {
 							$field_options = explode(",", $meta_field["options"]);
 							foreach ( $field_options as $field_option ) {
 								$option = esc_attr( $this->cleanupText($field_option) );
@@ -1671,7 +1682,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									$show_custom_checkbox_fields .= ", .mu_register #".$key."-".$option.", .mu_register #".$key."-".$option."-label";
 							}
 						}
-						if ( $meta_field["control"] == "radio" ) {
+						if ( $meta_field["display"] == "radio" ) {
 							$field_options = explode(",", $meta_field["options"]);
 							foreach ( $field_options as $field_option ) {
 								$option = esc_attr( $this->cleanupText($field_option) );
@@ -1681,7 +1692,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									$show_custom_radio_fields .= ", .mu_register #".$key."-".$option.", .mu_register #".$key."-".$option."-label";
 							}
 						}
-						if ( $meta_field["control"] == "textarea" ) {
+						if ( $meta_field["display"] == "textarea" ) {
 							if ( empty($show_custom_textarea_fields) )
 								$show_custom_textarea_fields = ".mu_register #".$key."-label";
 							else
@@ -1913,18 +1924,19 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( $tabindex != 0 ) echo "tabindex=\"", $tabindex++, "\" ";
 				echo ">", $_POST["description"], "</textarea></p>";
 			}
-			$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
+			$redux_usermeta = get_option("register_plus_redux_usermeta-rv2");
 			if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 			foreach ( $redux_usermeta as $index => $meta_field ) {
 				if ( !empty($meta_field["show_on_registration"]) ) {
 					$key = esc_attr($meta_field["meta_key"]);
 					if ( isset($_GET[$key]) ) $_POST[$key] = $_GET[$key];
-					switch ( $meta_field["control"] ) {
-						case "text":
-						case "url":
+					switch ( $meta_field["display"] ) {
+						case "textbox":
 							echo "\n<p id=\"$key-p\"><label id=\"$key-label\">";
 							if ( $this->GetReduxOption("required_fields_asterisk") == TRUE && !empty($meta_field["require_on_registration"]) ) echo "*";
-							echo esc_html($meta_field["label"]), "<br /><input type=\"text\" name=\"$key\" id=\"$key\" class=\"input\" value=\"", esc_attr( stripslashes($_POST[$key]) ), "\" size=\"25\" ";
+							echo esc_html($meta_field["label"]), "<br /><input type=\"text\" name=\"$key\" id=\"$key\" ";
+							if ( $meta_field["show_datepicker"] == TRUE ) echo "class=\"datepicker\" "; else echo "class=\"input\" ";
+							echo echo "value=\"", esc_attr( stripslashes($_POST[$key]) ), "\" size=\"25\" ";
 							if ( $tabindex != 0 ) echo "tabindex=\"", $tabindex++, "\" ";
 							echo "/></label></p>";
 							break;
@@ -1981,20 +1993,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							if ( $tabindex != 0 ) echo " tabindex=\"", $tabindex++, "\" ";
 							echo ">", $_POST[$key], "</textarea></label></p>";
 							break;
-						case "date":
-							echo "\n<p id=\"$key-p\"><label id=\"$key-label\">";
-							if ( $this->GetReduxOption("required_fields_asterisk") == TRUE && !empty($meta_field["require_on_registration"]) ) echo "*";
-							echo esc_html($meta_field["label"]), "<br /><input type=\"text\" name=\"$key\" id=\"$key\" class=\"datepicker\" value=\"", esc_attr( stripslashes($_POST[$key]) ), "\" size=\"25\" ";
-							if ( $tabindex != 0 ) echo "tabindex=\"", $tabindex++, "\" ";
-							echo " /></label></p>";
-							break;
 						case "hidden":
 							echo "\n<input type=\"hidden\" name=\"$key\" id=\"$key\" value=\"", esc_attr(stripslashes( $_POST[$key]) ), "\" ";
 							if ( $tabindex != 0 ) echo "tabindex=\"", $tabindex++, "\" ";
 							echo "/>";
 							break;
-						case "static":
-							echo "\n<p id=\"$key-p\"><small id=\"$key-small\">", esc_html($meta_field["options"]), "</small></p>";
+						case "text":
+							echo "\n<p id=\"$key-p\"><small id=\"$key-small\">", esc_html($meta_field["label"]), "</small></p>";
 							break;
 					}
 				}
@@ -2124,21 +2129,22 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo "\n\t\t<textarea name=\"description\" id=\"description\" cols=\"25\" rows=\"5\">", esc_html($_POST["description"]), "</textarea>";
 				echo "<br />", __("Share a little biographical information to fill out your profile. This may be shown publicly.", "register-plus-redux");
 			}
-			$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
+			$redux_usermeta = get_option("register_plus_redux_usermeta-rv2");
 			if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 			foreach ( $redux_usermeta as $index => $meta_field ) {
 				if ( !empty($meta_field["show_on_registration"]) ) {
 					$key = esc_attr($meta_field["meta_key"]);
 					if ( isset($_GET[$key]) ) $_POST[$key] = $_GET[$key];
-					if ( ($meta_field["control"] != "hidden") && ($meta_field["control"] != "static" ) ) {
+					if ( ($meta_field["display"] != "hidden") && ($meta_field["display"] != "text" ) ) {
 						echo "\n\t\t<label id=\"$key-label\" for=\"$key\">";
 						if ( $this->GetReduxOption("required_fields_asterisk") == TRUE && !empty($meta_field["require_on_registration"]) ) echo "*";
 						echo esc_html($meta_field["label"]), ":</label>";
 					}
-					switch ( $meta_field["control"] ) {
-						case "text":
-						case "url":
-							echo "\n\t\t<input type=\"text\" name=\"$key\" id=\"$key\" value=\"", esc_attr( stripslashes($_POST[$key]) ), "\" />";
+					switch ( $meta_field["display"] ) {
+						case "textbox":
+							echo "\n\t\t<input type=\"text\" name=\"$key\" id=\"$key\" ";
+							if ( $meta_field["show_datepicker"] == TRUE ) echo "class=\"datepicker\" "
+							echo "value=\"", esc_attr( stripslashes($_POST[$key]) ), "\" />";
 							break;
 						case "select":
 							echo "\n\t\t<select name=\"$key\" id=\"$key\">";
@@ -2173,14 +2179,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						case "textarea":
 							echo "\n\t\t<textarea name=\"$key\" id=\"$key\" cols=\"25\" rows=\"5\">", $_POST[$key], "</textarea>";
 							break;
-						case "date":
-							echo "\n\t\t<input type=\"text\" name=\"$key\" id=\"$key\" class=\"datepicker\" value=\"", esc_attr( stripslashes($_POST[$key]) ), "\" />";
-							break;
 						case "hidden":
 							echo "\n\t\t<input type=\"hidden\" name=\"$key\" id=\"$key\" value=\"", esc_attr( stripslashes($_POST[$key]) ), "\" />";
 							break;
-						case "static":
-							echo "\n\t\t", esc_html($meta_field["options"]);
+						case "text":
+							echo "\n\t\t", esc_html($meta_field["label"]);
 							break;
 					}
 				}
@@ -2294,14 +2297,14 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					$errors->add("empty_description", __("<strong>ERROR</strong>: Please enter some information about yourself.", "register-plus-redux"));
 				}
 			}
-			$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
+			$redux_usermeta = get_option("register_plus_redux_usermeta-rv2");
 			if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 			foreach ( $redux_usermeta as $index => $meta_field ) {
 				$key = $meta_field["meta_key"];
 				if ( !empty($meta_field["show_on_registration"]) && !empty($meta_field["require_on_registration"]) && empty($_POST[$key]) ) {
 					$errors->add("empty_$key", sprintf(__("<strong>ERROR</strong>: Please complete %s.", "register-plus-redux"), $meta_field["label"]));
 				}
-				if ( !empty($meta_field["show_on_registration"]) && ($meta_field["control"] == "text") && !empty($meta_field["options"]) && !preg_match($meta_field["options"], $_POST[$key]) ) {
+				if ( !empty($meta_field["show_on_registration"]) && ($meta_field["display"] == "textbox") && !empty($meta_field["options"]) && !preg_match($meta_field["options"], $_POST[$key]) ) {
 					$errors->add("invalid_$key", sprintf(__("<strong>ERROR</strong>: Please enter new value for %s, value specified is not in the correct format.", "register-plus-redux"), $meta_field["label"]));
 				}
 			}
@@ -2409,14 +2412,14 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					$result["errors"]->add("empty_description", __("<strong>ERROR</strong>: Please enter some information about yourself.", "register-plus-redux"));
 				}
 			}
-			$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
+			$redux_usermeta = get_option("register_plus_redux_usermeta-rv2");
 			if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 			foreach ( $redux_usermeta as $index => $meta_field ) {
 				$key = $meta_field["meta_key"];
 				if ( !empty($meta_field["show_on_registration"]) && !empty($meta_field["require_on_registration"]) && empty($_POST[$key]) ) {
 					$result["errors"]->add("empty_$key", sprintf(__("<strong>ERROR</strong>: Please complete %s.", "register-plus-redux"), $meta_field["label"]));
 				}
-				if ( !empty($meta_field["show_on_registration"]) && ($meta_field["control"] == "text") && !empty($meta_field["options"]) && !preg_match($meta_field["options"], $_POST[$key]) ) {
+				if ( !empty($meta_field["show_on_registration"]) && ($meta_field["display"] == "textbox") && !empty($meta_field["options"]) && !preg_match($meta_field["options"], $_POST[$key]) ) {
 					$result["errors"]->add("invalid_$key", sprintf(__("<strong>ERROR</strong>: Please enter new value for %s, value specified is not in the correct format.", "register-plus-redux"), $meta_field["label"]));
 				}
 			}
@@ -2476,11 +2479,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function DatepickerHead() {
-			$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
+			$redux_usermeta = get_option("register_plus_redux_usermeta-rv2");
 			if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 			foreach ( $redux_usermeta as $index => $meta_field ) {
 				if ( !empty($meta_field["show_on_profile"]) ) {
-					if ( $meta_field["control"] == "date" ) {
+					if ( $meta_field["show_datepicker"] == TRUE ) {
 						$show_custom_date_fields = TRUE;
 						break;
 					}
@@ -2505,7 +2508,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		}
 
 		function ShowCustomFields( $profileuser ) {
-			$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
+			$redux_usermeta = get_option("register_plus_redux_usermeta-rv2");
 			if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 			if ( $this->GetReduxOption("enable_invitation_code") == TRUE || !empty($redux_usermeta) ) {
 				echo "<h3>", __("Additional Information", "register-plus-redux"), "</h3>";
@@ -2527,10 +2530,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						if ( empty($meta_field["show_on_profile"]) ) echo " <span class=\"description\">(hidden)</span>";
 						if ( !empty($meta_field["require_on_registration"]) ) echo " <span class=\"description\">(required)</span>";
 						echo "</label></th>";
-						switch ( $meta_field["control"] ) {
-							case "text":
-							case "url":
-								echo "\n\t\t<td><input type=\"text\" name=\"$key\" id=\"$key\" value=\"", esc_attr($value), "\" class=\"regular-text\" /></td>";
+						switch ( $meta_field["display"] ) {
+							case "textbox":
+								echo "\n\t\t<td><input type=\"text\" name=\"$key\" id=\"$key\" ";
+								if ( $meta_field["show_datepicker"] == TRUE ) echo "class=\"datepicker\" "
+								echo "value=\"", esc_attr($value), "\" class=\"regular-text\" /></td>";
 								break;
 							case "select":
 								echo "\n\t\t<td>";
@@ -2572,14 +2576,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							case "textarea":
 								echo "\n\t\t<td><textarea name=\"$key\" id=\"$key\" cols=\"25\" rows=\"5\">", $value, "</textarea></td>";
 								break;
-							case "date":
-								echo "\n\t\t<td><input type=\"text\" name=\"$key\" id=\"$key\" class=\"datepicker\" value=\"", esc_attr($value), "\" /></td>";
-								break;
 							case "hidden":
 								echo "\n\t\t<td><input type=\"text\" disabled=\"disabled\" name=\"$key\" id=\"$key\" value=\"", esc_attr($value), "\" /></td>";
 								break;
-							case "static":
-								echo "\n\t\t<td><span class=\"description\">", esc_html($meta_field["options"]), "</span></td>";
+							case "text":
+								echo "\n\t\t<td><span class=\"description\">", esc_html($meta_field["label"]), "</span></td>";
 								break;
 						}
 						echo "\n\t</tr>";
@@ -2592,7 +2593,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 		function SaveCustomFields( $user_id ) {
 			//TODO: Error check invitation code?
 			update_user_meta($user_id, "invitation_code", sanitize_text_field($_POST["invitation_code"]) );
-			$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
+			$redux_usermeta = get_option("register_plus_redux_usermeta-rv2");
 			if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 			foreach ( $redux_usermeta as $index => $meta_field ) {
 				if ( current_user_can("edit_users") || !empty($meta_field["show_on_profile"]) ) {
@@ -2618,7 +2619,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( is_array( $this->GetReduxOption("show_fields") ) && in_array("jabber", $this->GetReduxOption("show_fields") ) && !empty($source["jabber"]) ) update_user_meta($user_id, "jabber", sanitize_text_field($source["jabber"]) );
 			if ( is_array( $this->GetReduxOption("show_fields") ) && in_array("about", $this->GetReduxOption("show_fields") ) && !empty($source["description"]) ) update_user_meta($user_id, "description", trim($source["description"]) );
 
-			$redux_usermeta = get_option("register_plus_redux_usermeta-rv1");
+			$redux_usermeta = get_option("register_plus_redux_usermeta-rv2");
 			if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 			foreach ( $redux_usermeta as $index => $meta_field ) {
 				if ( current_user_can("edit_users") || !empty($meta_field["show_on_registration"]) ) {
@@ -2654,7 +2655,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			//convert array to string
 			if ( is_array($value) ) $value = implode(",", $value);
 			//santize url
-			if ( $meta_field["control"] == "url" ) {
+			if ( $meta_field["escape_url"] == TRUE ) {
 				$value = esc_url_raw($value);
 				$value = preg_match("/^(https?|ftps?|mailto|news|irc|gopher|nntp|feed|telnet):/is", $value) ? $value : "http://".$value;
 			}
@@ -2663,9 +2664,9 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			//poor man's way to ensure required fields aren't blanked out, really should have a seperate config per field
 			if ( !empty($meta_field["require_on_registration"]) && empty($value) ) $valid_value = FALSE;
 			//check text field against regex if specified
-			if ( ($meta_field["control"] == "text") && !empty($meta_field["options"]) && !preg_match($meta_field["options"], $value) ) $valid_value = FALSE;
+			if ( ($meta_field["display"] == "textbox") && !empty($meta_field["options"]) && !preg_match($meta_field["options"], $value) ) $valid_value = FALSE;
 			//santize text for database, skip textarea as this removes linebreaks
-			if ( ($meta_field["control"] != "textarea") ) $value = sanitize_text_field($value);
+			if ( ($meta_field["display"] != "textarea") ) $value = sanitize_text_field($value);
 			
 			if ( $valid_value ) update_user_meta($user_id, $meta_field["meta_key"], stripslashes($value) );
 		}
