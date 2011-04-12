@@ -180,9 +180,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						$meta_field["show_datepicker"] = "0";
 						$meta_field["escape_url"] = "0";
 						$meta_field["show_on_profile"] = $meta_field_rv1["show_on_profile"];
-						$meta_field["profile_order"] = $k;
 						$meta_field["show_on_registration"] = $meta_field_rv1["show_on_registration"];
-						$meta_field["registration_order"] = $k;
 						$meta_field["require_on_registration"] = $meta_field_rv1["required_on_registration"];
 						if ( $meta_field["display"] == "text" ) $meta_field["display"] = "textbox";
 						elseif ( $meta_field["display"] == "date" ) {
@@ -208,9 +206,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						$meta_field["show_datepicker"] = "0";
 						$meta_field["escape_url"] = "0";
 						$meta_field["show_on_profile"] = $custom_field["show_on_profile"];
-						$meta_field["profile_order"] = $k;
 						$meta_field["show_on_registration"] = $custom_field["show_on_registration"];
-						$meta_field["registration_order"] = $k;
 						$meta_field["require_on_registration"] = $custom_field["required_on_registration"];
 						if ( $meta_field["display"] == "text" ) $meta_field["display"] = "textbox";
 						elseif ( $meta_field["display"] == "date" ) {
@@ -264,22 +260,16 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			global $wpdb;
 			$hookname = add_submenu_page("options-general.php", __("Register Plus Redux Settings", "register-plus-redux"), "Register Plus Redux", "manage_options", "register-plus-redux", array($this, "ReduxOptionsPage") );
 			//$hookname = settings_page_register-plus-redux 
-			add_action("admin_head-$hookname", array($this, "ReduxAdminHead"), 10, 1);
+			add_action("admin_print_scripts-$hookname", array($this, "ReduxAdminScripts"), 10, 1);
 			add_action("admin_footer-$hookname", array($this, "ReduxAdminFoot"), 10, 1);
 			add_filter("plugin_action_links_".plugin_basename(__FILE__), array($this, "filter_plugin_actions"), 10, 4);
 			if ( ($this->GetReduxOption("verify_user_email") == TRUE) || ( $this->GetReduxOption("verify_user_admin") == TRUE) || $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_key = \"stored_user_login\"") )
 				add_submenu_page("users.php", __("Unverified Users", "register-plus-redux"), __("Unverified Users", "register-plus-redux"), "promote_users", "unverified-users", array($this, "UnverifiedUsersPage") );
 		}
 
-		function ReduxAdminHead() {
+		function ReduxAdminScripts() {
 			wp_enqueue_script("jquery");
-			wp_print_scripts("jquery-ui-core");
-			wp_print_scripts("jquery-ui-sortable");
-			//wp_enqueue_script("jquery-ui-core");
-			//wp_enqueue_script("jquery-ui-sortable");
-			?>
-			<link type="text/css" rel="stylesheet" href="<?php echo plugins_url("js/theme/jquery.ui.all.css", __FILE__); ?>" />
-			<?php
+			wp_enqueue_script("jquery-ui-sortable");
 		}
 
 		function ReduxAdminFoot() {
@@ -296,7 +286,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 						)
 						.append("&nbsp;")
 						.append(jQuery("<img>")
-							.attr("src", "<?php echo plugins_url("images\delete.png", __FILE__); ?>")
+							.attr("src", "<?php echo plugins_url("images\minus-circle.png", __FILE__); ?>")
 							.attr("alt", "<?php esc_attr_e("Remove Code", "register-plus-redux"); ?>")
 							.attr("title", "<?php esc_attr_e("Remove Code", "register-plus-redux"); ?>")
 							.attr("class", "removeInvitationCode")
@@ -306,110 +296,34 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 
 			function addField() {
-				jQuery("#meta_fields").find("tbody")
+				jQuery("#meta_fields").find("tbody.fields")
 					.append(jQuery("<tr>")
-						.attr("valign", "center")
-						.attr("class", "meta_field")
 						.append(jQuery("<td>")
-							.attr("style", "padding-top: 0px; padding-bottom: 0px; padding-left: 0px;")
-							.append(jQuery("<input>")
-								.attr("type", "text")
-								.attr("name", "label[]")
-								.attr("style", "width: 100%;")
-							)
-						)
-						.append(jQuery("<td>")
-							.attr("style", "padding-top: 0px; padding-bottom: 0px;")
-							.append(jQuery("<select>")
-								.attr("name", "display[]")
-								.attr("class", "enableDisableOptions")
-								.attr("style", "width: 100%;")
-								.append("<option value=\"text\"><?php _e("Textbox Field", "register-plus-redux"); ?></option>")
-								.append("<option value=\"select\"><?php _e("Select Field", "register-plus-redux"); ?></option>")
-								.append("<option value=\"checkbox\"><?php _e("Checkbox Fields", "register-plus-redux"); ?></option>")
-								.append("<option value=\"radio\"><?php _e("Radio Fields", "register-plus-redux"); ?></option>")
-								.append("<option value=\"textarea\"><?php _e("Text Area", "register-plus-redux"); ?></option>")
-								.append("<option value=\"hidden\"><?php _e("Hidden Field", "register-plus-redux"); ?></option>")
-								.append("<option value=\"text\"><?php _e("Static Text", "register-plus-redux"); ?></option>")
-							)
-						)
-						.append(jQuery("<td>")
-							.attr("style", "padding-top: 0px; padding-bottom: 0px;")
-							.append(jQuery("<input>")
-								.attr("type", "text")
-								.attr("name", "options[]")
-								.attr("style", "width: 100%;")
-							)
-						)
-						.append(jQuery("<td>")
-							.attr("style", "padding-top: 0px; padding-bottom: 0px; padding-left: 0px;")
-							.append(jQuery("<input>")
-								.attr("type", "text")
-								.attr("name", "meta_key[]")
-								.attr("style", "width: 100%;")
-								.attr("readonly", "readonly")
-							)
-						)
-						.append(jQuery("<td>")
-							.attr("align", "center")
-							.attr("style", "padding-top: 0px; padding-bottom: 0px;")
-							.append(jQuery("<input>")
-								.attr("type", "checkbox")
-								.attr("name", "show_on_profile[]")
-								.attr("value", "1")
-								.attr("disabled", "disabled")
-							)
-						)
-						.append(jQuery("<td>")
-							.attr("align", "center")
-							.attr("style", "padding-top: 0px; padding-bottom: 0px;")
-							.append(jQuery("<input>")
-								.attr("type", "checkbox")
-								.attr("name", "show_on_registration[]")
-								.attr("value", "1")
-								.attr("class", "modifyNextCellInput")
-								.attr("disabled", "disabled")
-							)
-						)
-						.append(jQuery("<td>")
-							.attr("align", "center")
-							.attr("style", "padding-top: 0px; padding-bottom: 0px;")
-							.append(jQuery("<input>")
-								.attr("type", "checkbox")
-								.attr("name", "require_on_registration[]")
-								.attr("value", "1")
-								.attr("disabled", "disabled")
-							)
-						)
-						.append(jQuery("<td>")
-							.attr("align", "center")
-							.attr("style", "padding-top: 0px; padding-bottom: 0px;")
 							.append(jQuery("<img>")
-								.attr("src", "<?php echo plugins_url("images\help.png", __FILE__); ?>")
+								.attr("src", "<?php echo plugins_url("images\asterisk-yellow.png", __FILE__); ?>")
+								.attr("alt", "<?php esc_attr_e("New", "register-plus-redux"); ?>")
+								.attr("title", "<?php esc_attr_e("New Field", "register-plus-redux"); ?>")
+							)
+							.append("&nbsp;")
+							.append(jQuery("<input>")
+								.attr("type", "text")
+								.attr("name", "newMetaFields[]")
+							)
+							.append("&nbsp;")
+							.append(jQuery("<img>")
+								.attr("src", "<?php echo plugins_url("images\minus-circle.png", __FILE__); ?>")
+								.attr("alt", "<?php esc_attr_e("Remove", "register-plus-redux"); ?>")
+								.attr("title", "<?php esc_attr_e("Remove Field.", "register-plus-redux"); ?>")
+								.attr("class", "removeNewButton")
+								.attr("style", "cursor: pointer;")
+							)
+							.append("&nbsp;")
+							.append(jQuery("<img>")
+								.attr("src", "<?php echo plugins_url("images\question.png", __FILE__); ?>")
 								.attr("alt", "<?php esc_attr_e("Help", "register-plus-redux"); ?>")
 								.attr("title", "<?php esc_attr_e("You must save after adding new fields before all options become available.", "register-plus-redux"); ?>")
 								.attr("class", "helpButton")
 								.attr("style", "cursor: pointer;")
-							)
-							.append("&nbsp;")
-							.append(jQuery("<img>")
-								.attr("src", "<?php echo plugins_url("images\delete.png", __FILE__); ?>")
-								.attr("alt", "<?php esc_attr_e("Remove", "register-plus-redux"); ?>")
-								.attr("title", "<?php esc_attr_e("Remove Field", "register-plus-redux"); ?>")
-								.attr("class", "removeButton")
-								.attr("style", "cursor: pointer;")
-							)
-							.append("&nbsp;")
-							.append(jQuery("<img>")
-								.attr("src", "<?php echo plugins_url("images\arrow_up_bw.png", __FILE__); ?>")
-								.attr("alt", "<?php esc_attr_e("Up", "register-plus-redux"); ?>")
-								.attr("title", "<?php esc_attr_e("Move this Field Up", "register-plus-redux"); ?>")
-							)
-							.append("&nbsp;")
-							.append(jQuery("<img>")
-								.attr("src", "<?php echo plugins_url("images\arrow_down_bw.png", __FILE__); ?>")
-								.attr("alt", "<?php esc_attr_e("Down", "register-plus-redux"); ?>")
-								.attr("title", "<?php esc_attr_e("Move this Field Down", "register-plus-redux"); ?>")
 							)
 						)
 					);
@@ -521,9 +435,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			}
 
 			jQuery(document).ready(function() {
-    			
-				jQuery("#meta_fields").find("tbody").sortable();
-				//jQuery("#meta_fields").find("tbody").disableSelection();
+				jQuery("#meta_fields tbody.fields").sortable({handle:'.sortHandle'});
+				//jQuery("#meta_fields tbody.fields").disableSelection();
 
 				jQuery(".showHideSettings").bind("click", function() {
 					if ( jQuery(this).attr("checked") )
@@ -560,8 +473,23 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					addField();
 				});
 
-				jQuery(".removeButton").live("click", function() {
+				jQuery(".removeNewButton").live("click", function() {
 					jQuery(this).parent().parent().remove();
+				});
+
+				jQuery(".removeButton").live("click", function() {
+					jQuery(this).parent().parent().parent().parent().parent().parent().parent().remove();
+				});
+
+				jQuery(".enableDisableFieldSettings").live("click", function() {
+					if ( jQuery(this).text() == "Show Settings" ) {
+						jQuery(this).text("Hide Settings");
+						jQuery(this).parent().parent().parent().find(".settings").show();
+					} else {
+						jQuery(this).text("Show Settings");
+						jQuery(this).parent().parent().parent().find(".settings").hide();
+					}
+						
 				});
 
 				jQuery(".enableDisableOptions").live("change", function() {
@@ -798,13 +726,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 									for ( $x = 0; $x < $size; $x++ ) {
 										echo "\n<div class=\"invitation_code\"";
 										if ( $x > 5 ) echo " style=\"display: none;\"";
-										echo "><input type=\"text\" name=\"invitation_code_bank[]\" value=\"$invitation_code_bank[$x]\" />&nbsp;<img src=\"", plugins_url("images\delete.png", __FILE__), "\" alt=\"", esc_attr__("Remove Code", "register-plus-redux"), "\" title=\"", esc_attr__("Remove Code", "register-plus-redux"), "\" class=\"removeInvitationCode\" style=\"cursor: pointer;\" /></div>";
+										echo "><input type=\"text\" name=\"invitation_code_bank[]\" value=\"$invitation_code_bank[$x]\" />&nbsp;<img src=\"", plugins_url("images\minus-circle.png", __FILE__), "\" alt=\"", esc_attr__("Remove Code", "register-plus-redux"), "\" title=\"", esc_attr__("Remove Code", "register-plus-redux"), "\" class=\"removeInvitationCode\" style=\"cursor: pointer;\" /></div>";
 									}
 									if ( $size > 5 )
 										echo "<div id=\"showHiddenInvitationCodes\" style=\"cursor: pointer;\">", sprintf(__("Show %d hidden invitation codes", "register-plus-redux"), ($size-5) ), "</div>";
 								?>
 								</div>
-								<img src="<?php echo plugins_url("images\add.png", __FILE__); ?>" alt="<?php esc_attr_e("Add Code", "register-plus-redux") ?>" title="<?php esc_attr_e("Add Code", "register-plus-redux") ?>" id="addInvitationCode" style="cursor: pointer;" />&nbsp;<?php _e("Add a new invitation code", "register-plus-redux") ?><br />
+								<img src="<?php echo plugins_url("images\plus-circle.png", __FILE__); ?>" alt="<?php esc_attr_e("Add Code", "register-plus-redux") ?>" title="<?php esc_attr_e("Add Code", "register-plus-redux") ?>" id="addInvitationCode" style="cursor: pointer;" />&nbsp;<?php _e("Add a new invitation code", "register-plus-redux") ?><br />
 							</div>
 						</td>
 					</tr>
@@ -928,52 +856,61 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				</table>
 				<h3 class="title"><?php _e("Additional Fields", "register-plus-redux"); ?></h3>
 				<p><?php _e("Enter additional fields to show on the User Profile and/or Registration Pages. Additional fields will be shown after existing profile fields on User Profile, and after selected profile fields on Registration Page but before Password, Invitation Code, Disclaimer, License Agreement, or Privacy Policy (if any of those fields are enabled). Options must be entered for Select, Checkbox, and Radio fields. Options should be entered with commas separating each possible value. For example, a Radio field named \"Gender\" could have the following options, \"Male,Female\".", "register-plus-redux"); ?></p>
-				<table id="meta_fields" style="width: 90%;">
-					<thead valign="top">
-						<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><?php _e("Label", "register-plus-redux"); ?></td>
-						<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Display As", "register-plus-redux"); ?></td>
-						<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Options", "register-plus-redux"); ?></td>
-						<td style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Database Key", "register-plus-redux"); ?></td>
-						<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Profile", "register-plus-redux"); ?></td>
-						<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Registration", "register-plus-redux"); ?></td>
-						<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Require", "register-plus-redux"); ?></td>
-						<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><?php _e("Actions", "register-plus-redux"); ?></td>
-					</thead>
-					<tbody>
+				<table id="meta_fields" style="padding-left: 0px; width: 90%;">
+					<tbody class="fields">
 						<?php
 						$redux_usermeta = get_option("register_plus_redux_usermeta-rv2");
 						if ( !is_array($redux_usermeta) ) $redux_usermeta = array();
 						foreach ( $redux_usermeta as $index => $meta_field ) {
-							echo "\n<tr valign=\"center\" class=\"meta_field\">";
-							echo "\n\t<td style=\"padding-top: 0px; padding-bottom: 0px;\"><span class=\"ui-icon ui-icon-arrowthick-2-n-s\"></span><input type=\"text\" name=\"label[$index]\" value=\"", esc_attr($meta_field["label"]), "\" style=\"width: 100%;\" /></td>";
-							echo "\n\t<td style=\"padding-top: 0px; padding-bottom: 0px;\">";
-							echo "\n\t\t<select name=\"display[$index]\" class=\"enableDisableOptions\" style=\"width: 100%;\">";
-							echo "\n\t\t\t<option value=\"textbox\""; if ( $meta_field["display"] == "textbox" ) echo " selected=\"selected\""; echo ">", __("Textbox Field", "register-plus-redux"), "</option>";
-							echo "\n\t\t\t<option value=\"select\""; if ( $meta_field["display"] == "select" ) echo " selected=\"selected\""; echo ">", __("Select Field", "register-plus-redux"), "</option>";
-							echo "\n\t\t\t<option value=\"checkbox\""; if ( $meta_field["display"] == "checkbox" ) echo " selected=\"selected\""; echo ">", __("Checkbox Fields", "register-plus-redux"), "</option>";
-							echo "\n\t\t\t<option value=\"radio\""; if ( $meta_field["display"] == "radio" ) echo " selected=\"selected\""; echo ">", __("Radio Fields", "register-plus-redux"), "</option>";
-							echo "\n\t\t\t<option value=\"textarea\""; if ( $meta_field["display"] == "textarea" ) echo " selected=\"selected\""; echo ">", __("Text Area", "register-plus-redux"), "</option>";
-							echo "\n\t\t\t<option value=\"hidden\""; if ( $meta_field["display"] == "hidden" ) echo " selected=\"selected\""; echo ">", __("Hidden Field", "register-plus-redux"), "</option>";
-							echo "\n\t\t\t<option value=\"text\""; if ( $meta_field["display"] == "text" ) echo " selected=\"selected\""; echo ">", __("Static Text", "register-plus-redux"), "</option>";
-							echo "\n\t\t</select>";
-							echo "\n\t</td>";
-							echo "\n\t<td style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"text\" name=\"options[$index]\" value=\"", esc_attr($meta_field["options"]), "\""; if ( $meta_field["display"] != "textbox" && $meta_field["display"] != "select" && $meta_field["display"] != "checkbox" && $meta_field["display"] != "radio" ) echo " readonly=\"readonly\""; echo " style=\"width: 100%;\" /></td>";
-							echo "\n\t<td style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"text\" name=\"meta_key[$index]\" value=\"", esc_attr($meta_field["meta_key"]), "\" style=\"width: 100%;\" /></td>";
-							echo "\n\t<td align=\"center\" style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"checkbox\" name=\"show_on_profile[$index]\" value=\"1\""; if ( !empty($meta_field["show_on_profile"]) ) echo " checked=\"checked\""; echo " /></td>";
-							echo "\n\t<td align=\"center\" style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"checkbox\" name=\"show_on_registration[$index]\" value=\"1\""; if ( !empty($meta_field["show_on_registration"]) ) echo " checked=\"checked\""; echo " class=\"modifyNextCellInput\" /></td>";
-							echo "\n\t<td align=\"center\" style=\"padding-top: 0px; padding-bottom: 0px;\"><input type=\"checkbox\" name=\"require_on_registration[$index]\" value=\"1\""; if ( !empty($meta_field["require_on_registration"]) ) echo " checked=\"checked\""; if ( empty($meta_field["show_on_registration"]) ) echo " disabled=\"disabled\""; echo " /></td>";
-							echo "\n\t<td align=\"center\" style=\"padding-top: 0px; padding-bottom: 0px;\">";
-							echo "\n\t\t<img src=\"", plugins_url("images\help.png", __FILE__), "\" alt=\"", esc_attr__("Help", "register-plus-redux"), "\" title=\"", esc_attr__("No help available", "register-plus-redux"), "\" class=\"helpButton\" style=\"cursor: pointer;\" />";
-							echo "\n\t\t<img src=\"", plugins_url("images\delete.png", __FILE__), "\" alt=\"", esc_attr__("Remove", "register-plus-redux"), "\" title=\"", esc_attr__("Remove Field", "register-plus-redux"), "\" class=\"removeButton\" style=\"cursor: pointer;\" />";
-							echo "\n\t\t<img src=\"", plugins_url("images\arrow_up.png", __FILE__), "\" alt=\"", esc_attr__("Up", "register-plus-redux"), "\" title=\"", esc_attr__("Move this Field Up", "register-plus-redux"), "\" class=\"upButton\" style=\"cursor: pointer;\" />";
-							echo "\n\t\t<img src=\"", plugins_url("images\arrow_down.png", __FILE__), "\" alt=\"", esc_attr__("Down", "register-plus-redux"), "\" title=\"", esc_attr__("Move this Field Down", "register-plus-redux"), "\" class=\"downButton\" style=\"cursor: pointer;\" />";
-							echo "\n\t</td>";
-							echo "\n</tr>";
+							echo "\n<tr><td>";
+	
+							echo "\n<table>";
+
+							echo "\n<tr class=\"label\"><td><img src=\"", plugins_url("images\arrow-move.png", __FILE__), "\" alt=\"", esc_attr__("Reorder", "register-plus-redux"), "\" title=\"", esc_attr__("Drag to Reorder", "register-plus-redux"), "\" class=\"sortHandle\" style=\"cursor: move;\" />&nbsp;<input type=\"text\" name=\"label[$index]\" value=\"", esc_attr($meta_field["label"]), "\" />&nbsp;<span class=\"enableDisableFieldSettings\" style=\"color:#0000FF; cursor: pointer;\">Show Settings</span></td></tr>";
+							echo "\n<tr class=\"settings\" style=\"display: none;\"><td>";
+	
+							echo "\n<table>";
+
+							echo "\n<tr><td>", __("Display", "register-plus-redux"), "</td>";
+							echo "\n<td><select name=\"display[$index]\" class=\"enableDisableOptions\" style=\"width: 100%;\">";
+							echo "\n<option value=\"textbox\""; if ( $meta_field["display"] == "textbox" ) echo " selected=\"selected\""; echo ">", __("Textbox Field", "register-plus-redux"), "</option>";
+							echo "\n<option value=\"select\""; if ( $meta_field["display"] == "select" ) echo " selected=\"selected\""; echo ">", __("Select Field", "register-plus-redux"), "</option>";
+							echo "\n<option value=\"checkbox\""; if ( $meta_field["display"] == "checkbox" ) echo " selected=\"selected\""; echo ">", __("Checkbox Fields", "register-plus-redux"), "</option>";
+							echo "\n<option value=\"radio\""; if ( $meta_field["display"] == "radio" ) echo " selected=\"selected\""; echo ">", __("Radio Fields", "register-plus-redux"), "</option>";
+							echo "\n<option value=\"textarea\""; if ( $meta_field["display"] == "textarea" ) echo " selected=\"selected\""; echo ">", __("Text Area", "register-plus-redux"), "</option>";
+							echo "\n<option value=\"hidden\""; if ( $meta_field["display"] == "hidden" ) echo " selected=\"selected\""; echo ">", __("Hidden Field", "register-plus-redux"), "</option>";
+							echo "\n<option value=\"text\""; if ( $meta_field["display"] == "text" ) echo " selected=\"selected\""; echo ">", __("Static Text", "register-plus-redux"), "</option>";
+							echo "\n</select></td></tr>";
+	
+							echo "\n<tr><td>", __("Options", "register-plus-redux"), "</td>";
+							echo "\n<td><input type=\"text\" name=\"options[$index]\" value=\"", esc_attr($meta_field["options"]), "\""; if ( $meta_field["display"] != "textbox" && $meta_field["display"] != "select" && $meta_field["display"] != "checkbox" && $meta_field["display"] != "radio" ) echo " readonly=\"readonly\""; echo " style=\"width: 100%;\" /></td></tr>";
+	
+							echo "\n<tr><td>", __("Database Key", "register-plus-redux"), "</td>";
+							echo "\n<td><input type=\"text\" name=\"meta_key[$index]\" value=\"", esc_attr($meta_field["meta_key"]), "\" style=\"width: 100%;\" /></td></tr>";
+	
+							echo "\n<tr><td>", __("Show on Profile", "register-plus-redux"), "</td>";
+							echo "\n<td><input type=\"checkbox\" name=\"show_on_profile[$index]\" value=\"1\""; if ( !empty($meta_field["show_on_profile"]) ) echo " checked=\"checked\""; echo " /></td></tr>";
+	
+							echo "\n<tr><td>", __("Show on Registration", "register-plus-redux"), "</td>";
+							echo "\n<td><input type=\"checkbox\" name=\"show_on_registration[$index]\" value=\"1\""; if ( !empty($meta_field["show_on_registration"]) ) echo " checked=\"checked\""; echo " class=\"modifyNextCellInput\" /></td></tr>";
+	
+							echo "\n<tr><td>", __("Required Field", "register-plus-redux"), "</td>";
+							echo "\n<td><input type=\"checkbox\" name=\"require_on_registration[$index]\" value=\"1\""; if ( !empty($meta_field["require_on_registration"]) ) echo " checked=\"checked\""; if ( empty($meta_field["show_on_registration"]) ) echo " disabled=\"disabled\""; echo " /></td></tr>";
+	
+							echo "\n<tr><td>", __("Actions", "register-plus-redux"), "</td>";
+							echo "\n<td><img src=\"", plugins_url("images\question.png", __FILE__), "\" alt=\"", esc_attr__("Help", "register-plus-redux"), "\" title=\"", esc_attr__("No help available", "register-plus-redux"), "\" class=\"helpButton\" style=\"cursor: pointer;\" />";
+							echo "\n<img src=\"", plugins_url("images\minus-circle.png", __FILE__), "\" alt=\"", esc_attr__("Remove", "register-plus-redux"), "\" title=\"", esc_attr__("Remove Field", "register-plus-redux"), "\" class=\"removeButton\" style=\"cursor: pointer;\" /></td></tr>";
+							echo "\n</table>";
+	
+							echo "\n</td></tr>";
+							echo "\n</table>";
+	
+							echo "\n</td></tr>";
 						}
 						?>
 					</tbody>
 				</table>
-				<img src="<?php echo plugins_url("images\add.png", __FILE__); ?>" alt="<?php esc_attr_e("Add Field", "register-plus-redux") ?>" title="<?php esc_attr_e("Add Field", "register-plus-redux") ?>" id="addField" style="cursor: pointer;" />&nbsp;<?php _e("Add a new custom field.", "register-plus-redux") ?>
+				<img src="<?php echo plugins_url("images\plus-circle.png", __FILE__); ?>" alt="<?php esc_attr_e("Add Field", "register-plus-redux") ?>" title="<?php esc_attr_e("Add Field", "register-plus-redux") ?>" id="addField" style="cursor: pointer;" />&nbsp;<?php _e("Add a new custom field.", "register-plus-redux") ?>
 				<table class="form-table">
 					<tr valign="top" class="disabled" style="display: none;">
 						<th scope="row"><?php _e("Date Field Settings", "register-plus-redux"); ?></th>
@@ -1031,20 +968,20 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								<table width="60%">
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px; width: 20%;"><label for="user_message_from_email"><?php _e("From Email", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="user_message_from_email" id="user_message_from_email" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("user_message_from_email") ); ?>" /><img src="<?php echo plugins_url("images\arrow_undo.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="user_message_from_email" id="user_message_from_email" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("user_message_from_email") ); ?>" /><img src="<?php echo plugins_url("images\arrow-return-180.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><label for="user_message_from_name"><?php _e("From Name", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="user_message_from_name" id="user_message_from_name" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("user_message_from_name") ); ?>" /><img src="<?php echo plugins_url("images\arrow_undo.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="user_message_from_name" id="user_message_from_name" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("user_message_from_name") ); ?>" /><img src="<?php echo plugins_url("images\arrow-return-180.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><label for="user_message_subject"><?php _e("Subject", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="user_message_subject" id="user_message_subject" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("user_message_subject") ); ?>" /><img src="<?php echo plugins_url("images\arrow_undo.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="user_message_subject" id="user_message_subject" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("user_message_subject") ); ?>" /><img src="<?php echo plugins_url("images\arrow-return-180.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td colspan="2" style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;">
 											<label for="user_message_body"><?php _e("User Message", "register-plus-redux"); ?></label><br />
-											<textarea name="user_message_body" id="user_message_body" style="width: 95%; height: 160px;"><?php echo $this->GetReduxOption("user_message_body"); ?></textarea><img src="<?php echo plugins_url("images\arrow_undo.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /><br />
+											<textarea name="user_message_body" id="user_message_body" style="width: 95%; height: 160px;"><?php echo $this->GetReduxOption("user_message_body"); ?></textarea><img src="<?php echo plugins_url("images\arrow-return-180.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /><br />
 											<strong><?php _e("Replacement Keywords", "register-plus-redux"); ?>:</strong> %user_login% %user_password% %user_email% %blogname% %site_url% <?php echo $registration_fields; ?> %registered_from_ip% %registered_from_host% %http_referer% %http_user_agent% %stored_user_login%<br />
 											<label><input type="checkbox" name="send_user_message_in_html" value="1" <?php if ( $this->GetReduxOption("send_user_message_in_html") == TRUE ) echo "checked=\"checked\""; ?> />&nbsp;<?php _e("Send as HTML", "register-plus-redux"); ?></label><br />
 											<label><input type="checkbox" name="user_message_newline_as_br" value="1" <?php if ( $this->GetReduxOption("user_message_newline_as_br") == TRUE ) echo "checked=\"checked\""; ?> />&nbsp;<?php _e("Convert new lines to &lt;br /&gt; tags (HTML only)", "register-plus-redux"); ?></label>
@@ -1062,20 +999,20 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								<table width="60%">
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px; width: 20%;"><label for="verification_message_from_email"><?php _e("From Email", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="verification_message_from_email" id="verification_message_from_email" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("verification_message_from_email") ); ?>" /><img src="<?php echo plugins_url("images\arrow_undo.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="verification_message_from_email" id="verification_message_from_email" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("verification_message_from_email") ); ?>" /><img src="<?php echo plugins_url("images\arrow-return-180.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><label for="verification_message_from_name"><?php _e("From Name", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="verification_message_from_name" id="verification_message_from_name" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("verification_message_from_name") ); ?>" /><img src="<?php echo plugins_url("images\arrow_undo.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="verification_message_from_name" id="verification_message_from_name" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("verification_message_from_name") ); ?>" /><img src="<?php echo plugins_url("images\arrow-return-180.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><label for="verification_message_subject"><?php _e("Subject", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="verification_message_subject" id="verification_message_subject" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("verification_message_subject") ); ?>" /><img src="<?php echo plugins_url("images\arrow_undo.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="verification_message_subject" id="verification_message_subject" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("verification_message_subject") ); ?>" /><img src="<?php echo plugins_url("images\arrow-return-180.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td colspan="2" style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;">
 											<label for="verification_message_body"><?php _e("User Message", "register-plus-redux"); ?></label><br />
-											<textarea name="verification_message_body" id="verification_message_body" style="width: 95%; height: 160px;"><?php echo $this->GetReduxOption("verification_message_body"); ?></textarea><img src="<?php echo plugins_url("images\arrow_undo.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /><br />
+											<textarea name="verification_message_body" id="verification_message_body" style="width: 95%; height: 160px;"><?php echo $this->GetReduxOption("verification_message_body"); ?></textarea><img src="<?php echo plugins_url("images\arrow-return-180.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /><br />
 											<strong><?php _e("Replacement Keywords", "register-plus-redux"); ?>:</strong> %user_login% %user_email% %blogname% %site_url% %verification_url% <?php echo $registration_fields; ?> %registered_from_ip% %registered_from_host% %http_referer% %http_user_agent% %stored_user_login%<br />
 											<label><input type="checkbox" name="send_verification_message_in_html" value="1" <?php if ( $this->GetReduxOption("send_verification_message_in_html") == TRUE ) echo "checked=\"checked\""; ?> />&nbsp;<?php _e("Send as HTML", "register-plus-redux"); ?></label><br />
 											<label><input type="checkbox" name="verification_message_newline_as_br" value="1" <?php if ( $this->GetReduxOption("verification_message_newline_as_br") == TRUE ) echo "checked=\"checked\""; ?> />&nbsp;<?php _e("Convert new lines to &lt;br /&gt; tags (HTML only)", "register-plus-redux"); ?></label>
@@ -1109,20 +1046,20 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 								<table width="60%">
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px; width: 20%;"><label for="admin_message_from_email"><?php _e("From Email", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="admin_message_from_email" id="admin_message_from_email" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("admin_message_from_email") ); ?>" /><img src="<?php echo plugins_url("images\arrow_undo.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="admin_message_from_email" id="admin_message_from_email" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("admin_message_from_email") ); ?>" /><img src="<?php echo plugins_url("images\arrow-return-180.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><label for="admin_message_from_name"><?php _e("From Name", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="admin_message_from_name" id="admin_message_from_name" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("admin_message_from_name") ); ?>" /><img src="<?php echo plugins_url("images\arrow_undo.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="admin_message_from_name" id="admin_message_from_name" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("admin_message_from_name") ); ?>" /><img src="<?php echo plugins_url("images\arrow-return-180.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><label for="admin_message_subject"><?php _e("Subject", "register-plus-redux"); ?></label></td>
-										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="admin_message_subject" id="admin_message_subject" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("admin_message_subject") ); ?>" /><img src="<?php echo plugins_url("images\arrow_undo.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
+										<td style="padding-top: 0px; padding-bottom: 0px;"><input type="text" name="admin_message_subject" id="admin_message_subject" style="width: 90%;" value="<?php echo esc_attr( $this->GetReduxOption("admin_message_subject") ); ?>" /><img src="<?php echo plugins_url("images\arrow-return-180.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /></td>
 									</tr>
 									<tr>
 										<td colspan="2" style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;">
 											<label for="admin_message_body"><?php _e("Admin Message", "register-plus-redux"); ?></label><br />
-											<textarea name="admin_message_body" id="admin_message_body" style="width: 95%; height: 160px;"><?php echo $this->GetReduxOption("admin_message_body"); ?></textarea><img src="<?php echo plugins_url("images\arrow_undo.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /><br />
+											<textarea name="admin_message_body" id="admin_message_body" style="width: 95%; height: 160px;"><?php echo $this->GetReduxOption("admin_message_body"); ?></textarea><img src="<?php echo plugins_url("images\arrow-return-180.png", __FILE__); ?>" alt="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" title="<?php esc_attr_e("Restore Default", "register-plus-redux"); ?>" class="default" style="cursor: pointer;" /><br />
 											<strong><?php _e("Replacement Keywords", "register-plus-redux"); ?>:</strong> %user_login% %user_email% %blogname% %site_url% <?php echo $registration_fields; ?> %registered_from_ip% %registered_from_host% %http_referer% %http_user_agent% %stored_user_login%<br />
 											<label><input type="checkbox" name="send_admin_message_in_html" value="1" <?php if ( $this->GetReduxOption("send_admin_message_in_html") == TRUE ) echo "checked=\"checked\""; ?> />&nbsp;<?php _e("Send as HTML", "register-plus-redux"); ?></label><br />
 											<label><input type="checkbox" name="admin_message_newline_as_br" value="1" <?php if ( $this->GetReduxOption("admin_message_newline_as_br") == TRUE ) echo "checked=\"checked\""; ?> />&nbsp;<?php _e("Convert new lines to &lt;br /&gt; tags (HTML only)", "register-plus-redux"); ?></label>
@@ -1270,28 +1207,48 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 			if ( isset($_POST["invitation_code_bank"]) ) $invitation_code_bank = stripslashes_deep( $_POST["invitation_code_bank"] );
 
+			$usermeta_key = 0;
 			if ( isset($_POST["label"]) ) {
 				foreach ( $_POST["label"] as $index => $v ) {
 					$meta_field = array();
 					if ( !empty($_POST["label"][$index]) ) {
 						$meta_field["label"] = isset($_POST["label"][$index]) ? stripslashes( sanitize_text_field($_POST["label"][$index]) ) : "";
-						$meta_field["meta_key"] = isset($_POST["meta_key"][$index]) ? stripslashes( sanitize_text_field($_POST["meta_key"][$index]) ) : "";
+						$meta_field["meta_key"] = isset($_POST["meta_key"][$index]) ? $_POST["meta_key"][$index] : "";
 						$meta_field["display"] = isset($_POST["display"][$index]) ? stripslashes( sanitize_text_field($_POST["display"][$index]) ) : "";
 						$meta_field["options"] = isset($_POST["options"][$index]) ? stripslashes( sanitize_text_field($_POST["options"][$index]) ) : "";
 						$meta_field["show_datepicker"] = "0";
 						$meta_field["escape_url"] = "0";
-						$meta_field["show_on_profile"] = isset($_POST["show_on_profile"][$index]) ? stripslashes( sanitize_text_field($_POST["show_on_profile"][$index]) ) : "";
-						$meta_field["profile_order"] = $index;
-						$meta_field["show_on_registration"] = isset($_POST["show_on_registration"][$index]) ? stripslashes( sanitize_text_field($_POST["show_on_registration"][$index]) ) : "";
-						$meta_field["registration_order"] = $index;
-						$meta_field["require_on_registration"] = isset($_POST["require_on_registration"][$index]) ? stripslashes( sanitize_text_field($_POST["require_on_registration"][$index]) ) : "";
+						$meta_field["show_on_profile"] = isset($_POST["show_on_profile"][$index]) ? stripslashes( sanitize_text_field($_POST["show_on_profile"][$index]) ) : "0";
+						$meta_field["show_on_registration"] = isset($_POST["show_on_registration"][$index]) ? stripslashes( sanitize_text_field($_POST["show_on_registration"][$index]) ) : "0";
+						$meta_field["require_on_registration"] = isset($_POST["require_on_registration"][$index]) ? stripslashes( sanitize_text_field($_POST["require_on_registration"][$index]) ) : "0";
 						if ( empty($meta_field["meta_key"]) ) {
 							if ($meta_field["display"])
 							$meta_field["meta_key"] = "rpr_".$_POST["label"][$index];
 						}
 						$meta_field["meta_key"] = stripslashes( sanitize_text_field( $this->cleanupText($meta_field["meta_key"]) ) );
 					}
-					$redux_usermeta[$index] = $meta_field;
+					$redux_usermeta[$usermeta_key++] = $meta_field;
+				}
+			}
+
+			if ( isset($_POST["newMetaFields"]) ) {
+				foreach ( $_POST["newMetaFields"] as $label ) {
+					$meta_field = array();
+					$meta_field["label"] = stripslashes( sanitize_text_field($label) );
+					$meta_field["meta_key"] = isset($_POST["meta_key"][$index]) ? stripslashes( sanitize_text_field($_POST["meta_key"][$index]) ) : "";
+					$meta_field["display"] = "";
+					$meta_field["options"] = "";
+					$meta_field["show_datepicker"] = "0";
+					$meta_field["escape_url"] = "0";
+					$meta_field["show_on_profile"] = "0";
+					$meta_field["show_on_registration"] = "0";
+					$meta_field["require_on_registration"] = "0";
+					if ( empty($meta_field["meta_key"]) ) {
+						if ($meta_field["display"])
+						$meta_field["meta_key"] = "rpr_".$label;
+					}
+					$meta_field["meta_key"] = stripslashes( sanitize_text_field( $this->cleanupText($meta_field["meta_key"]) ) );
+					$redux_usermeta[$usermeta_key++] = $meta_field;
 				}
 			}
 
