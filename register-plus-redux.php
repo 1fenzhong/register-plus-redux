@@ -1099,6 +1099,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 							<?php _e("Some PHP configurations do not allow accessing URL objects like files (allow_url_fopen=disabled in php.ini), this hack will stop trying to open URL files as if they were local files. Custom logo must be exactly 326x67 with this hack enabled, otherwise it will be cropped.", "register-plus-redux"); ?>
 						</td>
 					</tr>
+					<tr valign="top">
+						<th scope="row"><?php _e("Random Password Appears in Messages", "register-plus-redux"); ?></th>
+						<td>
+							<label><input type="checkbox" name="filter_random_password" value="1" <?php if ( $this->GetReduxOption("filter_random_password") == TRUE ) echo "checked=\"checked\""; ?> />&nbsp;<?php _e("Filter Random Passwords.", "register-plus-redux"); ?></label><br />
+							<?php _e("When user set password is enabled, and another plugin is being used to modify outgoing messages, a random password may appear in those messages, regardless of the fact that a user enterered password was specified. This option will filter all password requests and show the user entered password is possible.", "register-plus-redux"); ?>
+						</td>
+					</tr>
 				</table>
 				<p class="submit">
 					<input type="submit" class="button-primary" value="<?php esc_attr_e("Save Changes", "register-plus-redux"); ?>" name="update_settings" />
@@ -1204,6 +1211,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			$options["verification_redirect_url"] = isset($_POST["verification_redirect_url"]) ? esc_url_raw( stripslashes( sanitize_text_field($_POST["verification_redirect_url"]) ) ) : "";
 
 			$options["disable_url_fopen"] = isset($_POST["disable_url_fopen"]) ? stripslashes( sanitize_text_field($_POST["disable_url_fopen"]) ) : "";
+			$options["filter_random_password"] = isset($_POST["filter_random_password"]) ? stripslashes( sanitize_text_field($_POST["filter_random_password"]) ) : "";
 
 			if ( isset($_POST["invitation_code_bank"]) ) $invitation_code_bank = stripslashes_deep( $_POST["invitation_code_bank"] );
 
@@ -2758,7 +2766,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				"registration_redirect_url" => "",
 				"verification_redirect_url" => "",
 				
-				"disable_url_fopen" => ""
+				"disable_url_fopen" => "",
+				"filter_random_password" => ""
 			);
 			if ( !empty($key) )
 				return $default[$key];
@@ -2986,6 +2995,8 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					$wpdb->query( $wpdb->prepare("UPDATE $wpdb->signups SET meta = %s WHERE activation_key = %s", $meta, $key) );
 				}
 			}
+			if ( $this->GetReduxOption("filter_random_password") == TRUE )
+				$password = $_POST["password"];
 			if ( !empty($user_password) ) $password = $user_password;
 			return $password;
 		}
