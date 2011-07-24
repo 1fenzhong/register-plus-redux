@@ -643,6 +643,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="last_name" <?php if ( is_array( $this->GetReduxOption("required_fields") ) && in_array("last_name", $this->GetReduxOption("required_fields") ) ) echo "checked=\"checked\""; ?> <?php if ( is_array( $this->GetReduxOption("show_fields") ) && !in_array("last_name", $this->GetReduxOption("show_fields") ) ) echo "disabled=\"disabled\""; ?> /></td>
 									</tr>
 									<tr valign="center">
+										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><?php _e("Nickname", "register-plus-redux"); ?></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="nickname" <?php if ( is_array( $this->GetReduxOption("show_fields") ) && in_array("nickname", $this->GetReduxOption("show_fields") ) ) echo "checked=\"checked\""; ?> class="modifyNextCellInput" /></td>
+										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="nickname" <?php if ( is_array( $this->GetReduxOption("required_fields") ) && in_array("nickname", $this->GetReduxOption("required_fields") ) ) echo "checked=\"checked\""; ?> <?php if ( is_array( $this->GetReduxOption("show_fields") ) && !in_array("nickname", $this->GetReduxOption("show_fields") ) ) echo "disabled=\"disabled\""; ?> /></td>
+									</tr>
+									<tr valign="center">
 										<td style="padding-top: 0px; padding-bottom: 0px; padding-left: 0px;"><?php _e("Website", "register-plus-redux"); ?></td>
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="show_fields[]" value="user_url" <?php if ( is_array( $this->GetReduxOption("show_fields") ) && in_array("user_url", $this->GetReduxOption("show_fields") ) ) echo "checked=\"checked\""; ?> class="modifyNextCellInput" /></td>
 										<td align="center" style="padding-top: 0px; padding-bottom: 0px;"><input type="checkbox" name="required_fields[]" value="user_url" <?php if ( is_array( $this->GetReduxOption("required_fields") ) && in_array("user_url", $this->GetReduxOption("required_fields") ) ) echo "checked=\"checked\""; ?> <?php if ( is_array( $this->GetReduxOption("show_fields") ) && !in_array("user_url", $this->GetReduxOption("show_fields") ) ) echo "disabled=\"disabled\""; ?> /></td>
@@ -1885,6 +1890,14 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( $tabindex != 0 ) echo "tabindex=\"", $tabindex++, "\" ";
 				echo "/></label></p>";
 			}
+			if ( is_array( $this->GetReduxOption("show_fields") ) && in_array("nickname", $this->GetReduxOption("show_fields") ) ) {
+				if ( isset($_GET["nickname"]) ) $_POST["nickname"] = $_GET["nickname"];
+				echo "\n<p id=\"nickname-p\"><label id=\"nickname-label\">";
+				if ( $this->GetReduxOption("required_fields_asterisk") == TRUE && is_array( $this->GetReduxOption("required_fields") ) && in_array("nickname", $this->GetReduxOption("required_fields") ) ) echo "*";
+				echo __("Nickname", "register-plus-redux"), "<br /><input type=\"text\" name=\"nickname\" id=\"nickname\" class=\"input\" value=\"", esc_attr( stripslashes($_POST["nickname"]) ), "\" size=\"25\" ";
+				if ( $tabindex != 0 ) echo "tabindex=\"", $tabindex++, "\" ";
+				echo "/></label></p>";
+			}
 			if ( is_array( $this->GetReduxOption("show_fields") ) && in_array("user_url", $this->GetReduxOption("show_fields") ) ) {
 				if ( isset($_GET["user_url"]) ) $_POST["user_url"] = $_GET["user_url"];
 				echo "\n<p id=\"user_url-p\"><label id=\"user_url-label\">";
@@ -2096,6 +2109,13 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				echo __("Last Name", "register-plus-redux"), ":</label>";
 				echo "\n\t\t<input type=\"text\" name=\"last_name\" id=\"last_name\" value=\"", esc_attr( stripslashes($_POST["last_name"]) ), "\" />";
 			}
+			if ( is_array( $this->GetReduxOption("show_fields") ) && in_array("nickname", $this->GetReduxOption("show_fields") ) ) {
+				if ( isset($_GET["nickname"]) ) $_POST["nickname"] = $_GET["nickname"];
+				echo "\n\t\t<label id=\"nickname-label\" for=\"nickname\">";
+				if ( $this->GetReduxOption("required_fields_asterisk") == TRUE && is_array( $this->GetReduxOption("required_fields") ) && in_array("nickname", $this->GetReduxOption("required_fields") ) ) echo "*";
+				echo __("Nickname", "register-plus-redux"), ":</label>";
+				echo "\n\t\t<input type=\"text\" name=\"nickname\" id=\"nickname\" value=\"", esc_attr( stripslashes($_POST["nickname"]) ), "\" />";
+			}
 			if ( is_array( $this->GetReduxOption("show_fields") ) && in_array("user_url", $this->GetReduxOption("show_fields") ) ) {
 				if ( isset($_GET["user_url"]) ) $_POST["user_url"] = $_GET["user_url"];
 				echo "\n\t\t<label id=\"user_url-label\" for=\"user_url\">";
@@ -2275,6 +2295,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 					$errors->add("empty_last_name", __("<strong>ERROR</strong>: Please enter your last name.", "register-plus-redux"));
 				}
 			}
+			if ( is_array($this->GetReduxOption("required_fields") ) && in_array("nickname", $this->GetReduxOption("required_fields") ) ) {
+				if ( empty($_POST["nickname"]) ) {
+					$errors->add("empty_nickname", __("<strong>ERROR</strong>: Please enter your nickname.", "register-plus-redux"));
+				}
+			}
 			if ( is_array($this->GetReduxOption("required_fields") ) && in_array("user_url", $this->GetReduxOption("required_fields") ) ) {
 				if ( empty($_POST["user_url"]) ) {
 					$errors->add("empty_user_url", __("<strong>ERROR</strong>: Please enter your website URL.", "register-plus-redux"));
@@ -2388,6 +2413,11 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 			if ( is_array($this->GetReduxOption("required_fields") ) && in_array("last_name", $this->GetReduxOption("required_fields") ) ) {
 				if ( empty($_POST["last_name"]) ) {
 					$result["errors"]->add("empty_last_name", __("<strong>ERROR</strong>: Please enter your last name.", "register-plus-redux"));
+				}
+			}
+			if ( is_array($this->GetReduxOption("required_fields") ) && in_array("nickname", $this->GetReduxOption("required_fields") ) ) {
+				if ( empty($_POST["nickname"]) ) {
+					$result["errors"]->add("empty_nickname", __("<strong>ERROR</strong>: Please enter your nickname.", "register-plus-redux"));
 				}
 			}
 			if ( is_array($this->GetReduxOption("required_fields") ) && in_array("user_url", $this->GetReduxOption("required_fields") ) ) {
@@ -2612,6 +2642,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 			if ( is_array( $this->GetReduxOption("show_fields") ) && in_array("first_name", $this->GetReduxOption("show_fields") ) && !empty($source["first_name"]) ) update_user_meta($user_id, "first_name", sanitize_text_field($source["first_name"]) );
 			if ( is_array( $this->GetReduxOption("show_fields") ) && in_array("last_name", $this->GetReduxOption("show_fields") ) && !empty($source["last_name"]) ) update_user_meta($user_id, "last_name", sanitize_text_field($source["last_name"]) );
+			if ( is_array( $this->GetReduxOption("show_fields") ) && in_array("nickname", $this->GetReduxOption("show_fields") ) && !empty($source["nickname"]) ) update_user_meta($user_id, "nickname", sanitize_text_field($source["nickname"]) );
 			if ( is_array( $this->GetReduxOption("show_fields") ) && in_array("url", $this->GetReduxOption("show_fields") ) && !empty($source["user_url"]) ) {
 				$user_url = esc_url_raw( $source["user_url"] );
 				$user_url = preg_match("/^(https?|ftps?|mailto|news|irc|gopher|nntp|feed|telnet):/is", $user_url) ? $user_url : "http://".$user_url;
@@ -2974,7 +3005,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 
 		function filter_pre_user_login_swp( $user_login ) {
 			if ( $this->GetReduxOption("username_is_email") == TRUE ) {
-				if ( !empty($_POST["user_email"]) ) $user_login = strtolower( sanitize_user($_POST["user_email"]) );
+			        if ( !empty($_POST["user_email"]) ) $user_login = strtolower( sanitize_user($_POST["user_email"]) );
 			}
 			return $user_login;
 		}
