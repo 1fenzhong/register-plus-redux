@@ -1894,7 +1894,7 @@ if ( !class_exists("RegisterPlusReduxPlugin") ) {
 				if ( isset($_GET["nickname"]) ) $_POST["nickname"] = $_GET["nickname"];
 				echo "\n<p id=\"nickname-p\"><label id=\"nickname-label\">";
 				if ( $this->GetReduxOption("required_fields_asterisk") == TRUE && is_array( $this->GetReduxOption("required_fields") ) && in_array("nickname", $this->GetReduxOption("required_fields") ) ) echo "*";
-				echo __("Nickname", "register-plus-redux"), "<br /><input type=\"text\" name=\"nickname\" id=\"nickname\" class=\"input\" value=\"", esc_attr( stripslashes($_POST["nickname"]) ), "\" size=\"25\" ";
+				echo __("昵称", "register-plus-redux"), "<br /><input type=\"text\" name=\"nickname\" id=\"nickname\" class=\"input\" value=\"", esc_attr( stripslashes($_POST["nickname"]) ), "\" size=\"25\" ";
 				if ( $tabindex != 0 ) echo "tabindex=\"", $tabindex++, "\" ";
 				echo "/></label></p>";
 			}
